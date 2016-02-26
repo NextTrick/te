@@ -11,7 +11,6 @@ return array(
         'Search',
         'Carrier',
         'Statistic',
-        'ApiKey',
     ),
     'module_listener_options' => array(
         'module_paths' => array(
