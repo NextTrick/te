@@ -12,6 +12,7 @@ return array(
         'Carrier',
         'Statistic',
         'ApiKey',
+        'Service',
     ),
     'module_listener_options' => array(
         'module_paths' => array(
