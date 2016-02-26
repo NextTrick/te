@@ -11,10 +11,8 @@ vendor/bin
 vendor
 nbproject
 /nbproject
-data
-/data
-!data/docs/
 data/*
+!data/docs/
 *.local.php
 *.*~
 *.pyc
