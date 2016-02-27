@@ -7,12 +7,14 @@
  */
 return array(
     'modules' => array(
+        'DoctrineModule',
+        'DoctrineORMModule',
         'Application',
         'Search',
         'Carrier',
         'Statistic',
         'ApiKey',
-        'Service',
+        'Service'
     ),
     'module_listener_options' => array(
         'module_paths' => array(

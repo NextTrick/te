@@ -13,6 +13,7 @@ nbproject
 /nbproject
 data/*
 !data/docs/
+!data/docs/DoctrineORMModule/
 *.local.php
 *.*~
 *.pyc
