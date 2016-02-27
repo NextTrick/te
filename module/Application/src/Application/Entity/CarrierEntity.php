@@ -2,8 +2,7 @@
 
 namespace Application\Entity;
 /**
- * @Entity(repositoryClass="Repository\CarrierRepository") 
- * @Table(name="fcb_carrier_carrier")
+ * @Entity @Table(name="fcb_carrier_carrier")
  */
 class CarrierEntity
 {

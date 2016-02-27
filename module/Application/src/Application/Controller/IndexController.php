@@ -19,7 +19,7 @@ class IndexController extends AbstractActionController
     {                     
         $entityManager = $this->getServiceLocator()->get('doctrine.entitymanager.orm_default');        
         //$carrierRepository = $entityManager->getRepository('CarrierRepository');
-        $carrierEntity = $entityManager->find('FcbCarrierCarrier', 1);
+        $carrierEntity = $entityManager->find('Application\Entity\FcbCarrierCarrier', 1);
         echo 'hi'; exit;    
         return new ViewModel();
     }
