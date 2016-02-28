@@ -1,0 +1,21 @@
+<?php $date = new \DateTime('NOW') ?>
+<div style="padding: 10px; border: 1px solid #009900">
+    <h1 style="color: #009900;"><img src="http://kiwiology.co.nz/wp-content/bug50.jpg" width="25" heigth="25"/> Debug Application</h1>
+    <?php if (isset($this->exception)) : ?>
+    <h3>Detail : </h3>
+    <?php if (!empty($this->uri)): ?>
+        <p><b>Uri :</b> <?php echo $this->uri ?><p>
+    <?php endif; ?>
+    <p><b>File :</b> <?php echo $this->exception->getFile() ?><p>
+    <p><b>Line :</b> <?php echo $this->exception->getLine() ?><p>
+    <p><b>Message : </b> <?php echo $this->exception->getMessage() ?><p><br/>
+    <?php endif; ?>
+    <?php if (!empty($this->data)) : ?>
+        <hr/>
+        <h3>Debug : </h3>
+        <pre>
+            <?php print_r($this->data); ?>
+        </pre>
+    <?php endif; ?>
+    <p><b><?php echo $date->format('Y-m-d h:i:s') ?></b></p>
+</div>

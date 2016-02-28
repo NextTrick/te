@@ -1,5 +1,5 @@
 <?php
-namespace ApiKey;
+namespace Apikey;
 
 class Module
 {

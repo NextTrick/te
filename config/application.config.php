@@ -12,10 +12,10 @@ return array(
         'Search',
         'Carrier',
         'Statistic',
-        'ApiKey',
         'Service',
         'Api',
         'Application',
+        'Apikey',
     ),
     'module_listener_options' => array(
         'module_paths' => array(
