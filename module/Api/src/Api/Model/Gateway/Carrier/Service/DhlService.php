@@ -2,16 +2,16 @@
 
 namespace Api\Model\Gateway\Carrier\Service;
 
-use Api\Model\Gateway\Carrier\Base\CarrierAbstract;
-class DhlService extends CarrierAbstract
+class DhlService
 {
     public function __construnct()
     {
         
     }
     
-    public function getTracking() {
-        parent::getTracking();
+    public function getTracking() 
+    {
+        return 'OKS';
     }
 
     public function getMultitracking()
@@ -19,4 +19,3 @@ class DhlService extends CarrierAbstract
         
     }
 }
-
