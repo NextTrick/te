@@ -11,6 +11,6 @@ class TrackingService
     public function getCarrierTracking()
     {
         $carrier = 'dhl';
-        return GatewayFactory::create($carrier, $config);
+        return GatewayFactory::getCarrierService($carrier, $config);
     }
 }

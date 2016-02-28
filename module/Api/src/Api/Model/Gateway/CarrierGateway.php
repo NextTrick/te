@@ -2,14 +2,13 @@
 
 namespace Api\Gateway; 
 
-abstract class GatewayFactory
+abstract class CarrierGateway
 {
-     public static function create($carrier) {
+     public static function getCarrierService($carrier) {
         $carrier = "Carrier" . ucwords($carrier);
         if (class_exists($carrier)) {
             return new $carrier();
-        }
-        else {
+        } else {
             throw new \Exception("Invalid gateway");
         }
     } 

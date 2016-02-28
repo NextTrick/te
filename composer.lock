@@ -4,9 +4,45 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "6e72ff8d8660a7dcd61b9df71799a072",
-    "content-hash": "2640cfab4da558ee4ac5344ff291467a",
+    "hash": "e8fdba932ded21ee292f951f07c91cdf",
+    "content-hash": "bfbe5d7211412143294c54253eb6c051",
     "packages": [
+        {
+            "name": "alfallouji/dhl_api",
+            "version": "0.2.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/alfallouji/DHL-API.git",
+                "reference": "2387e52a45b236176e5746965a6d66707e8ed639"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/alfallouji/DHL-API/zipball/2387e52a45b236176e5746965a6d66707e8ed639",
+                "reference": "2387e52a45b236176e5746965a6d66707e8ed639",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "DHL\\": "DHL/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "LGPL-2.1"
+            ],
+            "authors": [
+                {
+                    "name": "Bashar Al-Fallouji",
+                    "email": "bashar@alfallouji.com"
+                }
+            ],
+            "description": "PHP library to communicate with the DHL XML Services.",
+            "time": "2015-02-28 10:18:41"
+        },
         {
             "name": "container-interop/container-interop",
             "version": "1.1.0",
@@ -3703,16 +3739,16 @@
         },
         {
             "name": "zendframework/zend-modulemanager",
-            "version": "2.7.0",
+            "version": "2.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/zendframework/zend-modulemanager.git",
-                "reference": "fe5a156df1ae4245c7b4a7b2b9067545761f59d7"
+                "reference": "a2c3af17bd620028e8478a2e115e06623c4b6400"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/zendframework/zend-modulemanager/zipball/fe5a156df1ae4245c7b4a7b2b9067545761f59d7",
-                "reference": "fe5a156df1ae4245c7b4a7b2b9067545761f59d7",
+                "url": "https://api.github.com/repos/zendframework/zend-modulemanager/zipball/a2c3af17bd620028e8478a2e115e06623c4b6400",
+                "reference": "a2c3af17bd620028e8478a2e115e06623c4b6400",
                 "shasum": ""
             },
             "require": {
@@ -3727,7 +3763,7 @@
                 "zendframework/zend-console": "^2.6",
                 "zendframework/zend-di": "^2.6",
                 "zendframework/zend-loader": "^2.5",
-                "zendframework/zend-servicemanager": "^3.0.3"
+                "zendframework/zend-servicemanager": "^2.7.5 || ^3.0.3"
             },
             "suggest": {
                 "zendframework/zend-config": "Zend\\Config component",
@@ -3757,7 +3793,7 @@
                 "modulemanager",
                 "zf2"
             ],
-            "time": "2016-02-25 18:22:47"
+            "time": "2016-02-28 04:45:34"
         },
         {
             "name": "zendframework/zend-mvc",
