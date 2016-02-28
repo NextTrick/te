@@ -9,7 +9,7 @@ class TrackingController extends AbstractRestfulController
     public function getList()
     {
         $object = new \Api\Model\Service\TrackingService();
-        $object->getTracking();
+        var_dump($object->getTracking());
         exit;
         return array('oks');
     }

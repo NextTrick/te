@@ -2,20 +2,18 @@
 
 namespace Api\Model\Gateway\Carrier;
 
-use Api\Model\Gateway\Carrier\Base\CarrierAbstract;
 use Api\Model\Gateway\Carrier\Service\DhlService;
-class DhlCarrier extends CarrierAbstract
+
+class DhlCarrier
 {
     public $service;
     
-    public function __construnct()
-    {
-        $this->service = new DhlService();
+    public function __construct() {
+       $this->service = new DhlService();
     }
-    
+
     public function getTracking()
     {        
-        
         $this->tracking = $this->service->getTracking();
     }
     

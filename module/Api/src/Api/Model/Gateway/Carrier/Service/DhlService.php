@@ -10,6 +10,10 @@ class DhlService extends CarrierAbstract
         
     }
     
+    public function getTracking() {
+        parent::getTracking();
+    }
+
     public function getMultitracking()
     {
         

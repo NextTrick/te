@@ -6,7 +6,7 @@ use Api\Model\Gateway\Carrier\Base\CarrierInterface;
 
 abstract class CarrierAbstract implements CarrierInterface
 {
-    public $tracking;
+    public $tracking = 'OK';
     
     public function getTracking()
     {
