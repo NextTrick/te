@@ -1,6 +1,6 @@
 <?php
 
-namespace Application\Entity;
+namespace Application\Model\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
  * FcbCarrierCarrier
  *
  * @ORM\Table(name="fcb_carrier_carrier")
- * @ORM\Entity(repositoryClass="Application\Entity\Repository\FcbCarrierCarrierRepository") 
+ * @ORM\Entity(repositoryClass="Application\Model\Entity\Repository\FcbCarrierCarrierRepository") 
  */
 class FcbCarrierCarrier
 {
