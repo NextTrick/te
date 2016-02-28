@@ -16,6 +16,7 @@ return array(
         'Api',
         'Application',
         'Apikey',
+        'Test',
     ),
     'module_listener_options' => array(
         'module_paths' => array(

@@ -118,7 +118,15 @@ return array(
     ),
     'carrier' => array(
         'dhl' => array(
-            
-        )
+            'tracking' => array(
+                
+            )
+        ),
+        'fedex' => array(
+            'tracking' => array(
+                
+            )
+        ),
+        
     ),
 );

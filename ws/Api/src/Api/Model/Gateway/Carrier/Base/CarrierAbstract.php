@@ -18,4 +18,13 @@ abstract class CarrierAbstract implements CarrierInterface
         
     }
     
+    public function getConfigBySearchKey($searchKey) 
+    {
+        return false;
+    }
+    
+    public function setWsConfig($config)
+    {
+        
+    }
 } 

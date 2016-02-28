@@ -5,15 +5,16 @@ namespace Api\Model\Gateway\Carrier;
 use Api\Model\Gateway\Carrier\Base\CarrierAbstract;
 use Api\Model\Gateway\Carrier\Service\DhlWs;
 
-class DhlCarrier extends CarrierAbstract
+class FedexCarrier extends CarrierAbstract
 {
     public $service;
     
     public $serviceLocator;
 
-    public function __construct($serviceLocator) 
+    public function __construct($config, $serviceLocator) 
     {
-       $this->serviceLocator = $serviceLocator;       
+       $this->serviceLocator = $serviceLocator;
+       $this->service = new DhlWs($config);
     }
 
     public function getTracking()
@@ -23,11 +24,6 @@ class DhlCarrier extends CarrierAbstract
     
     public function getConfigBySearchKey($searchkey) 
     {
-        parent::getConfigBySearchKey($searchkey);
-    }
-    
-    public function setWsConfig($wsConfig)
-    {
-        $this->service = new DhlWs($wsConfig);
+        return parent::getConfigBySearchKey($searchkey);
     }
 }

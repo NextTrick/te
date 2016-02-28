@@ -17,14 +17,11 @@ class TrackingService
         return $this->getCarrierTracking()->getTracking();
     }
     
-    public function getCarrierTracking()
-    {
-        $carrier = 'dhl';
-        $config = $this->serviceLocator->get('config');
+    public function getCarrierTracking($params)
+    {       
         return CarrierGateway::getCarrierService(
-            $carrier, 
-            $config[$carrier], 
+            $params['searchKey'], 
             $this->serviceLocator
         );
-    }
+    } 
 }
