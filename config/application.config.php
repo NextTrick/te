@@ -21,6 +21,7 @@ return array(
         'module_paths' => array(
             './module',
             './vendor',
+            './ws',
         ),
         'config_glob_paths' => array(
             'config/autoload/{{,*.}global,{,*.}local}.php',

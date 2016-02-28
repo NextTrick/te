@@ -3,7 +3,7 @@
 namespace Api\Model\Gateway\Carrier;
 
 use Api\Model\Gateway\Carrier\Base\CarrierAbstract;
-use Api\Model\Gateway\Carrier\Service\DhlService;
+use Api\Model\Gateway\Carrier\Service\DhlWs;
 
 class DhlCarrier extends CarrierAbstract
 {
@@ -14,7 +14,7 @@ class DhlCarrier extends CarrierAbstract
     public function __construct($config, $serviceLocator) 
     {
        $this->serviceLocator = $serviceLocator;
-       $this->service = new DhlService($config);
+       $this->service = new DhlWs($config);
     }
 
     public function getTracking()
