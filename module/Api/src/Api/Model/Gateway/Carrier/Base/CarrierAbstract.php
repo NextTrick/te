@@ -2,7 +2,9 @@
 
 namespace Api\Model\Gateway\Carrier\Base; 
 
-abstract class CarrierAbstract implements GatewayInterface
+use Api\Model\Gateway\Carrier\Base\CarrierInterface;
+
+abstract class CarrierAbstract implements CarrierInterface
 {
     public $tracking;
     

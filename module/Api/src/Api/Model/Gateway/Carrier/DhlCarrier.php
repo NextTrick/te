@@ -1,12 +1,13 @@
 <?php
 
-namespace Api\Model\Carrier;
+namespace Api\Model\Gateway\Carrier;
 
-use Api\Model\Carrier\Base\CarrierAbstract;
-
+use Api\Model\Gateway\Carrier\Base\CarrierAbstract;
+use Api\Model\Gateway\Carrier\Service\DhlService;
 class DhlCarrier extends CarrierAbstract
 {
     public $service;
+    
     public function __construnct()
     {
         $this->service = new DhlService();
@@ -15,7 +16,7 @@ class DhlCarrier extends CarrierAbstract
     public function getTracking()
     {        
         
-        $this->tracking = $this->http();
+        $this->tracking = $this->service->getTracking();
     }
     
     

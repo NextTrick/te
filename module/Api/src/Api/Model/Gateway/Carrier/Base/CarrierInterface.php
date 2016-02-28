@@ -2,7 +2,7 @@
 
 namespace Api\Model\Gateway\Carrier\Base; 
 
-interface GatewayInterface
+interface CarrierInterface
 {
     public function getTracking();
 } 

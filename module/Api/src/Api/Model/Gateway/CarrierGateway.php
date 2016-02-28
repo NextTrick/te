@@ -5,7 +5,7 @@ namespace Api\Model\Gateway;
 abstract class CarrierGateway
 {
      public static function getCarrierService($carrier) {
-        $carrier = ucwords($carrier) . 'Carrier';
+        $carrier = '\Api\Model\Gateway\Carrier' . "\\" .ucwords($carrier) . 'Carrier';
         if (class_exists($carrier)) {
             return new $carrier();
         } else {
