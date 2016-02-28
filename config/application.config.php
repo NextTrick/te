@@ -14,6 +14,7 @@ return array(
         'Statistic',
         'ApiKey',
         'Service',
+        'Api',
         'Application',
     ),
     'module_listener_options' => array(

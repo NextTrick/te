@@ -1,6 +1,6 @@
 <?php
 
-namespace Api\Gateway; 
+namespace Api\Model\Gateway\Carrier\Base; 
 
 interface GatewayInterface
 {

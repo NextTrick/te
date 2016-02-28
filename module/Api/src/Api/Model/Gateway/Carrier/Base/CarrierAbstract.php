@@ -1,6 +1,6 @@
 <?php
 
-namespace Api\Carrier\Base; 
+namespace Api\Model\Gateway\Carrier\Base; 
 
 abstract class CarrierAbstract implements GatewayInterface
 {

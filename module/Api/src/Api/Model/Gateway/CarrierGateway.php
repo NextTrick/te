@@ -1,11 +1,11 @@
 <?php
 
-namespace Api\Gateway; 
+namespace Api\Model\Gateway; 
 
 abstract class CarrierGateway
 {
      public static function getCarrierService($carrier) {
-        $carrier = "Carrier" . ucwords($carrier);
+        $carrier = ucwords($carrier) . 'Carrier';
         if (class_exists($carrier)) {
             return new $carrier();
         } else {

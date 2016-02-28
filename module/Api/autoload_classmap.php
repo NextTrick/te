@@ -1,5 +1,4 @@
 <?php
-
 return array(
 	'Api\Module'                                  => __DIR__ . '/Module.php',
 	'Api\PostProcessor\AbstractPostProcessor'     => __DIR__ . '/src/Api/PostProcessor/AbstractPostProcessor.php',

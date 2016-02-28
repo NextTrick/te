@@ -2,53 +2,30 @@
 
 namespace Api;
 
-use Bongo\Model\BpAbandon;
-use Bongo\Model\ConnectLandedCost;
-use Bongo\Model\LogPagoError;
-use Bongo\Model\MBproducts;
-use Bongo\Model\Partners;
-use Bongo\ServiceManager\ServiceManagerConfig;
-use Zend\EventManager\EventInterface;
-use Zend\Mvc\ModuleRouteListener;
+use Zend\Http\PhpEnvironment\Response;
+use Zend\Mvc\Application;
 use Zend\Mvc\MvcEvent;
+use Zend\View\Model\ViewModel;
 
 class Module
 {
-    public function onBootstrap(EventInterface $e)
+    /**
+     * @param MvcEvent $e
+     */
+    public function onBootstrap($e)
     {
-        $application = $e->getTarget();
-        $eventManager = $application->getEventManager();
-        $services = $application->getServiceManager();
-        $services->get('Server');
-        
-        $app = $e->getParam('application');
-        $app->getEventManager()->attach('dispatch', array($this,'initEnvironment'), 100);        
-//        $app->getEventManager()->attach('dispatch.error', array($this,'initError'), 100);
-        
-        $e->getApplication()->getEventManager()->getSharedManager()->attach(
-            'Zend\Mvc\Controller\AbstractController',
-            'dispatch',
-            function($e) {
-                $controller = $e->getTarget();
-                $controllerClass = get_class($controller);
-                $moduleNamespace = substr($controllerClass, 0, strpos($controllerClass, '\\'));
-                $config = $e->getApplication()->getServiceManager()->get('config');
-                if (isset($config['module_layouts'][$moduleNamespace])) {
-                    $controller->layout($config['module_layouts'][$moduleNamespace]);
-                }
-            },
-            100
-        );
+        /** @var \Zend\ModuleManager\ModuleManager $moduleManager */
+        $moduleManager = $e->getApplication()->getServiceManager()->get('modulemanager');
+        /** @var \Zend\EventManager\SharedEventManager $sharedEvents */
+        $sharedEvents = $moduleManager->getEventManager()->getSharedManager();
 
-        $moduleRouteListener = new ModuleRouteListener();
-        $moduleRouteListener->attach($eventManager);       
+        $sharedEvents->attach('Zend\Mvc\Controller\AbstractRestfulController', MvcEvent::EVENT_DISPATCH, array($this, 'postProcess'), -100);
+        $sharedEvents->attach('Zend\Mvc\Application', MvcEvent::EVENT_DISPATCH_ERROR, array($this, 'errorProcess'), 999);
     }
 
-    public function getConfig()
-    {
-        return include __DIR__ . '/configs/module.config.php';
-    }
-
+    /**
+     * return array
+     */
     public function getAutoloaderConfig()
     {
         return array(
@@ -63,73 +40,109 @@ class Module
         );
     }
 
+    /**
+     * @return array
+     */
+    public function getConfig()
+    {
+        return include __DIR__ . '/configs/module.config.php';
+    }
+
+    /**
+    *
+    */
+
     public function getServiceConfig()
     {
-        $services = new ServiceManagerConfig();
-        $services->setService(
-            array(
-                'Bongo\Model\MBproducts' => function($sm) {
-                    $adapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    return new MBproducts($adapter, $sm);
-                },
-                'Bongo\Model\BpAbandon' => function($sm) {
-                    $adapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    return new BpAbandon($adapter, $sm);
-                },
-                'Bongo\Model\ConnectLandedCost' => function($sm) {
-                    $adapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    return new ConnectLandedCost($adapter, $sm);
-                },
-                'Bongo\Model\Partners' => function($sm) {
-                    $adapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    return new Partners($adapter, $sm);
-                },
-                'Bongo\Model\LogPagoError' => function($sm) {
-                    $adapter = $sm->get('Zend\Db\Adapter\Adapter');
-                    return new LogPagoError($adapter, $sm);
-                }                
+        return include __DIR__ . '/configs/service.config.php';
+    }
+
+    /**
+     * @param MvcEvent $e
+     * @return null|Response
+     */
+    public function postProcess(MvcEvent $e)
+    {
+        $routeMatch = $e->getRouteMatch();
+        $formatter = $routeMatch->getParam('formatter', false);
+
+        /** @var \Zend\Di\Di $di */
+        $di = $e->getTarget()->getServiceLocator()->get('di');
+
+        if ($formatter !== false) {
+            if ($e->getResult() instanceof ViewModel) {
+                if (is_array($e->getResult()->getVariables())) {
+                    $vars = $e->getResult()->getVariables();
+                } else {
+                    $vars = null;
+                }
+            } else {
+                $vars = $e->getResult();
+            }
+
+            /** @var PostProcessor\AbstractPostProcessor $postProcessor */
+            $postProcessor = $di->get($formatter . '-pp', array(
+                'response' => $e->getResponse(),
+                'vars' => $vars,
             ));
 
-        return $services;
-    }
-    
-    public function initEnvironment($e)
-    {           
-       $app = $e->getParam('application');
-       $config = $app->getServiceManager()->get('config');
-       $settings = $config['php']['settings'];
-       
-       foreach ($settings as $key => $setting) {
-           if ($key == 'error_reporting') {
-               error_reporting($setting);
-               continue;
-           }
+            $postProcessor->process();
 
-           ini_set($key, $setting);
-       }
+            return $postProcessor->getResponse();
+        }
+
+        return null;
     }
-    
-    /* public function initError(MvcEvent $e)
+
+    /**
+     * @param MvcEvent $e
+     * @return null|Response
+     */
+    public function errorProcess(MvcEvent $e)
     {
-        $app = $e->getParam('application');        
-        $config = $app->getServiceManager()->get('config');
-        
-        if (!is_null($e->getParam('exception'))) { 
-            $exception = $e->getParam('exception');
-            $logConfig = $config['error']; 
-            $errorHandlerService = $app->getServiceManager()->get('Bongo\ErrorHandler');
-                        
-            if ($logConfig['local_log']) {
-                $errorHandlerService->logException($exception);            
+        /** @var \Zend\Di\Di $di */
+        $di = $e->getApplication()->getServiceManager()->get('di');
+
+        $eventParams = $e->getParams();
+        /** @var array $configuration */
+        $configuration = $e->getApplication()->getConfig();
+
+        $vars = array();
+        if (isset($eventParams['exception'])) {
+            /** @var \Exception $exception */
+            $exception = $eventParams['exception'];
+
+            if ($configuration['errors']['show_exceptions']['message']) {
+                $vars['status'] = -1;
+                $vars['message'] = $exception->getMessage();
             }
-         
-            if ($logConfig['send_mail']) {
-                try {
-                    \Util\Common\Email::reportException($exception);                    
-                } catch (\Exception $exception) {
-                    $errorHandlerService->logException($exception); 
-                }
+            if ($configuration['errors']['show_exceptions']['trace']) {
+                $vars['trace'] = $exception->__toString();
             }
-        }       
-    }*/
+        }
+
+        if (empty($vars)) {
+            $vars['error'] = 'Something went wrong';
+        }
+
+        /** @var PostProcessor\AbstractPostProcessor $postProcessor */
+        $postProcessor = $di->get(
+                $configuration['errors']['post_processor'], array('vars' => $vars, 'response' => $e->getResponse())
+        );
+
+        $postProcessor->process();
+
+        if (
+                $eventParams['error'] === Application::ERROR_CONTROLLER_NOT_FOUND ||
+                $eventParams['error'] === Application::ERROR_ROUTER_NO_MATCH
+        ) {
+            $e->getResponse()->setStatusCode(Response::STATUS_CODE_501);
+        } else {
+            $e->getResponse()->setStatusCode(Response::STATUS_CODE_500);
+        }
+
+        $e->stopPropagation();
+
+        return $postProcessor->getResponse();
+    }
 }

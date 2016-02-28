@@ -1,6 +1,8 @@
 <?php
+namespace Api\Model\Service;
 
-use Api\Gateway\GatewayFactory;
+use Api\Model\Gateway\CarrierGateway;
+
 class TrackingService
 {
     public function getTracking()
@@ -11,6 +13,6 @@ class TrackingService
     public function getCarrierTracking()
     {
         $carrier = 'dhl';
-        return GatewayFactory::getCarrierService($carrier, $config);
+        return CarrierGateway::getCarrierService($carrier);
     }
 }
