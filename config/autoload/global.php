@@ -116,5 +116,10 @@ return array(
         'abstract_factories' => array(
             'Zend\Db\Adapter\AdapterAbstractServiceFactory',
         ),
-    )
+    ),
+    'carrier' => array(
+        'dhl' => array(
+            
+        )
+    ),
 );
