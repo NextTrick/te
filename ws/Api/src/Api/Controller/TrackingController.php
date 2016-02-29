@@ -8,14 +8,13 @@ class TrackingController extends AbstractRestfulController
 {
     public function getList()
     {
-        $tracking = $this->getServiceLocator()->get('TrackingService');
-        var_dump($tracking->getTracking());exit;
-        return array('oks');
+        return array('');
     }
 
     public function get($id)
     {
-
+        $tracking = $this->getServiceLocator()->get('Api\Model\Service\TrackingService');
+        return $tracking->getTracking(array('searchKey' => $id));
     }
 
     public function create($data)

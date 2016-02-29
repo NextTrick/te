@@ -12,9 +12,9 @@ class TrackingService
         $this->serviceLocator = $serviceLocator;
     }
     
-    public function getTracking()
+    public function getTracking($params)
     {
-        return $this->getCarrierTracking()->getTracking();
+        return $this->getCarrierTracking($params)->getTracking();
     }
     
     public function getCarrierTracking($params)

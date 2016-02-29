@@ -119,7 +119,9 @@ return array(
     'carrier' => array(
         'dhl' => array(
             'tracking' => array(
-                
+                'acount' => '846176581',
+                'key' => '5A233F2B2C415144445955595D53304F424A5C414D5951545C54',
+                'host' => 'https://xmlpi-ea.dhl.com/',
             )
         ),
         'fedex' => array(

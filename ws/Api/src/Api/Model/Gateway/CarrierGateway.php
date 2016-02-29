@@ -5,7 +5,12 @@ namespace Api\Model\Gateway;
 class CarrierGateway
 {
     public static function getCarrierService($searchKey, $serviceLocator) 
-    {               
+    {              
+        $object =  new \Api\Model\Gateway\Carrier\DhlCarrier($serviceLocator);
+        $config = $serviceLocator->get('config');   
+        $object->setWsConfig($config['carrier']['dhl']['tracking']);
+        return $object;
+        
         $appCarrierService = $this->getAppCarrierService($serviceLocator);
         $carriersData = $appCarrierService->getRepository()->getByStatus();
         

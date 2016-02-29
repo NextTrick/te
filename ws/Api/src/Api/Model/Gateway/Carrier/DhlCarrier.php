@@ -3,7 +3,7 @@
 namespace Api\Model\Gateway\Carrier;
 
 use Api\Model\Gateway\Carrier\Base\CarrierAbstract;
-use Api\Model\Gateway\Carrier\Service\DhlWs;
+use Api\Model\Gateway\Carrier\Ws\DhlWs;
 
 class DhlCarrier extends CarrierAbstract
 {
