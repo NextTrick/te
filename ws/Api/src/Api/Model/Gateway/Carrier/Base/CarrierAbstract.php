@@ -3,12 +3,22 @@
 namespace Api\Model\Gateway\Carrier\Base; 
 
 use Api\Model\Gateway\Carrier\Base\CarrierInterface;
+use Search\Model\Service\SearchService;
+use Statistic\Model\Service\ServiceApikeyService;
 
 abstract class CarrierAbstract implements CarrierInterface
 {
     public $tracking = 'OK';
     
-    public function getTracking()
+    public $searchKey;
+    
+    public $params;
+    
+    public $serviceLocator;
+    
+    public $service;
+    
+    public function getTracking($params)
     {
         return $this->tracking;
     }
@@ -18,13 +28,72 @@ abstract class CarrierAbstract implements CarrierInterface
         
     }
     
-    public function getConfigBySearchKey($searchKey) 
+    public function checkSearchKeyOwner($searchkey) 
     {
-        return false;
+        $return = false;        
+        if ($this->isSearchKeyOwner($searchkey)) {
+            $this->searchKey = $searchkey;
+            $config = $this->serviceLocator->get('config');                
+            $this->setWs($config['carrier'][$this::ALIAS]['tracking']);
+            
+            $return = true;
+        }
+        
+        return $return;
     }
     
-    public function setWsConfig($config)
+    public function saveSearch($params)
     {
+        $serviceApikeyData = array(
+            'serviceId' => 1, //TODO: Obtener dinamicamente
+            'apikeyId' => 1, //TODO: Obtener dinamicamente            
+        );
         
+        $serviceApikeyId = $this->getServiceApikeyService()
+                ->save($serviceApikeyData);
+                        
+        $searchData = array(
+            'carrierId' => 1, //TODO: Obtener dinamicamente
+            'serviceApikeyId' => $serviceApikeyId,
+            'trackingId' => $params['searchKey'],
+            'ip' => \Util\Common\Util::getIpClient(),                        
+        );
+        
+        return $this->getSearchService()->save($searchData);
     }
+    
+    public function updateSearch($searchId, $updateData)
+    {
+        //TODO: LLENAR DATA en las tablas fcb_carrier_request y fcb_search_tracking
+    }
+    
+    public function setParams($params)
+    {
+        $this->params = $params;
+    }
+    
+    public function getParams($params)
+    {
+        return  $this->params;
+    }
+    
+    /**
+     * @return SearchService
+     */
+    public function getSearchService()
+    {
+        return $this->serviceLocator->get('Model\SearchService');
+    }
+    
+    /**
+     * @return ServiceApikeyService
+     */
+    public function getServiceApikeyService()
+    {
+        return $this->serviceLocator->get('Model\ServiceApikeyService');
+    }
+    
+    abstract public function isSearchKeyOwner($searchkey);
+    
+    abstract function setWs($wsConfig);    
 } 

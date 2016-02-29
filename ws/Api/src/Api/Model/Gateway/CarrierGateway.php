@@ -2,30 +2,34 @@
 
 namespace Api\Model\Gateway; 
 
+use Carrier\Model\Service\CarrierService;
+
 class CarrierGateway
 {
     public static function getCarrierService($searchKey, $serviceLocator) 
-    {               
-        $appCarrierService = $this->getAppCarrierService($serviceLocator);
+    {        
+        $appCarrierService = self::getAppCarrierService($serviceLocator);
         $carriersData = $appCarrierService->getRepository()->getByStatus();
-        
-        foreach ($carriersData as $carrierData) {
+               
+        foreach ($carriersData as $carrierData) {            
             $carrierObjectPath = '\Api\Model\Gateway\Carrier' . "\\" . ucwords($carrierData['alias']) . 'Carrier';
             $carrier = new $carrierObjectPath($serviceLocator);
-            if (!$carrier->getConfigBySearchKey($searchKey)) {
-                $config = $serviceLocator->get('config');                
-                $carrier->setWsConfig($config['carrier'][$carrier['alias']]['tracking']);
+            if ($carrier->checkSearchKeyOwner($searchKey)) {                
                 break;                
             }
         }
-       
+               
         if (is_object($carrier)) {
-            return new $carrier;
+            return $carrier;
         } else {
             throw new \Exception("Invalid gateway");
         }
     }
     
+    /**    
+     * @param type $serviceLocator
+     * @return CarrierService
+     */
     public function getAppCarrierService($serviceLocator)
     {
         return $serviceLocator->get('Model\CarrierService');

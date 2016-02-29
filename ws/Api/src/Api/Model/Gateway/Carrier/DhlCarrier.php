@@ -7,10 +7,6 @@ use Api\Model\Gateway\Carrier\Service\DhlWs;
 
 class DhlCarrier extends CarrierAbstract
 {
-    public $service;
-    
-    public $serviceLocator;
-
     public function __construct($serviceLocator) 
     {
        $this->serviceLocator = $serviceLocator;       
@@ -21,13 +17,13 @@ class DhlCarrier extends CarrierAbstract
         return $this->service->getTracking();
     }
     
-    public function getConfigBySearchKey($searchkey) 
+    public function isSearchKeyOwner($searchkey)
     {
-        parent::getConfigBySearchKey($searchkey);
+        return true;
     }
     
-    public function setWsConfig($wsConfig)
+    public function setWs($wsConfig)
     {
-        $this->service = new DhlWs($wsConfig);
+        $this->service = new DhlWs($wsConfig);         
     }
 }

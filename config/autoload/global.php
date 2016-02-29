@@ -22,7 +22,7 @@ return array(
             'name' => 'filesystem',
             'options' => array(
                 'dirLevel' => 1,
-                'cacheDir' => 'data/history/adyen',
+                'cacheDir' => 'data/cache',
                 'dirPermission' => 0755,
                 'filePermission' => 0666,
                 'namespaceSeparator' => '-bl-',
@@ -117,15 +117,24 @@ return array(
         ),
     ),
     'carrier' => array(
-        'dhl' => array(
+        'Dhl' => array(
             'tracking' => array(
                 
             )
         ),
-        'fedex' => array(
+        'Fedex' => array(
             'tracking' => array(
-                
-            )
+                'key' => 'fKVz5JPu347lelYU',
+                'password' => 'ZyuEkMohsw8JQBkbKiifE4YlI',
+                'accountNumber' => '510087968',
+                'meterNumber' => '118707157',
+            ),
+//            'tracking' => array(
+//                'key' => 'ueg4pFZUkNfcbSel',
+//                'password' => 'GmE4XOj9TLNp4gt8LEpxWRtc9',
+//                'accountNumber' => '510087348',
+//                'meterNumber' => '118549315',
+//            )
         ),
         
     ),
