@@ -2,13 +2,13 @@
 <req:KnownTrackingRequest xmlns:req="http://www.dhl.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.dhl.com TrackingRequestKnown.xsd">
     <Request>
         <ServiceHeader>
-            <MessageTime>2002-06-25T11:28:56-08:00</MessageTime>
+            <MessageTime><?php echo $this->messageTime ?></MessageTime>
             <MessageReference>1234567890123456789012345678</MessageReference>
-            <SiteID>SiteIDPwd</SiteID>
-            <Password>SiteIDPwd</Password>
+            <SiteID><?php echo $this->siteId ?></SiteID>
+            <Password><?php echo $this->password ?></Password>
         </ServiceHeader>
     </Request>
-    <LanguageCode>en</LanguageCode>
-    <AWBNumber>9422367220</AWBNumber>
+    <LanguageCode><?php echo $this->languageCode ?></LanguageCode>
+    <AWBNumber><?php echo $this->AWBNumber ?></AWBNumber>
     <LevelOfDetails>ALL_CHECK_POINTS</LevelOfDetails>
 </req:KnownTrackingRequest>

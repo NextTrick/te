@@ -9,6 +9,7 @@ return array(
     'modules' => array(
         'DoctrineModule',
         'DoctrineORMModule',
+        'Util',
         'Search',
         'Carrier',
         'Statistic',
@@ -16,13 +17,14 @@ return array(
         'Api',
         'Application',
         'Apikey',
-        'Test',
+        'Test'
     ),
     'module_listener_options' => array(
         'module_paths' => array(
-            './module',
+            './module',            
             './vendor',
-            './ws',
+            './common',
+            './ws',             
         ),
         'config_glob_paths' => array(
             'config/autoload/{{,*.}global,{,*.}local}.php',

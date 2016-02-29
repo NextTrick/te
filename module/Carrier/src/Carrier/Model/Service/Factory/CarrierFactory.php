@@ -10,7 +10,7 @@ use Carrier\Model\Repository\CarrierRepository;
 class CarrierFactory implements FactoryInterface
 {
     public function createService(ServiceLocatorInterface $serviceLocator)
-    {
+    {        
         $adapter = $serviceLocator->get('Zend\Db\Adapter\Adapter');
         $repository = new CarrierRepository($adapter);
         

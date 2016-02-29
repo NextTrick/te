@@ -20,12 +20,9 @@ class Module
         $sharedEvents = $moduleManager->getEventManager()->getSharedManager();
 
         $sharedEvents->attach('Zend\Mvc\Controller\AbstractRestfulController', MvcEvent::EVENT_DISPATCH, array($this, 'postProcess'), -100);
-        $sharedEvents->attach('Zend\Mvc\Application', MvcEvent::EVENT_DISPATCH_ERROR, array($this, 'errorProcess'), 999);
+        //$sharedEvents->attach('Zend\Mvc\Application', MvcEvent::EVENT_DISPATCH_ERROR, array($this, 'errorProcess'), 999);
     }
 
-    /**
-     * return array
-     */
     public function getAutoloaderConfig()
     {
         return array(
@@ -40,17 +37,10 @@ class Module
         );
     }
 
-    /**
-     * @return array
-     */
     public function getConfig()
     {
         return include __DIR__ . '/configs/module.config.php';
     }
-
-    /**
-    *
-    */
 
     public function getServiceConfig()
     {

@@ -3,27 +3,32 @@
 namespace Api\Model\Gateway\Carrier;
 
 use Api\Model\Gateway\Carrier\Base\CarrierAbstract;
-use Api\Model\Gateway\Carrier\Service\DhlWs;
+use Api\Model\Gateway\Carrier\Ws\FedexWs;
 
 class FedexCarrier extends CarrierAbstract
-{
-    public $service;
+{      
+    const ALIAS = 'Fedex';
     
-    public $serviceLocator;
-
-    public function __construct($config, $serviceLocator) 
-    {
-       $this->serviceLocator = $serviceLocator;
-       $this->service = new DhlWs($config);
-    }
-
-    public function getTracking()
+    public function __construct($serviceLocator) 
     {        
-        return $this->service->getTracking();
+        $this->serviceLocator = $serviceLocator;      
     }
     
-    public function getConfigBySearchKey($searchkey) 
+    public function setWs($wsConfig)
     {
-        return parent::getConfigBySearchKey($searchkey);
+        $this->service = new FedexWs($wsConfig);         
     }
+    
+    public function getTracking($params)
+    {        
+        $searchId = $this->saveSearch($params);        
+        $response = $this->service->getByTrackingNumber($this->searchKey);         
+        $this->updateSearch($searchId, $updateData);
+    }
+    
+    public function isSearchKeyOwner($searchkey)
+    {
+        return true;
+    }
+
 }

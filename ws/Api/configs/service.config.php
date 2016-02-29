@@ -2,7 +2,7 @@
 
 return array(
     'factories' => array(
-        'Api\Model\Service\TrackingService' => 'Api\Model\Service\Factory\TrackingFactory',       
+        'Api\Model\TrackingService' => 'Api\Model\Service\Factory\TrackingFactory',       
     ),
     'invokables' => array(
         

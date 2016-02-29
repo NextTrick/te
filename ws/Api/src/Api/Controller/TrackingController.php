@@ -3,18 +3,22 @@
 namespace Api\Controller;
 
 use Zend\Mvc\Controller\AbstractRestfulController;
+use Api\Model\Service\TrackingService;
 
 class TrackingController extends AbstractRestfulController
 {
     public function getList()
     {
-        return array('');
+        $params = $this->params()->fromRoute();
+        
+        $trackingService = $this->getTrackingService();        
+        return $trackingService->getTracking($params); exit;        
     }
 
     public function get($id)
     {
-        $tracking = $this->getServiceLocator()->get('Api\Model\Service\TrackingService');
-        return $tracking->getTracking(array('searchKey' => $id));
+        $trackingService = $this->getTrackingService();        
+        return $trackingService->getTracking(array('searchKey' => $id)); exit; 
     }
 
     public function create($data)
@@ -30,5 +34,13 @@ class TrackingController extends AbstractRestfulController
     public function delete($id)
     {
 
+    }
+    
+    /**
+     * @return TrackingService
+     */
+    public function getTrackingService()
+    {
+        return $this->getServiceLocator()->get('Api\Model\TrackingService');
     }
 }
