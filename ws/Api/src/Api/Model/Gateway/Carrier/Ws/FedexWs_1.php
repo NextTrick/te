@@ -52,7 +52,7 @@ class FedexWs extends Fedex
     {
         $trackingNumber = '123456789012';
         echo 'hi'; exit;
-    	// Request syntax needed to track by tracking id
+    	// Request syntax needed to track by tracking id\
     	$this->request['SelectionDetails'] = array(
             'PackageIdentifier' => array(
                     'Type' => 'TRACKING_NUMBER_OR_DOORTAG',

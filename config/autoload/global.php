@@ -124,6 +124,10 @@ return array(
                 'host' => 'https://xmlpi-ea.dhl.com/',
             )
         ),
+        'FedexCrossBorder' => array(
+            'tracking' => array(                
+            )
+        ),
         'Fedex' => array(
             'tracking' => array(
                 'key' => 'fKVz5JPu347lelYU',
@@ -131,13 +135,6 @@ return array(
                 'accountNumber' => '510087968',
                 'meterNumber' => '118707157',
             ),
-//            'tracking' => array(
-//                'key' => 'ueg4pFZUkNfcbSel',
-//                'password' => 'GmE4XOj9TLNp4gt8LEpxWRtc9',
-//                'accountNumber' => '510087348',
-//                'meterNumber' => '118549315',
-//            )
         ),
-        
     ),
 );
