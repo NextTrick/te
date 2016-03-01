@@ -20,7 +20,7 @@ class DhlWs {
         $this->params = $params;
     }
 
-    public function getTracking() 
+    public function getTracking($params = array()) 
     {
         $params = array(
             'messageTime' => date('c'),
