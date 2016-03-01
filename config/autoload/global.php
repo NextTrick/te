@@ -127,7 +127,7 @@ return array(
         'Fedex' => array(
             'tracking' => array(
                 'key' => 'fKVz5JPu347lelYU',
-                'password' => 'ZyuEkMohsw8JQBkbKiifE4YlI',
+                'password' => 'SubRKBdOrU3qQZDm8CwFl9sMZ',
                 'accountNumber' => '510087968',
                 'meterNumber' => '118707157',
             ),

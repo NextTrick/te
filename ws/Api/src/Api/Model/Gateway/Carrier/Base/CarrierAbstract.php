@@ -8,15 +8,22 @@ use Statistic\Model\Service\ServiceApikeyService;
 
 abstract class CarrierAbstract implements CarrierInterface
 {
+    const RESPONSE_STATUS_SUCCESS_CODE = 'SUCCESS';    
+    const RESPONSE_STATUS_ERROR_CODE = 'ERROR';
+    
+    const ERROR_GENERIC_CODE = 500;
+    const ERROR_GENERIC_MESSAGE = 'Failed Ws connection';
+    
     public $trackingSkeleton = array(
-        'serviceHeader' => array(
-            'date' => '',
+        'status' => array(
+            'code' => self::RESPONSE_STATUS_SUCCESS_CODE,
+            'dateTime' => '',
             'referenceId' => ''
         ),        
         'trackingDetails' => array(
             'trackingNumber' => '',
             'statusDetail' => array(
-                'creationTime' => '',
+                'creationDateTime' => '',
                 'code' => '',
                 'description' => '',
                 'location' => array(
@@ -28,20 +35,25 @@ abstract class CarrierAbstract implements CarrierInterface
                 ),                
             ),
             'carrierCode' => '',
-            'OperatingCompanyOrCarrierDescription' => '',
+            'OperatingCompanyOrCarrierDescription' => '',            
+            'originAddress' => array(
+                'stateOrProvinceCode' => '',
+                'countryCode' => '',
+                'countryName' => '',
+            ),            
             'destionationAddress' => array(
-                'StateOrProvinceCode' => '',
+                'stateOrProvinceCode' => '',
                 'countryCode' => '',
                 'countryName' => '',
             ),
             'events' => array(
                 array(
-                    'date' => '',                    
+                    'dateTime' => '',                    
                     'eventCode' => '',
                     'eventDescription' => '',
                     'address' => array(
                         'postalCode' => '',
-                        'StateOrProvinceCode' => '',
+                        'stateOrProvinceCode' => '',
                         'countryName' => '',
                         'countryCode' => '',                                                
                     ),                    
@@ -62,59 +74,35 @@ abstract class CarrierAbstract implements CarrierInterface
                     'code' => '',
                     'Message' => '',
                 ),                
-                'numberPieces' => '',
-                'PackageSequenceNumber' => '',                
+                'numberOfPieces' => '',
+                'packageSequenceNumber' => '',                
                 'packaging' => '',
                 'service' =>  array(                    
                     'description' => ''                    
                 ),                
-                'pickupDate' => '', //shipTimestamp on fedex                                
+                'pickupDateTime' => '', //shipTimestamp on fedex                                
                 'lastUpdated' => '', //ActualDeliveryTimestamp on fedex
             )
         ),        
     );
     
     public $errorSkeleton = array(
-        'code' => '',
-        'message' => '',
-        'description' => '',
-        'errors' => array(
+        'status' => array(
+            'code' => self::RESPONSE_STATUS_ERROR_CODE,
+            'dateTime' => '',
+        ),
+        'error' => array (
             'code' => '',
-            'field' => '',
-            'message' => ''
+            'message' => '',
+            'description' => '',
+            'errors' => array(
+                'code' => '',
+                'field' => '',
+                'message' => ''
+            ),
         ),
     );
-    
-    public $tracking = array(
-        'header' => array(
-            'carrier' => '',
-            'date' => '1/4/2014 1:22 AM ',
-            'from' => '',
-            'to' => '',),
-        'events' => array(
-            array(
-                'date' => '',
-                'time' => '',
-                'areaCode' => '',
-                'areaDetail' => '',
-                'eventCode' => '',
-                'eventDetail' => '',
-            )
-        ),
-        'shipmentInfo' => array(
-            'tracking' => '',
-            'notification' => '',
-            'numberPieces' => '',
-            'packageNumber' => '',
-            'packaging' => '',
-            'pickupDate' => '',
-            'service' => '',
-            'statusMessage' => '',
-            'weight' => '',
-            'lastUpdated' => '',
-        )
-    );
-            
+                
     public $searchKey;
     
     public $params;
