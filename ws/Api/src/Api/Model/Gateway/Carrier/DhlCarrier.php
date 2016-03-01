@@ -69,7 +69,7 @@ class DhlCarrier extends CarrierAbstract
     
     public function isSearchKeyOwner($searchkey)
     {
-        return true;
+        return false;
     }
     
     public function setWs($wsConfig)
