@@ -10,12 +10,27 @@ class FedexWs extends Fedex
 {
     protected $soapClient;
     
-    private $request = array();    
+    private $request = array();
+    
     protected $key;    
     protected $password;   
     protected $accountNumber;    
     protected $meterNumber;    
     protected $customerTransactionId;
+        
+    const ERROR_GENERIC_CODE = 500;
+    const ERROR_GENERIC_MESSAGE = 'Failed Ws connection';
+    
+    const STATUS_ERROR = 'ERROR';
+    const STATUS_FAILURE = 'FAILURE';
+    const STATUS_WARNING = 'WARNING';
+    const STATUS_NOTE = 'NOTE';
+    const STATUS_SUCCESS = 'SUCCESS';
+    
+    protected $errorStatus = array(
+        self::STATUS_ERROR,
+        self::STATUS_FAILURE,
+    );
 
     public function __construct($config)
     {        
@@ -45,17 +60,67 @@ class FedexWs extends Fedex
     
     public function getByTrackingNumber($trackingNumber)
     {
+        $responseData = array('success' => true);        
         $trackingNumber = '123456789012';  
         $request = $this->prepareRequest($trackingNumber);
         
         try {
-            $response = $this->soapClient->track($request);
-            echo get_class($response); exit;
-            var_dump($this->soapClient->getLastRequest(), $this->soapClient->getLastResponse()); exit;
-        } catch (\Exception $e) {            
-            var_dump($e->getMessage(), $e->getTraceAsString(),
-                    $this->soapClient->getLastRequest(), $this->soapClient->getLastResponse()); exit;
+            $response = $this->soapClient->track($request);                                  
+//            var_dump($e->getMessage(), $e->getTraceAsString(),
+//                    $this->soapClient->getLastRequest(), $this->soapClient->getLastResponse()); exit;
+            if (!in_array($response->HighestSeverity, $this->errorStatus)) {
+                $responseData['data'] = $response;
+            } else {
+                if (!empty($response->Notifications)) {
+                    $responseData = $this->parseError($response);
+                } else {
+                    $responseData = $this->getGenericErrorData();
+                }
+            }         
+        } catch (\Exception $e) {   
+            $responseData['success'] = false;            
+            $lastResponse = $this->soapClient->getLastResponse();
+            if (!empty($lastResponse) && !empty($lastResponse->detail)) {
+                $responseData['error']['code'] = $lastResponse->detail->code;
+                $responseData['error']['message'] = $lastResponse->detail->desc;
+                $responseData['error']['aditionalMessage'] = $lastResponse->detail->cause;
+            } else {
+                $responseData['error']['exception'] = $this->errorCodeGeneric;
+                $responseData['error']['message'] = $e->getMessage();            
+            }            
         }
+        
+        return $responseData;
+    }
+    
+    public function getGenericErrorData()
+    {
+        return array('success' => false,
+                     'error' => array('code' => self::ERROR_GENERIC_CODE,
+                                      'message' => self::ERROR_GENERIC_MESSAGE));
+    }
+    
+    protected function parseError($response)
+    {
+        $return = $this->getGenericErrorData();
+        
+        if (!empty($response->Notifications)) { 
+            $tempError = array('');
+            foreach ($response->Notifications as $notification) {                
+                $tempError['code'][] = $notification->Code;
+                $tempError['message'][] = $notification->Message;
+                $tempError['aditionalMessage'][] = $notification->LocalizedMessage;              
+            }
+            
+            $returnError = array();
+            $returnError['code'] = implode('|', $tempError['code']);
+            $returnError['message'] = implode('|', $tempError['message']);
+            $returnError['aditionalMessage'] = implode('|', $tempError['aditionalMessage']);
+            
+            $return['error'] = $returnError;
+        } 
+        
+        return $return;
     }
     
     public function prepareRequest($trackingNumber)
@@ -92,15 +157,7 @@ class FedexWs extends Fedex
         
         return $this->request;
     }
-    
-    /**
-     *  Gets the tracking detials for the
-     *  given tracking number and returns
-     *  the FedEx request as an object.
-     *
-     *  @param string   // Tracking #
-     *  @return SoapClient Object
-     */
+      
     public function getByTrackingNumberOk($trackingNumber) 
     {
         $trackingNumber = '123456789012';

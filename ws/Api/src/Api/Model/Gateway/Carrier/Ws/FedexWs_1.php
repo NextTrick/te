@@ -51,7 +51,7 @@ class FedexWs extends Fedex
     public function getByTrackingNumber($trackingNumber) 
     {
         $trackingNumber = '123456789012';
-        
+        echo 'hi'; exit;
     	// Request syntax needed to track by tracking id
     	$this->request['SelectionDetails'] = array(
             'PackageIdentifier' => array(

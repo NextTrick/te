@@ -8,6 +8,83 @@ use Statistic\Model\Service\ServiceApikeyService;
 
 abstract class CarrierAbstract implements CarrierInterface
 {
+    public $trackingSkeleton = array(
+        'serviceHeader' => array(
+            'date' => '',
+            'referenceId' => ''
+        ),        
+        'trackingDetails' => array(
+            'trackingNumber' => '',
+            'statusDetail' => array(
+                'creationTime' => '',
+                'code' => '',
+                'description' => '',
+                'location' => array(
+                    'streetLines' => '',
+                    'City' => '',
+                    'stateOrProvinceCode' => '',
+                    'countryCode' => '',
+                    'countryName' => '',
+                ),                
+            ),
+            'carrierCode' => '',
+            'OperatingCompanyOrCarrierDescription' => '',
+            'destionationAddress' => array(
+                'StateOrProvinceCode' => '',
+                'countryCode' => '',
+                'countryName' => '',
+            ),
+            'events' => array(
+                array(
+                    'date' => '',                    
+                    'eventCode' => '',
+                    'eventDescription' => '',
+                    'address' => array(
+                        'postalCode' => '',
+                        'StateOrProvinceCode' => '',
+                        'countryName' => '',
+                        'countryCode' => '',                                                
+                    ),                    
+                )
+            ),
+            'shipmentInfo' => array(
+                'weight' => array(
+                    'value' => '',
+                    'units' => '',
+                ),
+                'dimensions' => array(
+                    'length' => '',
+                    'width' => '',
+                    'height' => '',
+                    'units' => '',
+                ),                
+                'notification' => array(
+                    'code' => '',
+                    'Message' => '',
+                ),                
+                'numberPieces' => '',
+                'PackageSequenceNumber' => '',                
+                'packaging' => '',
+                'service' =>  array(                    
+                    'description' => ''                    
+                ),                
+                'pickupDate' => '', //shipTimestamp on fedex                                
+                'lastUpdated' => '', //ActualDeliveryTimestamp on fedex
+            )
+        ),        
+    );
+    
+    public $errorSkeleton = array(
+        'code' => '',
+        'message' => '',
+        'description' => '',
+        'errors' => array(
+            'code' => '',
+            'field' => '',
+            'message' => ''
+        ),
+    );
+    
     public $tracking = array(
         'header' => array(
             'carrier' => '',
@@ -37,6 +114,7 @@ abstract class CarrierAbstract implements CarrierInterface
             'lastUpdated' => '',
         )
     );
+            
     public $searchKey;
     
     public $params;
@@ -44,8 +122,8 @@ abstract class CarrierAbstract implements CarrierInterface
     public $serviceLocator;
     
     public $service;
-    
-    public function getTracking()
+            
+    public function getTracking($params)
     {
         return $this->tracking;
     }
