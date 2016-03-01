@@ -45,7 +45,8 @@ class FedexWs extends Fedex
         
         $wsdlFile = __DIR__ . '/Fedex/Wsdl/TrackService_v10.wsdl';       
         
-        $this->soapClient = new Client($wsdlFile);        
+        $this->soapClient = new Client($wsdlFile);     
+//        $this->soapClient->setLocation('https://wsbeta.fedex.com:443/web-services/track');
     }
         
     public function getTracking()
@@ -59,15 +60,14 @@ class FedexWs extends Fedex
     }
     
     public function getByTrackingNumber($trackingNumber)
-    {
+    {        
         $responseData = array('success' => true);        
         $trackingNumber = '123456789012';  
         $request = $this->prepareRequest($trackingNumber);
         
         try {
-            $response = $this->soapClient->track($request);                                  
-//            var_dump($e->getMessage(), $e->getTraceAsString(),
-//                    $this->soapClient->getLastRequest(), $this->soapClient->getLastResponse()); exit;
+            $response = $this->soapClient->track($request);                                             
+            
             if (!in_array($response->HighestSeverity, $this->errorStatus)) {
                 $responseData['data'] = $response;
             } else {
@@ -78,18 +78,29 @@ class FedexWs extends Fedex
                 }
             }         
         } catch (\Exception $e) {   
-            $responseData['success'] = false;            
-            $lastResponse = $this->soapClient->getLastResponse();
-            if (!empty($lastResponse) && !empty($lastResponse->detail)) {
-                $responseData['error']['code'] = $lastResponse->detail->code;
-                $responseData['error']['message'] = $lastResponse->detail->desc;
-                $responseData['error']['aditionalMessage'] = $lastResponse->detail->cause;
+            var_dump($this->soapClient->getLastRequest(), $this->soapClient->getLastResponse()); exit;
+            $responseData['success'] = false; 
+            $lastResponse = $this->soapClient->getLastRequest();
+            if (!empty($lastResponse)) {
+                $lastResponse = simplexml_load_string($lastResponse);                  
+                if (!empty($lastResponse->detail)) {
+                    $responseData['error']['code'] = $lastResponse->detail->code;
+                    $responseData['error']['message'] = $lastResponse->detail->desc;
+                    $responseData['error']['aditionalMessage'] = $lastResponse->detail->cause;
+                } else {   
+                    var_dump($this->soapClient->getLastRequest(), $this->soapClient->getLastResponse()); exit;
+                    $responseData = $this->getGenericErrorData();                
+                    $responseData['error']['message'] = $e->getMessage();
+                    $responseData['error']['exception'] = $e->getTraceAsString();
+                }
             } else {
-                $responseData['error']['exception'] = $this->errorCodeGeneric;
-                $responseData['error']['message'] = $e->getMessage();            
+                $responseData = $this->getGenericErrorData();                
+                $responseData['error']['message'] = $e->getMessage();
+                $responseData['error']['exception'] = $e->getTraceAsString();
             }            
         }
         
+        var_dump($responseData); exit;
         return $responseData;
     }
     
