@@ -27,19 +27,22 @@ class FedexCarrier extends CarrierAbstract
     }
     
     public function getByTrackingNumber($params)
-    {
-        $return = array('success' => true); 
+    {        
         $returnData = array();
         $dateTime = date('Y-m-d H:i:s');   
         $returnData['status']['dateTime'] = $dateTime;
         
-        $searchId = $this->saveSearch($params);
-        
+//        $searchId = $this->saveSearch($params);        
         $response = $this->service->getByTrackingNumber($this->searchKey);        
-        if ($response['success']) {             
-            $trackingDetails = $response->CompletedTrackDetails->TrackDetails;                                                                            
+        if ($response['success']) {  
+            $responseObject = $response['data'];
+            $trackingDetails = $responseObject->CompletedTrackDetails->TrackDetails;            
+            if (empty($responseObject->CompletedTrackDetails->TrackDetailsCount)) {
+                $trackingDetails = array($trackingDetails);
+            }
+            
             foreach ($trackingDetails as $trackingDetail) {                    
-                $returnData['trackingDetails']['TrackingNumber'] = $trackingDetail->TrackingNumber;
+                $returnData['trackingDetails']['trackingNumber'] = $trackingDetail->TrackingNumber;
                 
                 $statusDetail = $trackingDetail->StatusDetail;
                 $returnData['trackingDetails']['statusDetail'] = array(
@@ -48,15 +51,19 @@ class FedexCarrier extends CarrierAbstract
                     'description' => $statusDetail->Description,
                     'creationDateTime' => $statusDetail->CreationTime,
                 );
-                
-                $returnData['trackingDetails']['statusDetail']['location'] = array(
-                    'streetLines' => $trackingDetail->Location->streetLines,
-                    'City' => $trackingDetail->Location->City,
-                    'stateOrProvinceCode' => $trackingDetail->Location->StateOrProvinceCode,
-                    'countryCode' => $trackingDetail->Location->CountryCode,
-                    'countryName' => $trackingDetail->Location->CountryName,
+
+                $returnData['trackingDetails']['statusDetail']['location'] = array(                                       
+                    'city' => $statusDetail->Location->City,
+                    'stateOrProvinceCode' => $statusDetail->Location->StateOrProvinceCode,
+                    'countryCode' => $statusDetail->Location->CountryCode,
+                    'countryName' => $statusDetail->Location->CountryName,
                 );
                 
+                if (!empty($statusDetail->Location->StreetLines)) {
+                    $returnData['trackingDetails']['statusDetail']['location']['streetLines'] 
+                            = $statusDetail->Location->StreetLines;
+                }
+                                
                 $returnData['trackingDetails']['carrierCode'] = $trackingDetail->CarrierCode;
                 $returnData['trackingDetails']['OperatingCompanyOrCarrierDescription'] = $trackingDetail->OperatingCompanyOrCarrierDescription;
 
@@ -66,25 +73,29 @@ class FedexCarrier extends CarrierAbstract
                     'countryName' => $trackingDetail->DestinationAddress->CountryName,
                 ); 
  
-                foreach ($trackingDetail->events as $event) {                    
-                    $returnData['trackingDetails']['events'][] = array(
+                foreach ($trackingDetail->Events as $key => $event) {                    
+                    $returnData['trackingDetails']['events'][$key] = array(
                         'dateTime' => $event->Timestamp,
                         'eventCode' => $event->EventType,
                         'eventDescription' => $event->EventDescription,
                         'address' => array(
-                            'postalCode' => $event->Address->PostalCode,
-                            'stateOrProvinceCode' => $event->Address->StateOrProvinceCode,
+                            'postalCode' => $event->Address->PostalCode,                            
                             'countryName' => $event->Address->CountryName,
                             'countryCode' => $event->Address->CountryCode,                                
                         ),
-                    );                         
+                    );
+                    
+                    if (!empty($event->Address->StateOrProvinceCode)) {
+                        $returnData['trackingDetails']['events'][$key]['address']['stateOrProvinceCode'] =
+                                $event->Address->StateOrProvinceCode;
+                    }
                 }
                 
                 $firstEvent = reset($returnData['trackingDetails']['events']);
                 $returnData['trackingDetails']['originAddress'] = array(
                     'stateOrProvinceCode' => $firstEvent['address']['stateOrProvinceCode'],
-                    'countryName' => $firstEvent['address']['stateOrProvinceCode'],
-                    'countryCode' => $firstEvent['address']['stateOrProvinceCode'],
+                    'countryName' => $firstEvent['address']['countryName'],
+                    'countryCode' => $firstEvent['address']['countryCode'],
                 );
                 
                 $returnData['trackingDetails']['shipmentInfo'] = array(
@@ -108,21 +119,24 @@ class FedexCarrier extends CarrierAbstract
                     'service' =>  array(                    
                         'description' => $trackingDetail->Service->Description,                  
                     ),                
-                    'pickupDateTime' => $trackingDetail->ShipTimestamp, //shipTimestamp on fedex                                
-                    'lastUpdated' => $trackingDetail->ActualDeliveryTimestamp, //ActualDeliveryTimestamp on fedex
-                );                
+                    'pickupDateTime' => $trackingDetail->ShipTimestamp, //shipTimestamp on fedex                                                           
+                ); 
+                if (!empty($trackingDetail->ActualDeliveryTimestamp)) {
+                    $returnData['trackingDetails']['shipmentInfo']['lastUpdated'] 
+                            = $trackingDetail->ActualDeliveryTimestamp; //ActualDeliveryTimestamp on fedex
+                }  
             }
-            
+                                    
             $returnData['status']['code'] = self::RESPONSE_STATUS_SUCCESS_CODE;            
-            $returnData = array_merge_recursive($returnData, $this->trackingSkeleton);
-        } else {           
-           $returnData['status']['code'] = self::RESPONSE_STATUS_ERROR_CODE_CODE;
-           $returnData['error']['code'] = self::ERROR_GENERIC_CODE;
-           $returnData['error']['message'] = self::ERROR_GENERIC_MESSAGE;
-           
-           $returnData = array_merge_recursive($returnData, $this->errorSkeleton);
-        }
+            $returnData = array_merge($this->trackingSkeleton, $returnData);
+        } else {                
+            $returnData['status']['code'] = self::RESPONSE_STATUS_ERROR_CODE_CODE;
+            $returnData['error']['code'] = self::ERROR_GENERIC_CODE;
+            $returnData['error']['message'] = self::ERROR_GENERIC_MESSAGE;
 
+            $returnData = array_merge_recursive($this->errorSkeleton, $returnData);
+        }
+        
         return $returnData;
         //        $this->updateSearch($searchId, $updateData);
     }
