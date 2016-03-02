@@ -2,8 +2,6 @@
 
 namespace Api\Model\Gateway\Carrier\Ws;
 
-use Zend\Soap\Client;
-
 use Api\Model\Gateway\Carrier\Ws\Fedex\Fedex;
 
 class FedexWs extends Fedex
@@ -35,7 +33,7 @@ class FedexWs extends Fedex
     public function __construct($config)
     {        
         ini_set("soap.wsdl_cache_enabled", "0");
-       
+               
         $this->key = $config['key'];
         $this->password = $config['password'];
         $this->accountNumber = $config['accountNumber'];
@@ -45,8 +43,7 @@ class FedexWs extends Fedex
         
         $wsdlFile = __DIR__ . '/Fedex/Wsdl/TrackService_v10.wsdl';       
         
-        $this->soapClient = new Client($wsdlFile);     
-//        $this->soapClient->setLocation('https://wsbeta.fedex.com:443/web-services/track');
+        $this->soapClient = new \SoapClient($wsdlFile, array('trace' => 1));       
     }
         
     public function getTracking()
@@ -62,12 +59,11 @@ class FedexWs extends Fedex
     public function getByTrackingNumber($trackingNumber)
     {        
         $responseData = array('success' => true);        
-        $trackingNumber = '123456789012';  
-        $request = $this->prepareRequest($trackingNumber);
-        
+        $trackingNumber = '149331877648230';  
+        $request = $this->prepareRequest($trackingNumber);        
         try {
-            $response = $this->soapClient->track($request);                                             
-            
+            $response = $this->soapClient->track($request);
+//            var_dump($this->soapClient->__getLastResponse()); exit;
             if (!in_array($response->HighestSeverity, $this->errorStatus)) {
                 $responseData['data'] = $response;
             } else {
@@ -77,10 +73,9 @@ class FedexWs extends Fedex
                     $responseData = $this->getGenericErrorData();
                 }
             }         
-        } catch (\Exception $e) {   
-            var_dump($this->soapClient->getLastRequest(), $this->soapClient->getLastResponse()); exit;
+        } catch (\Exception $e) {            
             $responseData['success'] = false; 
-            $lastResponse = $this->soapClient->getLastRequest();
+            $lastResponse = $this->soapClient->__getLastResponse();
             if (!empty($lastResponse)) {
                 $lastResponse = simplexml_load_string($lastResponse);                  
                 if (!empty($lastResponse->detail)) {
@@ -100,7 +95,6 @@ class FedexWs extends Fedex
             }            
         }
         
-        var_dump($responseData); exit;
         return $responseData;
     }
     
@@ -168,24 +162,10 @@ class FedexWs extends Fedex
         
         return $this->request;
     }
-      
-    public function getByTrackingNumberOk($trackingNumber) 
+        
+    protected function parseXml($xmlString)
     {
-        $trackingNumber = '123456789012';
-        
-    	// Request syntax needed to track by tracking id
-    	$this->request['SelectionDetails'] = array(
-            'PackageIdentifier' => array(
-                    'Type' => 'TRACKING_NUMBER_OR_DOORTAG',
-                    'Value' => $trackingNumber // Tracking ID to track
-            )
-        );
-
-    	$req = $this->buildRequest($this->request);
-        
-        $response = $this->getSoapClient()->track($req);
-        
-        var_dump($response); exit;
-    	return $this->getSoapClient()->track($req);
+        $xml = simplexml_load_string($xmlString);
+        return json_decode(json_encode($xml), TRUE);
     }
 }

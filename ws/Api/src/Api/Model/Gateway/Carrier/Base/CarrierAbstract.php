@@ -72,7 +72,7 @@ abstract class CarrierAbstract implements CarrierInterface
                 ),                
                 'notification' => array(
                     'code' => '',
-                    'Message' => '',
+                    'message' => '',
                 ),                
                 'numberOfPieces' => '',
                 'packageSequenceNumber' => '',                
@@ -110,6 +110,8 @@ abstract class CarrierAbstract implements CarrierInterface
     public $serviceLocator;
     
     public $service;
+    
+    public $tracking;
             
     public function getTracking($params)
     {
