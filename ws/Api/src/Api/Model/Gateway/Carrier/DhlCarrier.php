@@ -9,20 +9,42 @@ class DhlCarrier extends CarrierAbstract
 {
     const ALIAS = 'Dhl';
     
+    const STATUS_SUCCESS = 'success';
+
+
     public function __construct($serviceLocator) 
     {
        $this->serviceLocator = $serviceLocator;       
     }
     
     public function getTracking($params = array()) {
-        return $this->mergeParams(
-                parent::getTracking($params), 
-                $this->service->getTracking($params)
-            );
+        return $this->formatResponse($this->service->getTracking($params));
     }
-    private function mergeParams($params, $paramsCarrier)
+    
+    public function formatResponse($params)
     {
-        $info = reset($paramsCarrier['AWBInfo']);
+        $response = array();
+        if($params['success']){
+            $data = $params['data'];
+            if($data['AWBInfo']['Status']['ActionStatus'] == self::STATUS_SUCCESS){
+                $response = $this->responseOk($data);
+            } else {
+                $response = $this->errorSkeleton;
+                $response['error']['message'] = $data['AWBInfo']['Status']['Condition']['ConditionData'];
+                $response['error']['code'] =$data['AWBInfo']['Status']['Condition']['ConditionCode'];
+            }
+        }
+        else{
+            $response = $this->errorSkeleton;
+            $response['error']['message'] = $params['error']['message'];
+            $response['error']['code'] = $params['error']['code'];
+        }
+        return $response;
+    }
+
+    public function responseOk($params)
+    {
+        $info = $params['AWBInfo'];
         $shipmentInfo = $info['ShipmentInfo'];
         $events = array();
         if(!empty($info['ShipmentInfo']['ShipmentEvent'])) {
@@ -45,10 +67,11 @@ class DhlCarrier extends CarrierAbstract
             $endEvent = end($events);
         }
         $response = array(
-            'serviceHeader' => array(
-                'date' => date('Y-m-d H:i:s'),
+            'status' => array(
+                'code' => self::RESPONSE_STATUS_SUCCESS_CODE,
+                'dateTime' => '',
                 'referenceId' => ''
-            ),        
+            ), 
             'trackingDetails' => array(
                 'trackingNumber' => $info['AWBNumber'],
                 'statusDetail' => array(
@@ -58,9 +81,9 @@ class DhlCarrier extends CarrierAbstract
                     'location' => array(
                         'streetLines' => '',
                         'City' => '',
-                        'stateOrProvinceCode' => $endEvent['StateOrProvinceCode'],
+                        'stateOrProvinceCode' => $endEvent['address']['StateOrProvinceCode'],
                         'countryCode' => '',
-                        'countryName' => $endEvent['countryName'],
+                        'countryName' => $endEvent['address']['countryName'],
                     ),                
                 ),
                 'carrierCode' => '',
@@ -88,8 +111,8 @@ class DhlCarrier extends CarrierAbstract
                         'units' => '',
                     ),                
                     'notification' => array(
-                        'code' => $shipmentInfo['Weight'],
-                        'Message' => $shipmentInfo['Weight'],
+                        'code' => '',
+                        'Message' => '',
                     ),                
                     'numberPieces' => $shipmentInfo['Pieces'],
                     'PackageSequenceNumber' => '',                
@@ -104,6 +127,7 @@ class DhlCarrier extends CarrierAbstract
         );
         return $response;
     }
+    
     
     public function isSearchKeyOwner($searchkey)
     {
