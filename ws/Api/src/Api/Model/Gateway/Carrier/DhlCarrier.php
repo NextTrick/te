@@ -11,69 +11,130 @@ class DhlCarrier extends CarrierAbstract
     const ALIAS = 'Dhl';
     
     const DB_ID = CarrierRepository::DHL_ID;
-    
+
+    const STATUS_SUCCESS = 'success';
+
     public function __construct($serviceLocator) 
     {
        $this->serviceLocator = $serviceLocator;       
     }
     
-    public function getTracking($params) 
-    {        
-        return $this->mergeParams(
-                parent::getTracking($params), 
-                $this->service->getTracking()
-            );
+    public function getTracking($params = array()) 
+    {
+        return $this->formatResponse($this->service->getTracking($params));
     }
     
-    private function mergeParams($params, $paramsCarrier)
+    public function formatResponse($params)
     {
-        $info = reset($paramsCarrier['AWBInfo']);
+        $response = array();
+        if($params['success']){
+            $data = $params['data'];
+            if($data['AWBInfo']['Status']['ActionStatus'] == self::STATUS_SUCCESS){
+                $response = $this->responseOk($data);
+            } else {
+                $response = $this->errorSkeleton;
+                $response['error']['message'] = $data['AWBInfo']['Status']['Condition']['ConditionData'];
+                $response['error']['code'] =$data['AWBInfo']['Status']['Condition']['ConditionCode'];
+            }
+        }
+        else{
+            $response = $this->errorSkeleton;
+            $response['error']['message'] = $params['error']['message'];
+            $response['error']['code'] = $params['error']['code'];
+        }
+        return $response;
+    }
+
+    public function responseOk($params)
+    {
+        $info = $params['AWBInfo'];
         $shipmentInfo = $info['ShipmentInfo'];
         $events = array();
         if(!empty($info['ShipmentInfo']['ShipmentEvent'])) {
             foreach ($info['ShipmentInfo']['ShipmentEvent']  as $event) {
                 $events[] = array(
-                    'date' => $event['Date'],
-                    'time' => $event['Time'],
+                    'date' => $event['Date'] . ' ' . $event['Time'],                    
                     'eventCode' => $event['ServiceEvent']['EventCode'],
-                    'eventDetail' => $event['ServiceEvent']['Description'],
-                    'areaCode' => $event['ServiceArea']['ServiceAreaCode'],
-                    'areaDetail' => $event['ServiceArea']['Description'],
+                    'eventDescription' => $event['ServiceEvent']['Description'],
+                    'address' => array(
+                        'postalCode' => '',
+                        'StateOrProvinceCode' => $event['ServiceArea']['ServiceAreaCode'],
+                        'countryName' => $event['ServiceArea']['Description'],
+                        'countryCode' => '',                                                
+                    ),      
                 );
             }
         }
+        $endEvent = array();
+        if(!empty($events)) {
+            $endEvent = end($events);
+        }
         $response = array(
-            'header' => array(
-                'carrier' => self::ALIAS,
-                'date' => '1/4/2014 1:22 AM ',
-                'from' => $shipmentInfo['OriginServiceArea']['ServiceAreaCode'] . ', '. 
-                            $shipmentInfo['OriginServiceArea']['Description'],
-                'to' => $shipmentInfo['DestinationServiceArea']['ServiceAreaCode'] . ', '. 
-                            $shipmentInfo['DestinationServiceArea']['Description'],),
-            'events' => $events,
-            'shipmentInfo' => array(
-                'tracking' => $info['AWBNumber'],
-                'notification' => '',
-                'numberPieces' => '',
-                'packageNumber' => '',
-                'packaging' => '',
-                'pickupDate' => '',
-                'service' => '',
-                'statusMessage' => '',
-                'weight' => '',
-                'lastUpdated' => '',
-            )
+            'status' => array(
+                'code' => self::RESPONSE_STATUS_SUCCESS_CODE,
+                'dateTime' => '',
+                'referenceId' => ''
+            ), 
+            'trackingDetails' => array(
+                'trackingNumber' => $info['AWBNumber'],
+                'statusDetail' => array(
+                    'creationTime' => $endEvent['date'],
+                    'code' => $endEvent['eventCode'],
+                    'description' => $endEvent['eventDescription'],
+                    'location' => array(
+                        'streetLines' => '',
+                        'City' => '',
+                        'stateOrProvinceCode' => $endEvent['address']['StateOrProvinceCode'],
+                        'countryCode' => '',
+                        'countryName' => $endEvent['address']['countryName'],
+                    ),                
+                ),
+                'carrierCode' => '',
+                'OperatingCompanyOrCarrierDescription' => '',
+                'originAddress' => array(
+                    'StateOrProvinceCode' => $shipmentInfo['OriginServiceArea']['ServiceAreaCode'],
+                    'countryCode' => '',
+                    'countryName' => $shipmentInfo['OriginServiceArea']['Description'],
+                ),
+                'destionationAddress' => array(
+                    'StateOrProvinceCode' => $shipmentInfo['DestinationServiceArea']['ServiceAreaCode'],
+                    'countryCode' => '',
+                    'countryName' => $shipmentInfo['DestinationServiceArea']['Description'],
+                ),
+                'events' => $events,
+                'shipmentInfo' => array(
+                    'weight' => array(
+                        'value' => $shipmentInfo['Weight'],
+                        'units' => $shipmentInfo['WeightUnit'],
+                    ),
+                    'dimensions' => array(
+                        'length' => '',
+                        'width' => '',
+                        'height' => '',
+                        'units' => '',
+                    ),                
+                    'notification' => array(
+                        'code' => '',
+                        'Message' => '',
+                    ),                
+                    'numberPieces' => $shipmentInfo['Pieces'],
+                    'PackageSequenceNumber' => '',                
+                    'packaging' => '',
+                    'service' =>  array(                    
+                        'description' => $shipmentInfo['ShipmentDesc'],                    
+                    ),                
+                    'pickupDate' => '', //shipTimestamp on fedex                                
+                    'lastUpdated' => '', //ActualDeliveryTimestamp on fedex
+                )
+            ),        
         );
         return $response;
     }
-    public function getTsracking()
-    {        
-        return $this->service->getTracking();
-    }
+    
     
     public function isSearchKeyOwner($searchkey)
     {
-        return false;
+        return true;
     }
     
     public function setWs($wsConfig)

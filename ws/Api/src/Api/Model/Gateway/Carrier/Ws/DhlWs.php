@@ -13,14 +13,17 @@ class DhlWs {
     public $httpClient;
     
     public $params;
-
+    
+    const ERROR_GENERIC_CODE = 500;
+    
+    const ERROR_GENERIC_MESSAGE = 'Error de conexión';
 
     public function __construct($config, $params) {
         $this->config = $config;
         $this->params = $params;
     }
 
-    public function getTracking() 
+    public function getTracking($params = array()) 
     {
         $params = array(
             'messageTime' => date('c'),
@@ -56,19 +59,44 @@ class DhlWs {
     }
 
     private function send($url, $xml) {
-        $this->httpClient = new \Zend\Http\Client(null, array(
-            'adapter' => 'Zend\Http\Client\Adapter\Curl',
-            'curloptions' => array(
-                CURLOPT_SSL_VERIFYHOST => false,
-                CURLOPT_SSL_VERIFYPEER => false,
-                CURLOPT_TIMEOUT => 120,
-            ),
-        )); 
-        $this->httpClient->setUri($url);
-        $this->httpClient->setMethod('POST');
-        $this->httpClient->setRawBody($xml);
-        $response = $this->httpClient->send();
-        return $this->parseXml($response->getBody());
+        $response = array(
+            'success' => false,
+            'error' => array(
+                'code' => self::ERROR_GENERIC_CODE,
+                'message' => self::ERROR_GENERIC_MESSAGE
+                )
+            );
+        try {
+            $this->httpClient = new \Zend\Http\Client(null, array(
+                'adapter' => 'Zend\Http\Client\Adapter\Curl',
+                'curloptions' => array(
+                    CURLOPT_SSL_VERIFYHOST => false,
+                    CURLOPT_SSL_VERIFYPEER => false,
+                    CURLOPT_TIMEOUT => 120,
+                ),
+            )); 
+            $this->httpClient->setUri($url);
+            $this->httpClient->setMethod('POST');
+            $this->httpClient->setRawBody($xml);
+            $responseHttp = $this->httpClient->send();
+            $responseBody = $this->parseXml($responseHttp->getBody());
+            if(!empty($responseBody['AWBInfo']['Status'])){
+                $response = array(
+                    'success' => true,
+                    'data' => $responseBody
+                ); 
+            }
+        } catch (\Exception $e) {
+           $response = array(
+            'success' => false,
+            'error' => array(
+                'code' => $e->getCode(),
+                'message' => $e->getMessage()
+                )
+            ); 
+            echo $e->getTraceAsString();
+        }
+        return $response;
     }
     
     protected function parseXml($xmlString)
