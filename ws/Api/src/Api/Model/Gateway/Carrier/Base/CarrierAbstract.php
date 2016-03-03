@@ -7,6 +7,8 @@ use Search\Model\Service\SearchService;
 use Statistic\Model\Service\ServiceApikeyService;
 use Apikey\Model\Service\ApikeyService;
 use Search\Model\Service\TrackService;
+use Carrier\Model\Service\RequestService;
+use Zend\Http\Client;
 
 abstract class CarrierAbstract implements CarrierInterface
 {
@@ -201,6 +203,29 @@ abstract class CarrierAbstract implements CarrierInterface
         
         return $return;
     }
+    
+    public function saveCarrierResponse($searchId)
+    {
+        $client = $this->service->getClient();
+        $request = '';
+        $response = null;        
+        
+        if ($client instanceof \SoapClient) {
+            $request = $client->__getLastRequest();
+            $response = $client->__getLastResponse();
+        } else if ($client instanceof Client) {
+            $request = $client->getLastRawRequest();
+            $response = $client->getLastRawResponse();
+        }
+        
+        $requestData = array(
+            'request' => !empty ($request) ? serialize($request) : null,
+            'response' => !empty ($response) ? serialize($response) : null,
+            'searchId' => $searchId,            
+        );
+        
+        $this->getRequestService()->getRepository()->save($requestData);        
+    }
 
     public function setParams($params)
     {
@@ -255,6 +280,14 @@ abstract class CarrierAbstract implements CarrierInterface
     public function getServiceApikeyService()
     {
         return $this->serviceLocator->get('Model\ServiceApikeyService');
+    }
+    
+    /**
+     * @return RequestService
+     */
+    public function getRequestService()
+    {
+        return $this->serviceLocator->get('Model\RequestService');
     }
     
     abstract public function isSearchKeyOwner($searchkey);
