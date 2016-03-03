@@ -2,30 +2,12 @@
 
 namespace Api\Controller;
 
-use Zend\Mvc\Controller\AbstractRestfulController;
 use Api\Model\Service\TrackingService;
+use Api\Controller\Base\BaseRestfulController;
+use Service\Model\Repository\ServiceRepository;
 
-class TrackingController extends AbstractRestfulController
+class TrackingController extends BaseRestfulController
 {
-    const ERROR_CODE = 555;
-    const ERROR_MESSAGE = 'Parametros de entrada no validos';
-
-    public $response = array(
-        'status' => array(
-            'code' => self::RESPONSE_STATUS_ERROR_CODE,
-            'dateTime' => '',
-        ),
-        'error' => array (
-            'code' => '',
-            'message' => '',
-            'description' => '',
-            'errors' => array(
-                'code' => '',
-                'field' => '',
-                'message' => ''
-            ),
-        ),
-    );
     
     public function getList()
     {
@@ -33,19 +15,17 @@ class TrackingController extends AbstractRestfulController
     }
 
     public function get($id)
-    {
-        return array(); 
+    {        
+        $params = $this->getRequestParams();      
+        $params['serviceId'] = ServiceRepository::ENDPOINT_TRACKING_ID;
+        $params['serarchKey'] = $params['id'];
+        $trackingService = $this->getTrackingService();
+        return $trackingService->getTracking($params);
     }
 
     public function create($data)
     {
-       $responseValidation = $this->getValidation($data);
-       if(!empty($responseValidation)) {
-           $this->response['error']['code'] = self::ERROR_CODE;
-           $this->response['error']['message'] = self::ERROR_MESSAGE;
-           $this->response['error']['errors'] = $responseValidation;
-       }
-       
+       return array();
     }
 
     public function update($id, $data)
@@ -57,33 +37,11 @@ class TrackingController extends AbstractRestfulController
     {
 
     }
-    
-    public function getValidation($params = array())
-    {
-        $response = array();
-        if(empty($params['key'])) {
-            $response[] = array(
-                'code' => 1,
-                'field' => '',
-                'message' => 'Key no se ha enviado',
-            );
-        }
-        
-        if(empty($params['trackings'])) {
-            $response[] = array(
-                'code' => 2,
-                'field' => '',
-                'message' => 'Trackings no enviados',
-            );
-        }
-        return $response;
-    }
-
     /**
      * @return TrackingService
      */
-    public function getMultiTrackingService()
+    public function getTrackingService()
     {
-        return $this->getServiceLocator()->get('Api\Model\MultiTrackingService');
+        return $this->getServiceLocator()->get('Api\Model\TrackingService');
     }
 }

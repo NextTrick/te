@@ -4,20 +4,23 @@ namespace Api\Model\Gateway\Carrier;
 
 use Api\Model\Gateway\Carrier\Base\CarrierAbstract;
 use Api\Model\Gateway\Carrier\Ws\DhlWs;
+use Carrier\Model\Repository\CarrierRepository;
 
 class DhlCarrier extends CarrierAbstract
 {
     const ALIAS = 'Dhl';
     
-    const STATUS_SUCCESS = 'success';
+    const DB_ID = CarrierRepository::DHL_ID;
 
+    const STATUS_SUCCESS = 'success';
 
     public function __construct($serviceLocator) 
     {
        $this->serviceLocator = $serviceLocator;       
     }
     
-    public function getTracking($params = array()) {
+    public function getTracking($params = array()) 
+    {
         return $this->formatResponse($this->service->getTracking($params));
     }
     

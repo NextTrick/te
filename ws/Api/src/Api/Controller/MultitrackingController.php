@@ -2,7 +2,7 @@
 
 namespace Api\Controller;
 
-class MultiTrackingController extends BaseController
+class MultitrackingController extends BaseController
 {
     public function getList()
     {
@@ -17,6 +17,8 @@ class MultiTrackingController extends BaseController
 
     public function get($id)
     {
+        $params = $this->params()->fromRoute();
+        var_dump($params); exit;
         $trackingService = $this->getTrackingService();        
         return $trackingService->getMuliTracking(array('searchKey' => $id)); exit; 
     }

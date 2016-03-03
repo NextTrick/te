@@ -21,6 +21,7 @@ return array(
     'controllers' => array(
         'invokables' => array(
             'tracking' => 'Api\Controller\TrackingController',
+            'unified-tracking' => 'Api\Controller\UnifiedTrackingController',
         )
     ),
     'router' => array(
@@ -28,8 +29,10 @@ return array(
             'restful' => array(
                 'type' => 'Zend\Mvc\Router\Http\Segment',
                 'options' => array(
-                    'route' => '/api/:controller[.:formatter][/:id]',
+                    'route' => '/:controller[/:id]',
                     'constraints' => array(
+                        '__NAMESPACE__' => 'Api\Controller',                        
+                        'module'        => 'Api',
                         'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
                         'formatter' => '[a-zA-Z][a-zA-Z0-9_-]*',
                         'id' => '[a-zA-Z0-9_-]*'

@@ -5,6 +5,8 @@ namespace Api\Model\Gateway\Carrier\Base;
 use Api\Model\Gateway\Carrier\Base\CarrierInterface;
 use Search\Model\Service\SearchService;
 use Statistic\Model\Service\ServiceApikeyService;
+use Apikey\Model\Service\ApikeyService;
+use Search\Model\Service\TrackService;
 
 abstract class CarrierAbstract implements CarrierInterface
 {
@@ -138,30 +140,65 @@ abstract class CarrierAbstract implements CarrierInterface
     }
     
     public function saveSearch($params)
-    {
+    {      
+        $apikeyId = $this->getApikeyService()->getRepository()->getByKey($params['key']);
+                
         $serviceApikeyData = array(
-            'serviceId' => 1, //TODO: Obtener dinamicamente
-            'apikeyId' => 1, //TODO: Obtener dinamicamente            
+            'serviceId' => $params['serviceId'],
+            'apikeyId' => $apikeyId,
         );
         
         $serviceApikeyId = $this->getServiceApikeyService()
                 ->save($serviceApikeyData);
                         
         $searchData = array(
-            'carrierId' => 1, //TODO: Obtener dinamicamente
+            'carrierId' => $this::DB_ID,
             'serviceApikeyId' => $serviceApikeyId,
-            'trackingId' => $params['searchKey'],
+            'trackingKey' => $params['searchKey'],
             'ip' => \Util\Common\Util::getIpClient(),                        
         );
         
         return $this->getSearchService()->save($searchData);
     }
-    
-    public function updateSearch($searchId, $updateData)
-    {
-        //TODO: LLENAR DATA en las tablas fcb_carrier_request y fcb_search_tracking
+            
+    public function updateSearch($searchId)
+    {        
+        $trackingData = array(
+            'searchId' => $searchId,
+            'carrierId' => $this::DB_ID,
+            'trackingKey' => $this->tracking['trackingDetails']['trackingNumber'],
+            'statusCreationDateTime' => $this->tracking['trackingDetails']['statusDetail']['creationDateTime'],
+            'statusCode' => $this->tracking['trackingDetails']['statusDetail']['code'],
+            'statusDescription' => $this->tracking['trackingDetails']['statusDetail']['description'],
+            'statusLocStateOrProvinceCode' => $this->tracking['trackingDetails']['statusDetail']['location']['stateOrProvinceCode'],
+            'statusLocCountryCode' => $this->tracking['trackingDetails']['statusDetail']['location']['countryCode'],
+            'statusLocCountryName' => $this->tracking['trackingDetails']['statusDetail']['location']['countryName'],
+            'track' => json_encode($this->tracking),
+        );
+        
+        $this->getTrackService()->getRepository()->save($trackingData);
+        
+        $this->tracking['status']['referenceId'] = str_pad($searchId, 10, '0', STR_PAD_LEFT);
     }
     
+    public function getLastValidTrack($trackingKey)
+    {
+        $return = array();
+        
+        $partnerId = $this::DB_ID;
+        $config = $this->getServiceLocator()->get('config');
+        $trackLifeTime = $config['carrier']['trackLifeTime'];
+        
+        $trackData = $this->getTrackService()->geRepository()
+                ->getLastValidTrack($trackingKey, $partnerId, $trackLifeTime);
+        
+        if (!empty($trackData)) {
+            $return = json_decode($trackData['track']);
+        }
+        
+        return $return;
+    }
+
     public function setParams($params)
     {
         $this->params = $params;
@@ -172,12 +209,41 @@ abstract class CarrierAbstract implements CarrierInterface
         return  $this->params;
     }
     
+    public function getServiceLocator()
+    {
+        return $this->serviceLocator;
+    }
+    
+    /**
+     * @return SearchService
+     */
+    public function getServiceService()
+    {
+        return $this->serviceLocator->get('Model\ServiceService');
+    }
+    
     /**
      * @return SearchService
      */
     public function getSearchService()
     {
         return $this->serviceLocator->get('Model\SearchService');
+    }
+    
+    /**
+     * @return ApikeyService
+     */
+    public function getApikeyService()
+    {
+        return $this->serviceLocator->get('Model\ApikeyService');
+    }
+    
+    /**
+     * @return TrackService
+     */
+    public function getTrackService()
+    {
+        return $this->serviceLocator->get('Model\TrackService');
     }
     
     /**

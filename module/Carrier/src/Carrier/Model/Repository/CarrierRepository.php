@@ -9,8 +9,11 @@ class CarrierRepository extends AbstractRepository
     
     protected $_id = 'carrierId';
     
-    const STATUS_ACTIVE = 1;
+    const STATUS_ACTIVE = 1;    
     const STATUS_INACTIVE = 0;
+    
+    const FEDEX_ID = 1;
+    const DHL_ID = 2;
     
     public function getByStatus($status = 1)
     {

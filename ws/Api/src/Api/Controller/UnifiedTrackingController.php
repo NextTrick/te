@@ -1,10 +1,10 @@
 <?php
-
 namespace Api\Controller;
 
-class UnifiedTrackingController extends BaseController
+use Api\Controller\Base\BaseRestfulController;
+class UnifiedTrackingController extends BaseRestfulController
 {
-     public function getList()
+    public function getList()
     {
         return array();        
     }
@@ -16,7 +16,8 @@ class UnifiedTrackingController extends BaseController
 
     public function create($data)
     {
-       
+        $this->getMultiTrackingService()
+                   ->insertMultiTracking($data['trackings']);        
     }
 
     public function update($id, $data)
@@ -28,12 +29,12 @@ class UnifiedTrackingController extends BaseController
     {
 
     }
-    
+   
     /**
-     * @return TrackingService
+     * @return \Service\Model\Service\ServiceMultiTrackingService
      */
-    public function getTrackingService()
+    public function getMultiTrackingService()
     {
-        return $this->getServiceLocator()->get('Api\Model\TrackingService');
+        return $this->getServiceLocator()->get('Service\Model\ServiceMultiTrackingService');
     }
 }
