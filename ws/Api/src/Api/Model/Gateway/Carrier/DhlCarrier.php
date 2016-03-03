@@ -76,58 +76,61 @@ class DhlCarrier extends CarrierAbstract
                 'referenceId' => ''
             ), 
             'trackingDetails' => array(
-                'trackingNumber' => $info['AWBNumber'],
-                'statusDetail' => array(
-                    'creationTime' => $endEvent['date'],
-                    'code' => $endEvent['eventCode'],
-                    'description' => $endEvent['eventDescription'],
-                    'location' => array(
-                        'streetLines' => '',
-                        'City' => '',
-                        'stateOrProvinceCode' => $endEvent['address']['StateOrProvinceCode'],
-                        'countryCode' => '',
-                        'countryName' => $endEvent['address']['countryName'],
-                    ),                
-                ),
-                'carrierCode' => '',
-                'OperatingCompanyOrCarrierDescription' => '',
-                'originAddress' => array(
-                    'StateOrProvinceCode' => $shipmentInfo['OriginServiceArea']['ServiceAreaCode'],
-                    'countryCode' => '',
-                    'countryName' => $shipmentInfo['OriginServiceArea']['Description'],
-                ),
-                'destionationAddress' => array(
-                    'StateOrProvinceCode' => $shipmentInfo['DestinationServiceArea']['ServiceAreaCode'],
-                    'countryCode' => '',
-                    'countryName' => $shipmentInfo['DestinationServiceArea']['Description'],
-                ),
-                'events' => $events,
-                'shipmentInfo' => array(
-                    'weight' => array(
-                        'value' => $shipmentInfo['Weight'],
-                        'units' => $shipmentInfo['WeightUnit'],
+                array(
+                    'trackingKey' => $info['AWBNumber'],
+                    'statusDetail' => array(
+                        'creationTime' => $endEvent['date'],
+                        'code' => $endEvent['eventCode'],
+                        'description' => $endEvent['eventDescription'],
+                        'location' => array(
+                            'streetLines' => '',
+                            'City' => '',
+                            'stateOrProvinceCode' => $endEvent['address']['StateOrProvinceCode'],
+                            'countryCode' => '',
+                            'countryName' => $endEvent['address']['countryName'],
+                        ),                
                     ),
-                    'dimensions' => array(
-                        'length' => '',
-                        'width' => '',
-                        'height' => '',
-                        'units' => '',
-                    ),                
-                    'notification' => array(
-                        'code' => '',
-                        'Message' => '',
-                    ),                
-                    'numberPieces' => $shipmentInfo['Pieces'],
-                    'PackageSequenceNumber' => '',                
-                    'packaging' => '',
-                    'service' =>  array(                    
-                        'description' => $shipmentInfo['ShipmentDesc'],                    
-                    ),                
-                    'pickupDate' => '', //shipTimestamp on fedex                                
-                    'lastUpdated' => '', //ActualDeliveryTimestamp on fedex
-                )
-            ),        
+                    'carrierCode' => '',
+                    'OperatingCompanyOrCarrierDescription' => '',
+                    'originAddress' => array(
+                        'StateOrProvinceCode' => $shipmentInfo['OriginServiceArea']['ServiceAreaCode'],
+                        'countryCode' => '',
+                        'countryName' => $shipmentInfo['OriginServiceArea']['Description'],
+                    ),
+                    'destionationAddress' => array(
+                        'StateOrProvinceCode' => $shipmentInfo['DestinationServiceArea']['ServiceAreaCode'],
+                        'countryCode' => '',
+                        'countryName' => $shipmentInfo['DestinationServiceArea']['Description'],
+                    ),
+                    'events' => $events,
+                    'shipmentInfo' => array(
+                        'weight' => array(
+                            'value' => $shipmentInfo['Weight'],
+                            'units' => $shipmentInfo['WeightUnit'],
+                        ),
+                        'dimensions' => array(
+                            'length' => '',
+                            'width' => '',
+                            'height' => '',
+                            'units' => '',
+                        ),                
+                        'notification' => array(
+                            'code' => '',
+                            'Message' => '',
+                        ),                
+                        'numberPieces' => $shipmentInfo['Pieces'],
+                        'PackageSequenceNumber' => '',                
+                        'packaging' => '',
+                        'service' =>  array(                    
+                            'description' => $shipmentInfo['ShipmentDesc'],                    
+                        ),                
+                        'pickupDate' => '', //shipTimestamp on fedex                                
+                        'lastUpdated' => '', //ActualDeliveryTimestamp on fedex
+                    )
+                ),
+            ),
         );
+        
         return $response;
     }
     

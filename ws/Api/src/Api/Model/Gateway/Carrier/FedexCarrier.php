@@ -48,18 +48,18 @@ class FedexCarrier extends CarrierAbstract
                     $trackingDetails = array($trackingDetails);
                 }
 
-                foreach ($trackingDetails as $trackingDetail) {                    
-                    $returnData['trackingDetails']['trackingNumber'] = $trackingDetail->TrackingNumber;
+                foreach ($trackingDetails as $key => $trackingDetail) {                    
+                    $returnData['trackingDetails'][$key]['trackingKey'] = $trackingDetail->TrackingNumber;
 
                     $statusDetail = $trackingDetail->StatusDetail;
-                    $returnData['trackingDetails']['statusDetail'] = array(
+                    $returnData['trackingDetails'][$key]['statusDetail'] = array(
                         'creationDateTime' => $statusDetail->CreationTime,
                         'code' => $statusDetail->Code,
                         'description' => $statusDetail->Description,
                         'creationDateTime' => $statusDetail->CreationTime,
                     );
 
-                    $returnData['trackingDetails']['statusDetail']['location'] = array(                                       
+                    $returnData['trackingDetails'][$key]['statusDetail']['location'] = array(                                       
                         'city' => $statusDetail->Location->City,
                         'stateOrProvinceCode' => $statusDetail->Location->StateOrProvinceCode,
                         'countryCode' => $statusDetail->Location->CountryCode,
@@ -67,22 +67,22 @@ class FedexCarrier extends CarrierAbstract
                     );
 
                     if (!empty($statusDetail->Location->StreetLines)) {
-                        $returnData['trackingDetails']['statusDetail']['location']['streetLines'] 
+                        $returnData['trackingDetails'][$key]['statusDetail']['location']['streetLines'] 
                                 = $statusDetail->Location->StreetLines;
                     }
 
-                    $returnData['trackingDetails']['carrierCode'] = $trackingDetail->CarrierCode;
-                    $returnData['trackingDetails']['OperatingCompanyOrCarrierDescription'] 
+                    $returnData['trackingDetails'][$key]['carrierCode'] = $trackingDetail->CarrierCode;
+                    $returnData['trackingDetails'][$key]['OperatingCompanyOrCarrierDescription'] 
                             = $trackingDetail->OperatingCompanyOrCarrierDescription;
 
-                    $returnData['trackingDetails']['destionationAddress'] = array(
+                    $returnData['trackingDetails'][$key]['destionationAddress'] = array(
                         'stateOrProvinceCode' => $trackingDetail->DestinationAddress->StateOrProvinceCode,
                         'countryCode' => $trackingDetail->DestinationAddress->CountryCode,
                         'countryName' => $trackingDetail->DestinationAddress->CountryName,
                     ); 
 
-                    foreach ($trackingDetail->Events as $key => $event) {                    
-                        $returnData['trackingDetails']['events'][$key] = array(
+                    foreach ($trackingDetail->Events as $k => $event) {                    
+                        $returnData['trackingDetails'][$key]['events'][$k] = array(
                             'dateTime' => $event->Timestamp,
                             'eventCode' => $event->EventType,
                             'eventDescription' => $event->EventDescription,
@@ -94,19 +94,19 @@ class FedexCarrier extends CarrierAbstract
                         );
 
                         if (!empty($event->Address->StateOrProvinceCode)) {
-                            $returnData['trackingDetails']['events'][$key]['address']['stateOrProvinceCode'] =
+                            $returnData['trackingDetails'][$key]['events'][$k]['address']['stateOrProvinceCode'] =
                                     $event->Address->StateOrProvinceCode;
                         }
                     }
 
-                    $firstEvent = reset($returnData['trackingDetails']['events']);
-                    $returnData['trackingDetails']['originAddress'] = array(
+                    $firstEvent = reset($returnData['trackingDetails'][$key]['events']);
+                    $returnData['trackingDetails'][$key]['originAddress'] = array(
                         'stateOrProvinceCode' => $firstEvent['address']['stateOrProvinceCode'],
                         'countryName' => $firstEvent['address']['countryName'],
                         'countryCode' => $firstEvent['address']['countryCode'],
                     );
 
-                    $returnData['trackingDetails']['shipmentInfo'] = array(
+                    $returnData['trackingDetails'][$key]['shipmentInfo'] = array(
                         'weight' => array(
                             'value' => $trackingDetail->PackageWeight->Value,
                             'units' => $trackingDetail->PackageWeight->Units,
@@ -130,7 +130,7 @@ class FedexCarrier extends CarrierAbstract
                         'pickupDateTime' => $trackingDetail->ShipTimestamp, //shipTimestamp on fedex                                                           
                     ); 
                     if (!empty($trackingDetail->ActualDeliveryTimestamp)) {
-                        $returnData['trackingDetails']['shipmentInfo']['lastUpdated'] 
+                        $returnData['trackingDetails'][$key]['shipmentInfo']['lastUpdated'] 
                                 = $trackingDetail->ActualDeliveryTimestamp; //ActualDeliveryTimestamp on fedex
                     }  
                 }

@@ -24,7 +24,7 @@ class TrackingController extends BaseRestfulController
         $params['key'] = '2342FF2343223FFFSS';
         $trackingService = $this->getTrackingService();  
         
-        return $trackingService->getTracking($params);        
+//        return $trackingService->getTracking($params);        
         var_dump($trackingService->getTracking($params)); exit;
     }
 

@@ -43,16 +43,6 @@ class FedexWs extends BaseWs
         $this->soapClient = new \SoapClient($wsdlFile, array('trace' => 1));       
     }
         
-    public function getTracking()
-    {
-        return 'OKS';
-    }
-
-    public function getMultitracking()
-    {
-        
-    }
-    
     public function getByTrackingNumber($trackingNumber)
     {                  
         $responseData = array('success' => true);        

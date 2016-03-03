@@ -23,67 +23,69 @@ abstract class CarrierAbstract implements CarrierInterface
             'referenceId' => ''
         ),        
         'trackingDetails' => array(
-            'trackingNumber' => '',
-            'statusDetail' => array(
-                'creationDateTime' => '',
-                'code' => '',
-                'description' => '',
-                'location' => array(
-                    'streetLines' => '',
-                    'City' => '',
+            array(
+                'trackingKey' => '',
+                'statusDetail' => array(
+                    'creationDateTime' => '',
+                    'code' => '',
+                    'description' => '',
+                    'location' => array(
+                        'streetLines' => '',
+                        'City' => '',
+                        'stateOrProvinceCode' => '',
+                        'countryCode' => '',
+                        'countryName' => '',
+                    ),                
+                ),
+                'carrierCode' => '',
+                'OperatingCompanyOrCarrierDescription' => '',            
+                'originAddress' => array(
                     'stateOrProvinceCode' => '',
                     'countryCode' => '',
                     'countryName' => '',
-                ),                
-            ),
-            'carrierCode' => '',
-            'OperatingCompanyOrCarrierDescription' => '',            
-            'originAddress' => array(
-                'stateOrProvinceCode' => '',
-                'countryCode' => '',
-                'countryName' => '',
-            ),            
-            'destionationAddress' => array(
-                'stateOrProvinceCode' => '',
-                'countryCode' => '',
-                'countryName' => '',
-            ),
-            'events' => array(
-                array(
-                    'dateTime' => '',                    
-                    'eventCode' => '',
-                    'eventDescription' => '',
-                    'address' => array(
-                        'postalCode' => '',
-                        'stateOrProvinceCode' => '',
-                        'countryName' => '',
-                        'countryCode' => '',                                                
-                    ),                    
-                )
-            ),
-            'shipmentInfo' => array(
-                'weight' => array(
-                    'value' => '',
-                    'units' => '',
+                ),            
+                'destionationAddress' => array(
+                    'stateOrProvinceCode' => '',
+                    'countryCode' => '',
+                    'countryName' => '',
                 ),
-                'dimensions' => array(
-                    'length' => '',
-                    'width' => '',
-                    'height' => '',
-                    'units' => '',
-                ),                
-                'notification' => array(
-                    'code' => '',
-                    'message' => '',
-                ),                
-                'numberOfPieces' => '',
-                'packageSequenceNumber' => '',                
-                'packaging' => '',
-                'service' =>  array(                    
-                    'description' => ''                    
-                ),                
-                'pickupDateTime' => '', //shipTimestamp on fedex                                
-                'lastUpdated' => '', //ActualDeliveryTimestamp on fedex
+                'events' => array(
+                    array(
+                        'dateTime' => '',                    
+                        'eventCode' => '',
+                        'eventDescription' => '',
+                        'address' => array(
+                            'postalCode' => '',
+                            'stateOrProvinceCode' => '',
+                            'countryName' => '',
+                            'countryCode' => '',                                                
+                        ),                    
+                    )
+                ),
+                'shipmentInfo' => array(
+                    'weight' => array(
+                        'value' => '',
+                        'units' => '',
+                    ),
+                    'dimensions' => array(
+                        'length' => '',
+                        'width' => '',
+                        'height' => '',
+                        'units' => '',
+                    ),                
+                    'notification' => array(
+                        'code' => '',
+                        'message' => '',
+                    ),                
+                    'numberOfPieces' => '',
+                    'packageSequenceNumber' => '',                
+                    'packaging' => '',
+                    'service' =>  array(                    
+                        'description' => ''                    
+                    ),                
+                    'pickupDateTime' => '', //shipTimestamp on fedex                                
+                    'lastUpdated' => '', //ActualDeliveryTimestamp on fedex
+                )
             )
         ),        
     );
@@ -162,21 +164,23 @@ abstract class CarrierAbstract implements CarrierInterface
             
     public function updateSearch($searchId)
     {        
-        $trackData = array(
-            'searchId' => $searchId,
-            'carrierId' => $this::DB_ID,
-            'trackingKey' => $this->tracking['trackingDetails']['trackingNumber'],
-            'statusCreationDateTime' => $this->tracking['trackingDetails']['statusDetail']['creationDateTime'],
-            'statusCode' => $this->tracking['trackingDetails']['statusDetail']['code'],
-            'statusDescription' => $this->tracking['trackingDetails']['statusDetail']['description'],
-            'statusLocStateOrProvinceCode' => $this->tracking['trackingDetails']['statusDetail']['location']['stateOrProvinceCode'],
-            'statusLocCountryCode' => $this->tracking['trackingDetails']['statusDetail']['location']['countryCode'],
-            'statusLocCountryName' => $this->tracking['trackingDetails']['statusDetail']['location']['countryName'],
-            'track' => json_encode($this->tracking),
-        );
-        
-        $this->getTrackService()->getRepository()->save($trackData);
-        
+        foreach ($this->tracking['trackingDetails'] as $tracking) {
+            $trackData = array(
+                'searchId' => $searchId,
+                'carrierId' => $this::DB_ID,
+                'trackingKey' => $tracking['trackingKey'],
+                'statusCreationDateTime' =>$tracking['statusDetail']['creationDateTime'],
+                'statusCode' => $tracking['statusDetail']['code'],
+                'statusDescription' => $tracking['statusDetail']['description'],
+                'statusLocStateOrProvinceCode' => $tracking['statusDetail']['location']['stateOrProvinceCode'],
+                'statusLocCountryCode' => $tracking['statusDetail']['location']['countryCode'],
+                'statusLocCountryName' => $tracking['statusDetail']['location']['countryName'],
+                'track' => json_encode($this->tracking),
+            );
+
+            $this->getTrackService()->getRepository()->save($trackData);
+        }
+                
         $this->tracking['status']['referenceId'] = str_pad($searchId, 10, '0', STR_PAD_LEFT);
     }
     
