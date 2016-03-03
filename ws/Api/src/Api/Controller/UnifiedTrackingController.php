@@ -16,8 +16,11 @@ class UnifiedTrackingController extends BaseRestfulController
 
     public function create($data)
     {
-        $this->getMultiTrackingService()
-                   ->insertMultiTracking($data['trackings']);        
+        if(empty($this->apikeyId)) {
+            return $this->skeletonResponse;
+        }
+        return $this->getMultiTrackingService()
+                   ->insertMultiTracking($data);        
     }
 
     public function update($id, $data)
@@ -31,10 +34,10 @@ class UnifiedTrackingController extends BaseRestfulController
     }
    
     /**
-     * @return \Service\Model\Service\ServiceMultiTrackingService
+     * @return \Service\Model\Service\MultiTrackingService
      */
     public function getMultiTrackingService()
     {
-        return $this->getServiceLocator()->get('Service\Model\ServiceMultiTrackingService');
+        return $this->getServiceLocator()->get('Model\MultiTrackingService');
     }
 }

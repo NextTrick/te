@@ -3,10 +3,10 @@ namespace Service\Model\Service;
 
 use Util\Model\Service\Base\AbstractService;
 use Api\Model\Gateway\Carrier\Base\CarrierAbstract;
-class ServiceMultiTrackingService extends AbstractService
+
+class MultiTrackingService extends AbstractService
 {
     const ERROR_CODE = 555;
-    
     const ERROR_MESSAGE = 'Parametros de entrada no validos';
     
     public function insertMultiTracking($tractings = array())
@@ -24,23 +24,23 @@ class ServiceMultiTrackingService extends AbstractService
            $response['error']['message'] = self::ERROR_MESSAGE;
            $response['error']['errors'] = $responseValidation;
        }
-       var_dump($response);exit;
-       if($response['status']['code'] = CarrierAbstract::RESPONSE_STATUS_SUCCESS_CODE){
-           $this->getRepository()->insertMultiTracking($tractings);
+       if($response['status']['code'] == CarrierAbstract::RESPONSE_STATUS_SUCCESS_CODE){
+           $idMultiTracking = $this->getRepository()
+                   ->insert(array(
+                       'trackingIds' => json_encode($tractings['trackings']),
+                       'apiKeyId' => '',
+                       'creationDate' => date('Y-m-d H:i:s'),
+                       'token' => sha1()
+                   ));
+          $response['data'] = array(
+                'idMultiTracking' => $idMultiTracking,
+              ); 
        }
+       return $response;
     }
     
     public function getValidation($params = array())
     {
-        $response = array();
-        if(empty($params['key'])) {
-            $response[] = array(
-                'code' => 1,
-                'field' => '',
-                'message' => 'Key no se ha enviado',
-            );
-        }
-        
         if(empty($params['trackings'])) {
             $response[] = array(
                 'code' => 2,
