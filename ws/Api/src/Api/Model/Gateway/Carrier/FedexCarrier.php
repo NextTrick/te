@@ -138,7 +138,7 @@ class FedexCarrier extends CarrierAbstract
                 $returnData['status']['code'] = self::RESPONSE_STATUS_SUCCESS_CODE;            
                 $returnData = array_merge($this->trackingSkeleton, $returnData);                       
             } else {                
-                $returnData['status']['code'] = self::RESPONSE_STATUS_ERROR_CODE_CODE;
+                $returnData['status']['code'] = self::RESPONSE_STATUS_ERROR_CODE;
                 $returnData['error']['code'] = self::ERROR_GENERIC_CODE;
                 $returnData['error']['message'] = self::ERROR_GENERIC_MESSAGE;
 
