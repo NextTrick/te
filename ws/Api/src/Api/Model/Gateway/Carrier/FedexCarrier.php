@@ -25,7 +25,7 @@ class FedexCarrier extends CarrierAbstract
     {        
         $searchId = $this->saveSearch($params);  
         $this->tracking = $this->getByTrackingNumber($params['searchKey']); 
-        $this->saveCarrierResponse($searchId);        
+        $this->saveResquest($searchId);        
         if ($this->tracking['status']['code'] == self::RESPONSE_STATUS_SUCCESS_CODE) {
             $this->updateSearch($searchId);            
         }
