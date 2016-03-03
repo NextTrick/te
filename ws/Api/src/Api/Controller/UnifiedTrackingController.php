@@ -19,6 +19,7 @@ class UnifiedTrackingController extends BaseRestfulController
         if(empty($this->apikeyId)) {
             return $this->skeletonResponse;
         }
+        
         return $this->getMultiTrackingService()
                    ->insertMultiTracking($data);        
     }

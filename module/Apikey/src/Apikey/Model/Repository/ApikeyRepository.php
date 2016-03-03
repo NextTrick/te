@@ -5,7 +5,7 @@ use Util\Model\Repository\Base\AbstractRepository;
 
 class ApikeyRepository extends AbstractRepository
 {
-    protected $_table = 'fcb_service_apikey';
+    protected $_table = 'fcb_apikey_apikey';
     
     protected $_id = 'apikeyId';
     

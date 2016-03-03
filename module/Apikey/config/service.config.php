@@ -1,9 +1,9 @@
 <?php
-namespace Service;
+namespace Apikey;
 
 return array(
     'factories' => array(
-        'Model\ApiKeyService' => 'Service\Model\Service\Factory\ApiKeyFactory',    
+        'Model\ApikeyService' => 'Apikey\Model\Service\Factory\ApikeyFactory',    
     ),
     'invokables' => array(        
     ),
