@@ -117,6 +117,7 @@ return array(
         ),
     ),
     'carrier' => array(
+        'trackLifeTime' => 5, // minutes
         'Dhl' => array(
             'tracking' => array(
                 'siteId' => '846176581',

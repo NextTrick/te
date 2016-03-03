@@ -2,9 +2,7 @@
 
 namespace Api\Model\Gateway\Carrier\Ws;
 
-use Api\Model\Gateway\Carrier\Ws\Fedex\Fedex;
-
-class FedexWs extends Fedex
+class FedexWs
 {
     protected $soapClient;
     
@@ -57,7 +55,7 @@ class FedexWs extends Fedex
     }
     
     public function getByTrackingNumber($trackingNumber)
-    {        
+    {                  
         $responseData = array('success' => true);        
         $trackingNumber = '149331877648230';  
         $request = $this->prepareRequest($trackingNumber);        

@@ -4,19 +4,19 @@ namespace Search\Model\Service\Factory;
 
 use Zend\ServiceManager\ServiceLocatorInterface,
     Zend\ServiceManager\FactoryInterface;
-use Search\Model\Service\TrackingService;
-use Search\Model\Repository\TrackingRepository;
+use Search\Model\Service\TrackService;
+use Search\Model\Repository\TrackRepository;
 
-class TrackingFactory implements FactoryInterface
+class TrackFactory implements FactoryInterface
 {
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
         $adapter = $serviceLocator->get('Zend\Db\Adapter\Adapter');
-        $repository = new TrackingRepository($adapter);
+        $repository = new TrackRepository($adapter);
         
         $cache = $serviceLocator->get('cache'); 
         $repository->setCache($cache);
         
-        return new TrackingService($repository);
+        return new TrackService($repository);
     }
 }

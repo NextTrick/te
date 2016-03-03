@@ -4,23 +4,27 @@ namespace Api\Model\Gateway\Carrier;
 
 use Api\Model\Gateway\Carrier\Base\CarrierAbstract;
 use Api\Model\Gateway\Carrier\Ws\DhlWs;
+use Carrier\Model\Repository\CarrierRepository;
 
 class DhlCarrier extends CarrierAbstract
 {
     const ALIAS = 'Dhl';
+    
+    const DB_ID = CarrierRepository::DHL_ID;
     
     public function __construct($serviceLocator) 
     {
        $this->serviceLocator = $serviceLocator;       
     }
     
-    public function getTracking() {
-        
+    public function getTracking($params) 
+    {        
         return $this->mergeParams(
-                parent::getTracking(), 
+                parent::getTracking($params), 
                 $this->service->getTracking()
             );
     }
+    
     private function mergeParams($params, $paramsCarrier)
     {
         $info = reset($paramsCarrier['AWBInfo']);

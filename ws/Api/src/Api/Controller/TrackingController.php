@@ -2,10 +2,11 @@
 
 namespace Api\Controller;
 
-use Zend\Mvc\Controller\AbstractRestfulController;
 use Api\Model\Service\TrackingService;
+use Api\Controller\Base\BaseRestfulController;
+use Service\Model\Repository\ServiceRepository;
 
-class TrackingController extends AbstractRestfulController
+class TrackingController extends BaseRestfulController
 {
     public function getList()
     {
@@ -19,9 +20,13 @@ class TrackingController extends AbstractRestfulController
     }
 
     public function get($id)
-    {
-        $trackingService = $this->getTrackingService();        
-        return $trackingService->getTracking(array('searchKey' => $id)); exit; 
+    {        
+        $params = $this->getRequestParams();      
+        $params['serviceId'] = ServiceRepository::ENDPOINT_TRACKING_ID;
+        $params['serarchKey'] = $params['id'];
+        $trackingService = $this->getTrackingService();
+        
+        return $trackingService->getTracking($params);
     }
 
     public function create($data)
