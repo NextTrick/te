@@ -2,7 +2,9 @@
 
 namespace Api\Model\Gateway\Carrier\Ws;
 
-class FedexWs
+use Api\Model\Gateway\Carrier\Ws\Base\BaseWs;
+
+class FedexWs extends BaseWs
 {
     protected $soapClient;
     
@@ -13,10 +15,7 @@ class FedexWs
     protected $accountNumber;    
     protected $meterNumber;    
     protected $customerTransactionId;
-        
-    const ERROR_GENERIC_CODE = 500;
-    const ERROR_GENERIC_MESSAGE = 'Failed Ws connection';
-    
+            
     const STATUS_ERROR = 'ERROR';
     const STATUS_FAILURE = 'FAILURE';
     const STATUS_WARNING = 'WARNING';

@@ -5,7 +5,7 @@ namespace Statistic\Model\Service\Factory;
 use Zend\ServiceManager\ServiceLocatorInterface,
     Zend\ServiceManager\FactoryInterface;
 use Statistic\Model\Service\ServiceApikeyService;
-use StatisticAp\Model\Repository\ServiceApikeyRepository;
+use Statistic\Model\Repository\ServiceApikeyRepository;
 
 class ServiceApikeyFactory implements FactoryInterface
 {

@@ -121,7 +121,7 @@ class FedexCarrier extends CarrierAbstract
                             'code' => $trackingDetail->Notification->Code,
                             'Message' => $trackingDetail->Notification->Message,
                         ),                
-                        'NumberOfPieces' => '',
+                        'numberOfPieces' => '',
                         'packageSequenceNumber' => $trackingDetail->PackageSequenceNumber,                
                         'packaging' => $trackingDetail->Packaging,
                         'service' =>  array(                    
@@ -142,7 +142,7 @@ class FedexCarrier extends CarrierAbstract
                 $returnData['error']['code'] = self::ERROR_GENERIC_CODE;
                 $returnData['error']['message'] = self::ERROR_GENERIC_MESSAGE;
 
-                $returnData = array_merge_recursive($this->errorSkeleton, $returnData);
+                $returnData = array_merge($this->errorSkeleton, $returnData);
             }
         } else {
             $returnData['status']['dateTime'] = $dateTime;

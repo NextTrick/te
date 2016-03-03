@@ -3,7 +3,7 @@ namespace Statistic\Model\Repository;
           
 use Util\Model\Repository\Base\AbstractRepository;
 
-class ServieApikeyRepository extends AbstractRepository
+class ServiceApikeyRepository extends AbstractRepository
 {
     protected $_table = 'fcb_statistic_service_apikey';
     

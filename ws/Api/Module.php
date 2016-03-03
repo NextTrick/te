@@ -37,7 +37,8 @@ class Module
             ),
         );
     }
-    public function init(ModuleManager $moduleManager) {
+    public function init(ModuleManager $moduleManager) 
+    {
         $sharedEvents = $moduleManager->getEventManager()->getSharedManager();
         $sharedEvents->attach(__NAMESPACE__, 'dispatch', function($e) {
             $controller = $e->getTarget();

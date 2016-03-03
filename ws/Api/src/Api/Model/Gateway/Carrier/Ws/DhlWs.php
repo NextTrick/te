@@ -6,8 +6,10 @@ use Zend\View\Model\ViewModel;
 use Zend\View\Resolver\TemplatePathStack;
 use Zend\View\Renderer\PhpRenderer;
 
-class DhlWs {
+use Api\Model\Gateway\Carrier\Ws\Base\BaseWs;
 
+class DhlWs extends BaseWs
+{
     public $config;
     
     public $httpClient;

@@ -140,12 +140,11 @@ abstract class CarrierAbstract implements CarrierInterface
     }
     
     public function saveSearch($params)
-    {      
-        $apikeyId = $this->getApikeyService()->getRepository()->getByKey($params['key']);
-                
+    {        
+        //$apikeyId = $this->getApikeyService()->getRepository()->getByKey($params['key']);                        
         $serviceApikeyData = array(
             'serviceId' => $params['serviceId'],
-            'apikeyId' => $apikeyId,
+            'apikeyId' => $params['apikeyId'],
         );
         
         $serviceApikeyId = $this->getServiceApikeyService()
@@ -158,7 +157,7 @@ abstract class CarrierAbstract implements CarrierInterface
             'ip' => \Util\Common\Util::getIpClient(),                        
         );
         
-        return $this->getSearchService()->save($searchData);
+        return $this->getSearchService()->getRepository()->save($searchData);
     }
             
     public function updateSearch($searchId)
@@ -185,12 +184,12 @@ abstract class CarrierAbstract implements CarrierInterface
     {
         $return = array();
         
-        $partnerId = $this::DB_ID;
+        $carrierId = $this::DB_ID;
         $config = $this->getServiceLocator()->get('config');
         $trackLifeTime = $config['carrier']['trackLifeTime'];
         
-        $trackData = $this->getTrackService()->geRepository()
-                ->getLastValidTrack($trackingKey, $partnerId, $trackLifeTime);
+        $trackData = $this->getTrackService()->getRepository()
+                ->getLastValidTrack($trackingKey, $carrierId, $trackLifeTime);
         
         if (!empty($trackData)) {
             $return = json_decode($trackData['track']);

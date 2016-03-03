@@ -15,12 +15,18 @@ class TrackingController extends BaseRestfulController
     }
 
     public function get($id)
-    {        
+    {           
         $params = $this->getRequestParams();      
         $params['serviceId'] = ServiceRepository::ENDPOINT_TRACKING_ID;
-        $params['serarchKey'] = $params['id'];
-        $trackingService = $this->getTrackingService();
-        return $trackingService->getTracking($params);
+        $params['searchKey'] = $params['id'];        
+        $params['searchKey'] = '377101283611590';
+        $params['apikeyId'] = 1;
+        $params['key'] = '2342FF2343223FFFSS';
+        $trackingService = $this->getTrackingService();  
+        
+        var_dump($trackingService->getTracking($params)); exit;
+                
+        return json_encode($trackingService->getTracking($params));
     }
 
     public function create($data)
