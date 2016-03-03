@@ -21,6 +21,7 @@ return array(
     'controllers' => array(
         'invokables' => array(
             'tracking' => 'Api\Controller\TrackingController',
+            'unified-tracking' => 'Api\Controller\UnifiedTrackingController',
         )
     ),
     'router' => array(

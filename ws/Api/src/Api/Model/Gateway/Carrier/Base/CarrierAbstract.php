@@ -5,7 +5,6 @@ namespace Api\Model\Gateway\Carrier\Base;
 use Api\Model\Gateway\Carrier\Base\CarrierInterface;
 use Search\Model\Service\SearchService;
 use Statistic\Model\Service\ServiceApikeyService;
-use Search\Model\Service\SearchService;
 use Apikey\Model\Service\ApikeyService;
 use Search\Model\Service\TrackService;
 

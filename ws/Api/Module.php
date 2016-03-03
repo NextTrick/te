@@ -6,6 +6,7 @@ use Zend\Http\PhpEnvironment\Response;
 use Zend\Mvc\Application;
 use Zend\Mvc\MvcEvent;
 use Zend\View\Model\ViewModel;
+use Zend\ModuleManager\ModuleManager;
 
 class Module
 {
@@ -35,6 +36,13 @@ class Module
                 ),
             ),
         );
+    }
+    public function init(ModuleManager $moduleManager) {
+        $sharedEvents = $moduleManager->getEventManager()->getSharedManager();
+        $sharedEvents->attach(__NAMESPACE__, 'dispatch', function($e) {
+            $controller = $e->getTarget();
+            $controller->init();
+        }, 100);
     }
 
     public function getConfig()
