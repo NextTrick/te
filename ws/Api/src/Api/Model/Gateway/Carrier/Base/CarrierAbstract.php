@@ -164,7 +164,7 @@ abstract class CarrierAbstract implements CarrierInterface
             
     public function updateSearch($searchId)
     {        
-        $trackingData = array(
+        $trackData = array(
             'searchId' => $searchId,
             'carrierId' => $this::DB_ID,
             'trackingKey' => $this->tracking['trackingDetails']['trackingNumber'],
@@ -177,7 +177,7 @@ abstract class CarrierAbstract implements CarrierInterface
             'track' => json_encode($this->tracking),
         );
         
-        $this->getTrackService()->getRepository()->save($trackingData);
+        $this->getTrackService()->getRepository()->save($trackData);
         
         $this->tracking['status']['referenceId'] = str_pad($searchId, 10, '0', STR_PAD_LEFT);
     }
