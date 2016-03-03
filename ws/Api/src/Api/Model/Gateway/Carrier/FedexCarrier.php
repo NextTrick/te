@@ -75,7 +75,7 @@ class FedexCarrier extends CarrierAbstract
                     $returnData['trackingDetails'][$key]['OperatingCompanyOrCarrierDescription'] 
                             = $trackingDetail->OperatingCompanyOrCarrierDescription;
 
-                    $returnData['trackingDetails'][$key]['destionationAddress'] = array(
+                    $returnData['trackingDetails'][$key]['destinationAddress'] = array(
                         'stateOrProvinceCode' => $trackingDetail->DestinationAddress->StateOrProvinceCode,
                         'countryCode' => $trackingDetail->DestinationAddress->CountryCode,
                         'countryName' => $trackingDetail->DestinationAddress->CountryName,

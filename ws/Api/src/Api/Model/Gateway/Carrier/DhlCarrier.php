@@ -97,7 +97,7 @@ class DhlCarrier extends CarrierAbstract
                         'countryCode' => '',
                         'countryName' => $shipmentInfo['OriginServiceArea']['Description'],
                     ),
-                    'destionationAddress' => array(
+                    'destinationAddress' => array(
                         'StateOrProvinceCode' => $shipmentInfo['DestinationServiceArea']['ServiceAreaCode'],
                         'countryCode' => '',
                         'countryName' => $shipmentInfo['DestinationServiceArea']['Description'],

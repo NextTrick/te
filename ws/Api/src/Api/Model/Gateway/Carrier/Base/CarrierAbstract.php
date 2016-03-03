@@ -44,7 +44,7 @@ abstract class CarrierAbstract implements CarrierInterface
                     'countryCode' => '',
                     'countryName' => '',
                 ),            
-                'destionationAddress' => array(
+                'destinationAddress' => array(
                     'stateOrProvinceCode' => '',
                     'countryCode' => '',
                     'countryName' => '',
