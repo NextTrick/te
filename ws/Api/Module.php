@@ -62,7 +62,7 @@ class Module
     public function postProcess(MvcEvent $e)
     {
         $routeMatch = $e->getRouteMatch();
-        $formatter = $routeMatch->getParam('formatter', false);
+        $formatter = $routeMatch->getParam('formatter', 'json');
 
         /** @var \Zend\Di\Di $di */
         $di = $e->getTarget()->getServiceLocator()->get('di');
