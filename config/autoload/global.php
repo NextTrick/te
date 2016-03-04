@@ -4,10 +4,11 @@ return array(
         'settings' =>
             array(
                 'date.timezone' => 'America/Los_Angeles',
-                'intl.default_locale' => 'es_PE',
+                'intl.default_locale' => 'es_PE',                
                 'display_startup_errors' => true,
                 'display_errors' => true,
                 'error_reporting' => E_ALL,
+                'display_startup_errors' => true,
                 'post_max_size' => '804857600',  
             )
     ),    

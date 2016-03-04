@@ -29,7 +29,7 @@ return array(
             'restful' => array(
                 'type' => 'Zend\Mvc\Router\Http\Segment',
                 'options' => array(
-                    'route' => '/:controller[/:id]',
+                    'route' => '/:controller[/:id][/:key]',
                     'constraints' => array(
                         '__NAMESPACE__' => 'Api\Controller',                        
                         'module'        => 'Api',

@@ -7,6 +7,7 @@ use Zend\Mvc\Application;
 use Zend\Mvc\MvcEvent;
 use Zend\View\Model\ViewModel;
 use Zend\ModuleManager\ModuleManager;
+use Api\Controller\Base\BaseResponse;
 
 class Module
 {
@@ -21,7 +22,7 @@ class Module
         $sharedEvents = $moduleManager->getEventManager()->getSharedManager();
 
         $sharedEvents->attach('Zend\Mvc\Controller\AbstractRestfulController', MvcEvent::EVENT_DISPATCH, array($this, 'postProcess'), -100);
-        //$sharedEvents->attach('Zend\Mvc\Application', MvcEvent::EVENT_DISPATCH_ERROR, array($this, 'errorProcess'), 999);
+        $sharedEvents->attach('Zend\Mvc\Application', MvcEvent::EVENT_DISPATCH_ERROR, array($this, 'errorProcess'), 999);
     }
 
     public function getAutoloaderConfig()
@@ -78,7 +79,7 @@ class Module
             } else {
                 $vars = $e->getResult();
             }
-
+                       
             /** @var PostProcessor\AbstractPostProcessor $postProcessor */
             $postProcessor = $di->get($formatter . '-pp', array(
                 'response' => $e->getResponse(),
@@ -110,18 +111,29 @@ class Module
         if (isset($eventParams['exception'])) {
             /** @var \Exception $exception */
             $exception = $eventParams['exception'];
-
-            if ($configuration['errors']['show_exceptions']['message']) {
-                $vars['status'] = -1;
-                $vars['message'] = $exception->getMessage();
-            }
-            if ($configuration['errors']['show_exceptions']['trace']) {
-                $vars['trace'] = $exception->__toString();
+            
+            $displayErrors = $configuration['php']['settings']['display_errors'];            
+            if ($displayErrors == true) {
+                if ($configuration['errors']['show_exceptions']['message']) {
+                    $vars['status'] = -1;
+                    $vars['message'] = $exception->getMessage();
+                }
+                if ($configuration['errors']['show_exceptions']['trace']) {
+                    $vars['trace'] = $exception->__toString();
+                } 
+            } else {
+                $vars['status']['code'] = BaseResponse::RESPONSE_STATUS_ERROR_CODE;
+                $vars['status']['dateTime'] = date('Y-m-d H:i:s');
+                $vars['error']['code'] = BaseResponse::STATUS_CODE_500;
+                $vars['error']['message'] = BaseResponse::ERROR_MESSAGE_500;
             }
         }
 
         if (empty($vars)) {
-            $vars['error'] = 'Something went wrong';
+            $vars['status']['code'] = BaseResponse::RESPONSE_STATUS_ERROR_CODE;
+            $vars['status']['dateTime'] = date('Y-m-d H:i:s');
+            $vars['error']['code'] = BaseResponse::STATUS_CODE_501;
+            $vars['error']['message'] = BaseResponse::ERROR_MESSAGE_500;
         }
 
         /** @var PostProcessor\AbstractPostProcessor $postProcessor */
@@ -132,8 +144,8 @@ class Module
         $postProcessor->process();
 
         if (
-                $eventParams['error'] === Application::ERROR_CONTROLLER_NOT_FOUND ||
-                $eventParams['error'] === Application::ERROR_ROUTER_NO_MATCH
+            $eventParams['error'] === Application::ERROR_CONTROLLER_NOT_FOUND ||
+            $eventParams['error'] === Application::ERROR_ROUTER_NO_MATCH
         ) {
             $e->getResponse()->setStatusCode(Response::STATUS_CODE_501);
         } else {

@@ -1,7 +1,10 @@
 <?php
+
 namespace Api\Controller;
 
 use Api\Controller\Base\BaseRestfulController;
+use Service\Model\Repository\ServiceRepository;
+
 class UnifiedTrackingController extends BaseRestfulController
 {
     public function getList()
@@ -14,20 +17,27 @@ class UnifiedTrackingController extends BaseRestfulController
         return array();  
     }
 
-    public function create($data)
+    public function create($params)
     {
+        $params['serviceId'] = ServiceRepository::ENDPOINT_TRACKING_ID;
+        $params['apikeyId'] = $this->apikeyId;
+        $params['trackings'] = $params['trackings'];
         return $this->getMultiTrackingService()
-                   ->insertMultiTracking($data, $this->apikeyId);        
+                   ->insertMultiTracking($params);        
     }
 
-    public function update($id, $data)
+    public function update($toke, $data)
     {
-
+        $params['serviceId'] = ServiceRepository::ENDPOINT_TRACKING_ID;
+        $params['apikeyId'] = $this->apikeyId;
+        $params['trackings'] = $params['trackings'];
+        return $this->getMultiTrackingService()
+                   ->insertMultiTracking($params); 
     }
 
-    public function delete($id)
+    public function delete($multitrackingId)
     {
-
+        return $this->getMultiTrackingService()->deleteMultiTracking($multitrackingId);
     }
    
     /**

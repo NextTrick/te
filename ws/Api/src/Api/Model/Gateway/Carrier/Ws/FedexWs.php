@@ -5,9 +5,7 @@ namespace Api\Model\Gateway\Carrier\Ws;
 use Api\Model\Gateway\Carrier\Ws\Base\BaseWs;
 
 class FedexWs extends BaseWs
-{
-    protected $soapClient;
-    
+{   
     private $request = array();
     
     protected $key;    
@@ -40,7 +38,7 @@ class FedexWs extends BaseWs
         
         $wsdlFile = __DIR__ . '/Fedex/Wsdl/TrackService_v10.wsdl';       
         
-        $this->soapClient = new \SoapClient($wsdlFile, array('trace' => 1));       
+        $this->client = new \SoapClient($wsdlFile, array('trace' => 1));       
     }
         
     public function getByTrackingNumber($trackingNumber)
@@ -49,8 +47,8 @@ class FedexWs extends BaseWs
         $trackingNumber = '149331877648230';  
         $request = $this->prepareRequest($trackingNumber);        
         try {
-            $response = $this->soapClient->track($request);
-//            var_dump($this->soapClient->__getLastResponse()); exit;
+            $response = $this->client->track($request);
+//            var_dump($this->client->__getLastResponse()); exit;
             if (!in_array($response->HighestSeverity, $this->errorStatus)) {
                 $responseData['data'] = $response;
             } else {
@@ -62,7 +60,7 @@ class FedexWs extends BaseWs
             }         
         } catch (\Exception $e) {            
             $responseData['success'] = false; 
-            $lastResponse = $this->soapClient->__getLastResponse();
+            $lastResponse = $this->client->__getLastResponse();
             if (!empty($lastResponse)) {
                 $lastResponse = simplexml_load_string($lastResponse);                  
                 if (!empty($lastResponse->detail)) {
@@ -70,7 +68,7 @@ class FedexWs extends BaseWs
                     $responseData['error']['message'] = $lastResponse->detail->desc;
                     $responseData['error']['aditionalMessage'] = $lastResponse->detail->cause;
                 } else {   
-                    var_dump($this->soapClient->getLastRequest(), $this->soapClient->getLastResponse()); exit;
+                    var_dump($this->client->getLastRequest(), $this->client->getLastResponse()); exit;
                     $responseData = $this->getGenericErrorData();                
                     $responseData['error']['message'] = $e->getMessage();
                     $responseData['error']['exception'] = $e->getTraceAsString();

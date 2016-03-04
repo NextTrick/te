@@ -11,9 +11,7 @@ use Api\Model\Gateway\Carrier\Ws\Base\BaseWs;
 class DhlWs extends BaseWs
 {
     public $config;
-    
-    public $httpClient;
-    
+            
     public $params;
     
     const ERROR_GENERIC_CODE = 500;
@@ -25,7 +23,7 @@ class DhlWs extends BaseWs
         $this->params = $params;
     }
 
-    public function getTracking($params = array()) 
+    public function getByTrackingNumber($trackingNumber) 
     {
         $params = array(
             'messageTime' => date('c'),
@@ -33,7 +31,7 @@ class DhlWs extends BaseWs
             'siteId' => $this->config['siteId'],
             'password' => $this->config['password'],
             'languageCode' => 'es',
-            'AWBNumber' => $this->params['searchKey'],
+            'AWBNumber' => $trackingNumber,
         );
        
         $url = $this->config['host'] . 'XMLShippingServlet';
@@ -69,7 +67,7 @@ class DhlWs extends BaseWs
                 )
             );
         try {
-            $this->httpClient = new \Zend\Http\Client(null, array(
+            $this->client = new \Zend\Http\Client(null, array(
                 'adapter' => 'Zend\Http\Client\Adapter\Curl',
                 'curloptions' => array(
                     CURLOPT_SSL_VERIFYHOST => false,
@@ -77,10 +75,10 @@ class DhlWs extends BaseWs
                     CURLOPT_TIMEOUT => 120,
                 ),
             )); 
-            $this->httpClient->setUri($url);
-            $this->httpClient->setMethod('POST');
-            $this->httpClient->setRawBody($xml);
-            $responseHttp = $this->httpClient->send();
+            $this->client->setUri($url);
+            $this->client->setMethod('POST');
+            $this->client->setRawBody($xml);
+            $responseHttp = $this->client->send();
             $responseBody = $this->parseXml($responseHttp->getBody());
             if(!empty($responseBody['AWBInfo']['Status'])){
                 $response = array(
