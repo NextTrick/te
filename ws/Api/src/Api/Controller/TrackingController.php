@@ -18,15 +18,17 @@ class TrackingController extends BaseRestfulController
     {           
         $params = $this->getRequestParams();      
         $params['serviceId'] = ServiceRepository::ENDPOINT_TRACKING_ID;
-        $params['searchKey'] = $params['id'];        
-        $params['searchKey'] = '377101283611590';
-        $params['apikeyId'] = 1;
-        $params['key'] = '2342FF2343223FFFSS';
-        $trackingService = $this->getTrackingService();  
+        $params['searchKey'] = $params['id'];                
+        $params['apikeyId'] = $this->apikeyId;
         
-        throw new \Exception('hisfsfa');
+        //TODO: delete test data
+        $params['searchKey'] = '377101283611590';
+        $params['key'] = '2342FF2343223FFFSS';
+        $params['apikeyId'] = 1;
+        
+        $trackingService = $this->getTrackingService();  
+                
         return $trackingService->getTracking($params);        
-        var_dump($trackingService->getTracking($params)); exit;
     }
 
     public function create($data)
