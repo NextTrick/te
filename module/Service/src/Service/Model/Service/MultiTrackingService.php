@@ -3,6 +3,7 @@ namespace Service\Model\Service;
 
 use Util\Model\Service\Base\AbstractService;
 use Api\Model\Gateway\Carrier\Base\CarrierAbstract;
+use Api\Controller\Base\BaseResponse;
 
 class MultiTrackingService extends AbstractService
 {
@@ -13,18 +14,18 @@ class MultiTrackingService extends AbstractService
     {
         $response = array(
              'status' => array(
-                 'code' => CarrierAbstract::RESPONSE_STATUS_SUCCESS_CODE,
+                 'code' => BaseResponse::RESPONSE_STATUS_SUCCESS_CODE,
                  'dateTime' => '',
              ),
          );
        $responseValidation = $this->getValidation($tractings);
        if(!empty($responseValidation)) {
-           $response['status']['code'] = CarrierAbstract::RESPONSE_STATUS_ERROR_CODE;
+           $response['status']['code'] = BaseResponse::RESPONSE_STATUS_ERROR_CODE;
            $response['error']['code'] = self::ERROR_CODE;
            $response['error']['message'] = self::ERROR_MESSAGE;
            $response['error']['errors'] = $responseValidation;
        }
-       if($response['status']['code'] == CarrierAbstract::RESPONSE_STATUS_SUCCESS_CODE){
+       if($response['status']['code'] == BaseResponse::RESPONSE_STATUS_SUCCESS_CODE){
            $idMultiTracking = $this->getRepository()
                    ->insert(array(
                        'trackingIds' => json_encode($tractings['trackings']),
