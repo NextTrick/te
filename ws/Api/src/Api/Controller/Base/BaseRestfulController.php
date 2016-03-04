@@ -4,6 +4,7 @@ namespace Api\Controller\Base;
 
 use Zend\Mvc\Controller\AbstractRestfulController;
 use Api\Controller\Base\BaseResponse;
+use Util\Common\Filter;
 
 class BaseRestfulController extends AbstractRestfulController
 {
@@ -24,7 +25,7 @@ class BaseRestfulController extends AbstractRestfulController
         $headerParams = apache_request_headers();
         $params['key'] = null;
         if (!empty($headerParams['key'])) {
-            $params['key'] = $headerParams['key'];
+            $params['key'] = Filter::trimStripTag($headerParams['key']);
         }
 
         $responseValidation = array();
@@ -83,9 +84,9 @@ class BaseRestfulController extends AbstractRestfulController
     
     public function getRequestParams()
     {
-        $paramsRoute = $this->params()->fromRoute();
-        $paramsPost = $this->params()->fromPost();
-        $paramsQuery = $this->params()->fromQuery();
+        $paramsRoute = Filter::trimStripTag($this->params()->fromRoute());
+        $paramsPost = Filter::trimStripTag($this->params()->fromPost());
+        $paramsQuery = Filter::trimStripTag($this->params()->fromQuery());
         
         return array_merge($paramsRoute, $paramsPost, $paramsQuery);
     }
