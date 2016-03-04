@@ -5,6 +5,7 @@ namespace Api\Model\Gateway\Carrier;
 use Api\Model\Gateway\Carrier\Base\CarrierAbstract;
 use Api\Model\Gateway\Carrier\Ws\FedexWs;
 use Carrier\Model\Repository\CarrierRepository;
+use Api\Controller\Base\BaseResponse;
 
 class FedexCarrier extends CarrierAbstract
 {      
@@ -26,7 +27,7 @@ class FedexCarrier extends CarrierAbstract
         $searchId = $this->saveSearch($params);  
         $this->tracking = $this->getByTrackingNumber($params['searchKey']); 
         $this->saveResquest($searchId);        
-        if ($this->tracking['status']['code'] == self::RESPONSE_STATUS_SUCCESS_CODE) {
+        if ($this->tracking['status']['code'] == BaseResponse::RESPONSE_STATUS_SUCCESS_CODE) {
             $this->updateSearch($searchId);            
         }
         
@@ -135,14 +136,14 @@ class FedexCarrier extends CarrierAbstract
                     }  
                 }
 
-                $returnData['status']['code'] = self::RESPONSE_STATUS_SUCCESS_CODE;            
-                $returnData = array_merge($this->trackingSkeleton, $returnData);                       
+                $returnData['status']['code'] = BaseResponse::RESPONSE_STATUS_SUCCESS_CODE;            
+                $returnData = array_merge(self::getTrackingSkeleton(), $returnData);                       
             } else {                
-                $returnData['status']['code'] = self::RESPONSE_STATUS_ERROR_CODE;
-                $returnData['error']['code'] = self::ERROR_GENERIC_CODE;
+                $returnData['status']['code'] = BaseResponse::RESPONSE_STATUS_ERROR_CODE;
+                $returnData['error']['code'] = BaseResponse::STATUS_CODE_500;
                 $returnData['error']['message'] = self::ERROR_GENERIC_MESSAGE;
 
-                $returnData = array_merge($this->errorSkeleton, $returnData);
+                $returnData = array_merge(BaseResponse::getErrorSkeleton(), $returnData);
             }
         } else {
             $returnData['status']['dateTime'] = $dateTime;

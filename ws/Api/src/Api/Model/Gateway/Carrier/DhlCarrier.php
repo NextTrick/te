@@ -5,6 +5,7 @@ namespace Api\Model\Gateway\Carrier;
 use Api\Model\Gateway\Carrier\Base\CarrierAbstract;
 use Api\Model\Gateway\Carrier\Ws\DhlWs;
 use Carrier\Model\Repository\CarrierRepository;
+use Api\Controller\Base\BaseResponse;
 
 class DhlCarrier extends CarrierAbstract
 {
@@ -32,13 +33,13 @@ class DhlCarrier extends CarrierAbstract
             if($data['AWBInfo']['Status']['ActionStatus'] == self::STATUS_SUCCESS){
                 $response = $this->responseOk($data);
             } else {
-                $response = $this->errorSkeleton;
+                $response = self::getTrackingSkeleton();
                 $response['error']['message'] = $data['AWBInfo']['Status']['Condition']['ConditionData'];
                 $response['error']['code'] =$data['AWBInfo']['Status']['Condition']['ConditionCode'];
             }
         }
         else{
-            $response = $this->errorSkeleton;
+            $response = BaseResponse::getErrorSkeleton();
             $response['error']['message'] = $params['error']['message'];
             $response['error']['code'] = $params['error']['code'];
         }
@@ -71,7 +72,7 @@ class DhlCarrier extends CarrierAbstract
         }
         $response = array(
             'status' => array(
-                'code' => self::RESPONSE_STATUS_SUCCESS_CODE,
+                'code' => BaseResponse::RESPONSE_STATUS_SUCCESS_CODE,
                 'dateTime' => '',
                 'referenceId' => ''
             ), 

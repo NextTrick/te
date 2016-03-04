@@ -3,21 +3,21 @@
 namespace Api\Controller\Base;
 
 use Zend\Mvc\Controller\AbstractRestfulController;
+use Api\Controller\Base\BaseResponse;
 
-use Api\Model\Gateway\Carrier\Base\CarrierAbstract;
 class BaseRestfulController extends AbstractRestfulController
 {
     public $apikeyId;
-    const ERROR_CODE_501 = 501;
-    const ERROR_MESSAGE_501 = 'Apikey No valido';
-    
+
+    const ERROR_MESSAGE_501 = 'Apikey no valido';
+       
     public $skeletonResponse = array(
         'status' => array(
-            'code' => CarrierAbstract::RESPONSE_STATUS_SUCCESS_CODE,
+            'code' => BaseResponse::RESPONSE_STATUS_SUCCESS_CODE,
             'dateTime' => '',
         )
     );
-    
+        
     public function init()
     {
         $params = $this->getRequestParams();
@@ -28,24 +28,22 @@ class BaseRestfulController extends AbstractRestfulController
                 'field' => '',
                 'message' => 'Key no se ha enviado',
             );
-        }
-        else{
+        } else{
             $keyresponse= $this->getApiKeyService()
                             ->getRepository()->getByKey($params['key']);
-            if(empty($keyresponse)) {
+            if (empty($keyresponse)) {
                 $responseValidation[] = array(
                     'code' => 1,
                     'field' => '',
                     'message' => 'Key invalido',
                 );
-            }
-            else {
+            } else {
                 $this->apikeyId = $keyresponse['apiKeyId'];
             }
         }
-        if(!empty($responseValidation)) {
-            $this->skeletonResponse['status']['code'] = CarrierAbstract::RESPONSE_STATUS_ERROR_CODE;
-            $this->skeletonResponse['error']['code'] = self::ERROR_CODE_501;
+        if (!empty($responseValidation)) {
+            $this->skeletonResponse['status']['code'] = BaseResponse::RESPONSE_STATUS_ERROR_CODE;
+            $this->skeletonResponse['error']['code'] = BaseResponse::STATUS_CODE_501;
             $this->skeletonResponse['error']['message'] = self::ERROR_MESSAGE_501;
             $this->skeletonResponse['error']['errors'] = $responseValidation;
         }

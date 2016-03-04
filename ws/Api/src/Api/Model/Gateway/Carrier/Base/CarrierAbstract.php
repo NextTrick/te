@@ -9,106 +9,14 @@ use Apikey\Model\Service\ApikeyService;
 use Search\Model\Service\TrackService;
 use Carrier\Model\Service\RequestService;
 use Zend\Http\Client;
+use Api\Controller\Base\BaseResponse;
 
 abstract class CarrierAbstract implements CarrierInterface
-{
-    const RESPONSE_STATUS_SUCCESS_CODE = 'SUCCESS';    
-    const RESPONSE_STATUS_ERROR_CODE = 'ERROR';
-    
+{        
     const ERROR_GENERIC_CODE = 500;
+    
     const ERROR_GENERIC_MESSAGE = 'Failed Ws connection';
     
-    public $trackingSkeleton = array(
-        'status' => array(
-            'code' => self::RESPONSE_STATUS_SUCCESS_CODE,
-            'dateTime' => '',
-            'referenceId' => ''
-        ),        
-        'trackingDetails' => array(
-            array(
-                'trackingKey' => '',
-                'statusDetail' => array(
-                    'creationDateTime' => '',
-                    'code' => '',
-                    'description' => '',
-                    'location' => array(
-                        'streetLines' => '',
-                        'City' => '',
-                        'stateOrProvinceCode' => '',
-                        'countryCode' => '',
-                        'countryName' => '',
-                    ),                
-                ),
-                'carrierCode' => '',
-                'OperatingCompanyOrCarrierDescription' => '',            
-                'originAddress' => array(
-                    'stateOrProvinceCode' => '',
-                    'countryCode' => '',
-                    'countryName' => '',
-                ),            
-                'destinationAddress' => array(
-                    'stateOrProvinceCode' => '',
-                    'countryCode' => '',
-                    'countryName' => '',
-                ),
-                'events' => array(
-                    array(
-                        'dateTime' => '',                    
-                        'eventCode' => '',
-                        'eventDescription' => '',
-                        'address' => array(
-                            'postalCode' => '',
-                            'stateOrProvinceCode' => '',
-                            'countryName' => '',
-                            'countryCode' => '',                                                
-                        ),                    
-                    )
-                ),
-                'shipmentInfo' => array(
-                    'weight' => array(
-                        'value' => '',
-                        'units' => '',
-                    ),
-                    'dimensions' => array(
-                        'length' => '',
-                        'width' => '',
-                        'height' => '',
-                        'units' => '',
-                    ),                
-                    'notification' => array(
-                        'code' => '',
-                        'message' => '',
-                    ),                
-                    'numberOfPieces' => '',
-                    'packageSequenceNumber' => '',                
-                    'packaging' => '',
-                    'service' =>  array(                    
-                        'description' => ''                    
-                    ),                
-                    'pickupDateTime' => '', //shipTimestamp on fedex                                
-                    'lastUpdated' => '', //ActualDeliveryTimestamp on fedex
-                )
-            )
-        ),        
-    );
-    
-    public $errorSkeleton = array(
-        'status' => array(
-            'code' => self::RESPONSE_STATUS_ERROR_CODE,
-            'dateTime' => '',
-        ),
-        'error' => array (
-            'code' => '',
-            'message' => '',
-            'description' => '',
-            'errors' => array(
-                'code' => '',
-                'field' => '',
-                'message' => ''
-            ),
-        ),
-    );
-                
     public $searchKey;
     
     public $params;
@@ -118,15 +26,96 @@ abstract class CarrierAbstract implements CarrierInterface
     public $service;
     
     public $tracking;
-            
+        
+    public static function getTrackingSkeleton()
+    {
+        return array(
+            'status' => array(
+                'code' => BaseResponse::RESPONSE_STATUS_SUCCESS_CODE,
+                'dateTime' => '',
+                'referenceId' => ''
+            ),        
+            'trackingDetails' => array(
+                array(
+                    'trackingKey' => '',
+                    'statusDetail' => array(
+                        'creationDateTime' => '',
+                        'code' => '',
+                        'description' => '',
+                        'location' => array(
+                            'streetLines' => '',
+                            'City' => '',
+                            'stateOrProvinceCode' => '',
+                            'countryCode' => '',
+                            'countryName' => '',
+                        ),                
+                    ),
+                    'carrierCode' => '',
+                    'OperatingCompanyOrCarrierDescription' => '',            
+                    'originAddress' => array(
+                        'stateOrProvinceCode' => '',
+                        'countryCode' => '',
+                        'countryName' => '',
+                    ),            
+                    'destinationAddress' => array(
+                        'stateOrProvinceCode' => '',
+                        'countryCode' => '',
+                        'countryName' => '',
+                    ),
+                    'events' => array(
+                        array(
+                            'dateTime' => '',                    
+                            'eventCode' => '',
+                            'eventDescription' => '',
+                            'address' => array(
+                                'postalCode' => '',
+                                'stateOrProvinceCode' => '',
+                                'countryName' => '',
+                                'countryCode' => '',                                                
+                            ),                    
+                        )
+                    ),
+                    'shipmentInfo' => array(
+                        'weight' => array(
+                            'value' => '',
+                            'units' => '',
+                        ),
+                        'dimensions' => array(
+                            'length' => '',
+                            'width' => '',
+                            'height' => '',
+                            'units' => '',
+                        ),                
+                        'notification' => array(
+                            'code' => '',
+                            'message' => '',
+                        ),                
+                        'numberOfPieces' => '',
+                        'packageSequenceNumber' => '',                
+                        'packaging' => '',
+                        'service' =>  array(                    
+                            'description' => ''                    
+                        ),                
+                        'pickupDateTime' => '', //shipTimestamp on fedex                                
+                        'lastUpdated' => '', //ActualDeliveryTimestamp on fedex
+                    )
+                )
+            ),        
+        );
+    }
+    
+    public static function getErrorSkeleton()
+    {
+        return BaseRestfulController::getErrorSkeleton();
+    }
+                    
     public function getTracking($params)
     {
         return $this->tracking;
     }
     
     public function http()
-    {
-        
+    {        
     }
     
     public function checkSearchKeyOwner($searchkey) 
