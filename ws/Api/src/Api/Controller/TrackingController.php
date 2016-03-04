@@ -18,13 +18,13 @@ class TrackingController extends BaseRestfulController
     {           
         $params = $this->getRequestParams();      
         $params['serviceId'] = ServiceRepository::ENDPOINT_TRACKING_ID;
-        $params['searchKey'] = $params['id'];                
+        $params['searchKey'] = $id;                
         $params['apikeyId'] = $this->apikeyId;
         
         //TODO: delete test data
-        $params['searchKey'] = '377101283611590';
+        /*$params['searchKey'] = '377101283611590';
         $params['key'] = '2342FF2343223FFFSS';
-        $params['apikeyId'] = 1;
+        $params['apikeyId'] = 1;*/
         
         $trackingService = $this->getTrackingService();  
                 

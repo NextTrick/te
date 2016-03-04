@@ -23,7 +23,7 @@ class DhlWs extends BaseWs
         $this->params = $params;
     }
 
-    public function getTracking($params = array()) 
+    public function getByTrackingNumber($trackingNumber) 
     {
         $params = array(
             'messageTime' => date('c'),
@@ -31,7 +31,7 @@ class DhlWs extends BaseWs
             'siteId' => $this->config['siteId'],
             'password' => $this->config['password'],
             'languageCode' => 'es',
-            'AWBNumber' => $this->params['searchKey'],
+            'AWBNumber' => $trackingNumber,
         );
        
         $url = $this->config['host'] . 'XMLShippingServlet';

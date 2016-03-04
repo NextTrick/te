@@ -37,8 +37,9 @@ class BaseRestfulController extends AbstractRestfulController
                     'field' => '',
                     'message' => 'Key invalido',
                 );
-            } else {
-                $this->apikeyId = $keyresponse['apiKeyId'];
+            }
+            else {
+                $this->apikeyId = $keyresponse['apikeyId'];
             }
         }
         if (!empty($responseValidation)) {
@@ -46,6 +47,8 @@ class BaseRestfulController extends AbstractRestfulController
             $this->skeletonResponse['error']['code'] = BaseResponse::STATUS_CODE_501;
             $this->skeletonResponse['error']['message'] = self::ERROR_MESSAGE_501;
             $this->skeletonResponse['error']['errors'] = $responseValidation;
+            json_encode($this->skeletonResponse);
+            exit;
         }
     }
 

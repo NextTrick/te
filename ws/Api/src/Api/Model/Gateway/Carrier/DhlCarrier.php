@@ -22,9 +22,27 @@ class DhlCarrier extends CarrierAbstract
     
     public function getTracking($params = array()) 
     {
-        return $this->formatResponse($this->service->getTracking($params));
+        $searchId = $this->saveSearch($params);
+        $this->tracking = $this->getByTrackingNumber($params['searchKey']);
+        $this->saveResquest($searchId);
+        if ($this->tracking['status']['code'] == BaseResponse::RESPONSE_STATUS_SUCCESS_CODE) {
+            $this->updateSearch($searchId);            
+        }
+        return parent::getTracking($params);
     }
-    
+    public function getByTrackingNumber($trackingNumber)
+    {
+        $dateTime = date('Y-m-d H:i:s');        
+        $returnData = $this->getLastValidTrack($trackingNumber);
+        if (empty($returnData)) {
+            $returnData = $this->formatResponse(
+                    $this->service->getByTrackingNumber($trackingNumber)
+                );
+            $returnData['status']['dateTime'] = $dateTime;    
+        }
+        return $returnData;
+    }
+
     public function formatResponse($params)
     {
         $response = array();
@@ -33,15 +51,17 @@ class DhlCarrier extends CarrierAbstract
             if($data['AWBInfo']['Status']['ActionStatus'] == self::STATUS_SUCCESS){
                 $response = $this->responseOk($data);
             } else {
-                $response = self::getTrackingSkeleton();
+                $response = BaseResponse::getErrorSkeleton();
                 $response['error']['message'] = $data['AWBInfo']['Status']['Condition']['ConditionData'];
                 $response['error']['code'] =$data['AWBInfo']['Status']['Condition']['ConditionCode'];
+                $response = array_merge(BaseResponse::getErrorSkeleton(), $response);
             }
         }
         else{
             $response = BaseResponse::getErrorSkeleton();
             $response['error']['message'] = $params['error']['message'];
             $response['error']['code'] = $params['error']['code'];
+            $response = array_merge(BaseResponse::getErrorSkeleton(), $response);
         }
         return $response;
     }
@@ -131,7 +151,7 @@ class DhlCarrier extends CarrierAbstract
                 ),
             ),
         );
-        
+        $response = array_merge(self::getTrackingSkeleton(), $response);
         return $response;
     }
     
