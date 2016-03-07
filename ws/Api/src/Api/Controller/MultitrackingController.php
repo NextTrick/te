@@ -1,8 +1,10 @@
 <?php
 
 namespace Api\Controller;
+use Api\Controller\Base\BaseRestfulController;
+use Service\Model\Repository\ServiceRepository;
 
-class MultitrackingController extends BaseController
+class MultitrackingController extends BaseRestfulController
 {
     public function getList()
     {
@@ -11,9 +13,11 @@ class MultitrackingController extends BaseController
 
     public function get($id)
     {
-        var_dump('aa');exit;
-        $trackingService = $this->getTrackingService();        
-        return $trackingService->getMuliTracking(array('searchKey' => $id)); exit; 
+        $params['serviceId'] = ServiceRepository::ENDPOINT_MULTITRACKING_ID;
+        $params['searchKey'] = $id;                
+        $params['apikeyId'] = $this->apikeyId;
+        $trackingService = $this->getTrackingService(); 
+        return $trackingService->getMultiTracking($params);
     }
 
     public function create($data)
@@ -32,10 +36,10 @@ class MultitrackingController extends BaseController
     }
     
     /**
-     * @return TrackingService
+     * @return \Api\Model\Service\TrackingService
      */
     public function getTrackingService()
     {
         return $this->getServiceLocator()->get('Api\Model\TrackingService');
-    }
+    }   
 }

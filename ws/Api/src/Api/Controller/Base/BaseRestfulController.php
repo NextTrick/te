@@ -4,6 +4,7 @@ namespace Api\Controller\Base;
 
 use Zend\Mvc\Controller\AbstractRestfulController;
 use Api\Controller\Base\BaseResponse;
+use Util\Common\Filter;
 
 class BaseRestfulController extends AbstractRestfulController
 {
@@ -19,9 +20,15 @@ class BaseRestfulController extends AbstractRestfulController
     );
         
     public function init()
-    {
+    {   
         $params = $this->getRequestParams();
+        $headerParams = apache_request_headers();
+        $params['key'] = null;
+        if (!empty($headerParams['key'])) {
+            $params['key'] = Filter::trimStripTag($headerParams['key']);
+        }
         $params['key'] = '2342FF2343223FFFSS';    
+
         $responseValidation = array();
         if(empty($params['key'])) {
             $responseValidation[] = array(
@@ -29,7 +36,7 @@ class BaseRestfulController extends AbstractRestfulController
                 'field' => '',
                 'message' => 'Key no se ha enviado',
             );
-        } else{
+        } else {
             $keyresponse= $this->getApiKeyService()
                             ->getRepository()->getByKey($params['key']);
             if (empty($keyresponse)) {
@@ -38,8 +45,7 @@ class BaseRestfulController extends AbstractRestfulController
                     'field' => '',
                     'message' => 'Key invalido',
                 );
-            }
-            else {
+            } else {
                 $this->apikeyId = $keyresponse['apikeyId'];
             }
         }
@@ -48,8 +54,7 @@ class BaseRestfulController extends AbstractRestfulController
             $this->skeletonResponse['error']['code'] = BaseResponse::STATUS_CODE_501;
             $this->skeletonResponse['error']['message'] = self::ERROR_MESSAGE_501;
             $this->skeletonResponse['error']['errors'] = $responseValidation;
-            json_encode($this->skeletonResponse);
-            exit;
+            json_encode($this->skeletonResponse);            
         }
     }
 
@@ -80,9 +85,9 @@ class BaseRestfulController extends AbstractRestfulController
     
     public function getRequestParams()
     {
-        $paramsRoute = $this->params()->fromRoute();
-        $paramsPost = $this->params()->fromPost();
-        $paramsQuery = $this->params()->fromQuery();
+        $paramsRoute = Filter::trimStripTag($this->params()->fromRoute());
+        $paramsPost = Filter::trimStripTag($this->params()->fromPost());
+        $paramsQuery = Filter::trimStripTag($this->params()->fromQuery());
         
         return array_merge($paramsRoute, $paramsPost, $paramsQuery);
     }

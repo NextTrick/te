@@ -43,8 +43,7 @@ class FedexWs extends BaseWs
         
     public function getByTrackingNumber($trackingNumber)
     {                  
-        $responseData = array('success' => true);        
-        $trackingNumber = '149331877648230';  
+        $responseData = array('success' => true);         
         $request = $this->prepareRequest($trackingNumber);        
         try {
             $response = $this->client->track($request);

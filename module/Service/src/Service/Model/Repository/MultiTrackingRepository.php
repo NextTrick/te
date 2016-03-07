@@ -46,4 +46,9 @@ class MultiTrackingRepository extends AbstractRepository
         }
         return $response;
     }
+    
+    public function getByToken($token)
+    {
+        return $this->getBy(array('token=?' => $token), TRUE);
+    }
 }

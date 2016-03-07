@@ -22,6 +22,7 @@ return array(
         'invokables' => array(
             'tracking' => 'Api\Controller\TrackingController',
             'unified-tracking' => 'Api\Controller\UnifiedTrackingController',
+            'multitracking' => 'Api\Controller\MultitrackingController',
         )
     ),
     'router' => array(

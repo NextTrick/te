@@ -22,8 +22,7 @@ class TrackingService
     public function getMultiTracking($params)
     {
         $carrierService = $this->getCarrierService($params);
-        
-        return $carrierService->getTracking($params);
+        return $carrierService->getMultiTracking($params);
     }
     
     public function getCarrierService($params)

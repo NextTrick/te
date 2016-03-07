@@ -7,27 +7,25 @@ use Api\Controller\Base\BaseRestfulController;
 use Service\Model\Repository\ServiceRepository;
 
 class TrackingController extends BaseRestfulController
-{
-    
+{    
     public function getList()
     {
         return array();
     }
 
     public function get($id)
-    {           
+    {        
         $params = $this->getRequestParams();      
         $params['serviceId'] = ServiceRepository::ENDPOINT_TRACKING_ID;
         $params['searchKey'] = $id;                
         $params['apikeyId'] = $this->apikeyId;
         
         //TODO: delete test data
-        /*$params['searchKey'] = '377101283611590';
-        $params['key'] = '2342FF2343223FFFSS';
-        $params['apikeyId'] = 1;*/
+//        $params['searchKey'] = '149331877648230';
+//        $params['key'] = '2342FF2343223FFFSS';
+//        $params['apikeyId'] = 1;
         
-        $trackingService = $this->getTrackingService();  
-                
+        $trackingService = $this->getTrackingService();                  
         return $trackingService->getTracking($params);        
     }
 

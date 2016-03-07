@@ -12,7 +12,7 @@ class CarrierGateway
         $carriersData = $appCarrierService->getRepository()->getByStatus();
                
         foreach ($carriersData as $carrierData) {            
-            $carrierObjectPath = '\Api\Model\Gateway\Carrier' . "\\" . ucwords($carrierData['alias']) . 'Carrier';
+            $carrierObjectPath = '\Api\Model\Gateway\Carrier' . "\\" . $carrierData['alias'] . 'Carrier';
             $carrier = new $carrierObjectPath($serviceLocator);
             if ($carrier->checkSearchKeyOwner($searchKey)) {                
                 break;                

@@ -24,11 +24,15 @@ class IndexController extends AbstractActionController
 //        $this->httpClient->setAuth($this->username, $this->password);        
         $this->httpClient->setUri($url);
         $this->httpClient->setMethod('GET');      
-        $this->httpClient->setParameterGet(array('key' => 1111243424242));        
+        $this->httpClient->setParameterGet(array('key' => 1111243424242));   
+        $this->httpClient->setHeaders(array(            
+            'key' => "Basic234223234424242",
+        ));
+//        $this->httpClient->setAuth('user_sdfasfs', 'pas_sdfasfs');
 //        $this->setHeaders($this->httpClient);
         
         try {
-            $response = $this->httpClient->send();
+            $response = $this->httpClient->send();                        
             var_dump($response); exit;
             if ($response->isSuccess()) {
                 $responseXml = $this->parseXml($response->getBody());                
