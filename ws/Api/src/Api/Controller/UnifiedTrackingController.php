@@ -26,18 +26,19 @@ class UnifiedTrackingController extends BaseRestfulController
                    ->insertMultiTracking($params);        
     }
 
-    public function update($toke, $data)
+    public function update($token, $params)
     {
         $params['serviceId'] = ServiceRepository::ENDPOINT_TRACKING_ID;
         $params['apikeyId'] = $this->apikeyId;
         $params['trackings'] = $params['trackings'];
+       
         return $this->getMultiTrackingService()
-                   ->insertMultiTracking($params); 
+                   ->updateMultiTracking($token, $params); 
     }
 
-    public function delete($multitrackingId)
+    public function delete($token)
     {
-        return $this->getMultiTrackingService()->deleteMultiTracking($multitrackingId);
+        return $this->getMultiTrackingService()->deleteMultiTracking($token);
     }
    
     /**

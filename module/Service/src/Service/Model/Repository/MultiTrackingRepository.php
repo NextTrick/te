@@ -12,4 +12,43 @@ class MultiTrackingRepository extends AbstractRepository
     
     protected $_id = 'multitrackingId';
     
+    public function getByIdStatus($token, $status) 
+    {
+        return $this->getBy(
+                array(
+                    'token=?' => $token, 
+                    'status=?' => $status
+                ), 
+                TRUE
+            );
+    }
+    
+    /**
+     * 
+     * @param type $params
+     * @param type $token
+     */
+    public function updateMultiTrackingByToken($params, $token)
+    {
+        $response = array('success' => true);
+        try {
+             $this->update(
+               $params,
+                array(
+                    'token=?' => $token
+                )
+            );
+        } catch (Exception $e) {
+            $response = array(
+                'success' => false , 
+                'message' => $e->getMessage()
+            );
+        }
+        return $response;
+    }
+    
+    public function getByToken($token)
+    {
+        return $this->getBy(array('token=?' => $token), TRUE);
+    }
 }

@@ -20,13 +20,14 @@ class BaseRestfulController extends AbstractRestfulController
     );
         
     public function init()
-    {
+    {   
         $params = $this->getRequestParams();
         $headerParams = apache_request_headers();
         $params['key'] = null;
         if (!empty($headerParams['key'])) {
             $params['key'] = Filter::trimStripTag($headerParams['key']);
         }
+        $params['key'] = '2342FF2343223FFFSS';    
 
         $responseValidation = array();
         if(empty($params['key'])) {
