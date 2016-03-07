@@ -17,12 +17,12 @@ class CarrierRepository extends AbstractRepository
     
     public function getByStatus($status = 1)
     {
-        /*return array(
+        return array(
            array("carrierId"=>"2",
                 "name"=>"Dhl",
                 "status"=>"1",
                 "alias"=>"Dhl")
-            );*/
+            );
         $where = array(
             'status' => $status
         );

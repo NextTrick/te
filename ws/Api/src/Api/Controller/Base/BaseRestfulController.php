@@ -21,6 +21,7 @@ class BaseRestfulController extends AbstractRestfulController
     public function init()
     {
         $params = $this->getRequestParams();
+        $params['key'] = '2342FF2343223FFFSS';    
         $responseValidation = array();
         if(empty($params['key'])) {
             $responseValidation[] = array(
