@@ -45,19 +45,23 @@ class FedexCrossBorderCarrier extends CarrierAbstract
                 $paramsTrack['serviceId'] = ServiceRepository::ENDPOINT_TRACKING_ID;
                 $paramsTrack['searchKey'] = $tracking;                
                 $paramsTrack['apikeyId'] = $params['apikeyId'];
-                $responseTracking = $trackingService->getTracking($paramsTrack);  
-                if($responseTracking['status']['code']) {
-                    $responseTracking = TRUE;
-                    $trackingDetails[] = array_values($responseTracking['trackingDetails']);
+                $responseTracking = $trackingService->getTracking($paramsTrack);
+                if($responseTracking['status']['code'] == BaseResponse::RESPONSE_STATUS_SUCCESS_CODE) {
+                    $trackingvalido = TRUE;
+                    $trackingDetails[] = $responseTracking['trackingDetails'];
                 }
-            }   
+            } 
         }
         if(!$trackingvalido) {
             $response = BaseResponse::getErrorSkeleton();
             $response['error']['message'] = self::ERROR_MESSAGE_905;
             $response['error']['code'] = self::ERROR_CODE_905;
         } else {
-            $response['trackingDetails'] = array_values($trackingDetails); 
+            foreach ($trackingDetails as $trackings) {
+                foreach ($trackings as $tracking) {
+                   $response['trackingDetails'][] = $tracking; 
+                }
+            }
             $response = array_merge(self::getTrackingSkeleton(), $response);
         }
         return $response;
