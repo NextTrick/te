@@ -154,8 +154,12 @@ class FedexCarrier extends CarrierAbstract
     
     public function isSearchKeyOwner($searchkey)
     {
-        $response = false;
-        return $response;
+        $return = false;
+        if (preg_match('/(\b96\d{20}\b)|(\b\d{15}\b)|(\b\d{12}\b)/', $searchkey)) {
+            $return = true;
+        }
+        
+        return $return;
     }
 
 }
