@@ -138,5 +138,12 @@ return array(
                 'meterNumber' => '118707157',
             ),
         ),
+        'Ups' => array(
+            'tracking' => array(              
+                'userName' => 'xxxx',
+                'password' => 'xxx',
+                'serviceAccessToken' => 'xxxx',
+            ),
+        ),
     ),
 );
