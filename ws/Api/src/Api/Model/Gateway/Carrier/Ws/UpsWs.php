@@ -12,15 +12,14 @@ class UpsWs extends BaseWs
     protected $userName;    
     protected $serviceAccessToken;        
             
-    const STATUS_ERROR = 'ERROR';
+    const STATUS_ERROR = 'Error';
     const STATUS_FAILURE = 'FAILURE';
     const STATUS_WARNING = 'WARNING';
     const STATUS_NOTE = 'NOTE';
-    const STATUS_SUCCESS = 'SUCCESS';
+    const STATUS_SUCCESS = 'Success';
     
     protected $errorStatus = array(
         self::STATUS_ERROR,
-        self::STATUS_FAILURE,
     );
 
     public function __construct($config)
@@ -30,10 +29,12 @@ class UpsWs extends BaseWs
         $this->password = $config['password'];
         $this->userName = $config['userName'];
         $this->serviceAccessToken = $config['serviceAccessToken'];    
+        $endpoint = $config['endpoint'];
         
         $wsdlFile = __DIR__ . '/Ups/Wsdl/Track.wsdl';       
        
         $this->client = new \SoapClient($wsdlFile, array('trace' => 1));       
+        $this->client->__setLocation($endpoint);
     }
         
     public function getByTrackingNumber($trackingNumber)
@@ -43,35 +44,23 @@ class UpsWs extends BaseWs
         try {
             $response = $this->client->ProcessTrack($request);
 //            var_dump($this->client->__getLastResponse()); exit;
-            if (!in_array($response->HighestSeverity, $this->errorStatus)) {
+            $stausDescription = !empty($Response->ResponseStatus->Description) 
+                ? $Response->ResponseStatus->Description : null;
+                
+            if (!empty($stausDescription) && $stausDescription == self::STATUS_SUCCESS) {
                 $responseData['data'] = $response;
             } else {
-                if (!empty($response->Notifications)) {
+                if (!empty($response->Errors->ErrorDetail->PrimaryErrorCode)) {
                     $responseData = $this->parseError($response);
                 } else {
                     $responseData = $this->getGenericErrorData();
                 }
             }         
         } catch (\Exception $e) {            
-            $responseData['success'] = false; 
-            $lastResponse = $this->client->__getLastResponse();
-            if (!empty($lastResponse)) {
-                $lastResponse = simplexml_load_string($lastResponse);                  
-                if (!empty($lastResponse->detail)) {
-                    $responseData['error']['code'] = $lastResponse->detail->code;
-                    $responseData['error']['message'] = $lastResponse->detail->desc;
-                    $responseData['error']['aditionalMessage'] = $lastResponse->detail->cause;
-                } else {   
-                    var_dump($this->client->getLastRequest(), $this->client->getLastResponse()); exit;
-                    $responseData = $this->getGenericErrorData();                
-                    $responseData['error']['message'] = $e->getMessage();
-                    $responseData['error']['exception'] = $e->getTraceAsString();
-                }
-            } else {
-                $responseData = $this->getGenericErrorData();                
-                $responseData['error']['message'] = $e->getMessage();
-                $responseData['error']['exception'] = $e->getTraceAsString();
-            }            
+            $responseData['success'] = false;                        
+            $responseData = $this->getGenericErrorData();                
+            $responseData['error']['message'] = $e->getMessage();
+            $responseData['error']['exception'] = $e->getTraceAsString();                      
         }
         
         return $responseData;
@@ -88,13 +77,13 @@ class UpsWs extends BaseWs
     {
         $return = $this->getGenericErrorData();
         
-        if (!empty($response->Notifications)) { 
+        if (!empty($response->Errors->ErrorDetail->PrimaryErrorCode)) { 
             $tempError = array('');
-            foreach ($response->Notifications as $notification) {                
-                $tempError['code'][] = $notification->Code;
-                $tempError['message'][] = $notification->Message;
-                $tempError['aditionalMessage'][] = $notification->LocalizedMessage;              
-            }
+//            foreach ($response->ErrorDetail as $notification) {                
+                $tempError['code'][] = $response->Errors->ErrorDetail->PrimaryErrorCode->Code;
+                $tempError['message'][] = $response->Errors->ErrorDetail->PrimaryErrorCode->Description;
+                $tempError['aditionalMessage'][] = $response->Errors->ErrorDetail->PrimaryErrorCode->Digest;              
+//            }
             
             $returnError = array();
             $returnError['code'] = implode('|', $tempError['code']);

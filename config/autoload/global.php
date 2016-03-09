@@ -6,7 +6,7 @@ return array(
                 'date.timezone' => 'America/Los_Angeles',
                 'intl.default_locale' => 'es_PE',                
                 'display_startup_errors' => true,
-                'display_errors' => true,
+                'display_errors' => false, // if = false, display_startup_errors and  display_startup_errors not important
                 'error_reporting' => E_ALL,
                 'display_startup_errors' => true,
                 'post_max_size' => '804857600',  
@@ -14,8 +14,8 @@ return array(
     ),    
     
     'error' => array(
-        'send_mail' => true,
-        'local_log' => true,        
+        'send_mail' => false,
+        'local_log' => false,        
     ),
     
     'cache' => array(
@@ -143,6 +143,8 @@ return array(
                 'userName' => 'xxxx',
                 'password' => 'xxx',
                 'serviceAccessToken' => 'xxxx',
+                'endpoint' => 'https://wwwcie.ups.com/webservices/Track', 
+                //'endpoint' => 'https://onlinetools.ups.com/webservices/Track', // PRODUCTION
             ),
         ),
     ),

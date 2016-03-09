@@ -105,27 +105,39 @@ class Module
 
         $eventParams = $e->getParams();
         /** @var array $configuration */
-        $configuration = $e->getApplication()->getConfig();
-
+        $config = $e->getApplication()->getConfig();
+                
         $vars = array();
         if (isset($eventParams['exception'])) {
             /** @var \Exception $exception */
             $exception = $eventParams['exception'];
             
-            $displayErrors = $configuration['php']['settings']['display_errors'];            
+            $displayErrors = $config['php']['settings']['display_errors'];            
             if ($displayErrors == true) {
-                if ($configuration['errors']['show_exceptions']['message']) {
+                if ($config['errors']['show_exceptions']['message']) {
                     $vars['status'] = -1;
                     $vars['message'] = $exception->getMessage();
                 }
-                if ($configuration['errors']['show_exceptions']['trace']) {
+                if ($config['errors']['show_exceptions']['trace']) {
                     $vars['trace'] = $exception->__toString();
                 } 
-            } else {
+            } else {     
+                $log = new \Util\Model\Service\ErrorService();                                       
+                if ($config['error']['local_log']) {                    
+                    $log->logException($exception);           
+                }                
+                if ($config['error']['send_mail']) {
+                    try {
+                        \Util\Common\Email::reportException($exception);                    
+                    } catch (\Exception $ex) {
+                        $log->logException($ex);   
+                    }
+                }
+                
                 $vars['status']['code'] = BaseResponse::RESPONSE_STATUS_ERROR_CODE;
                 $vars['status']['dateTime'] = date('Y-m-d H:i:s');
                 $vars['error']['code'] = BaseResponse::STATUS_CODE_500;
-                $vars['error']['message'] = BaseResponse::ERROR_MESSAGE_500;
+                $vars['error']['message'] = BaseResponse::ERROR_MESSAGE_500;                                
             }
         }
 
@@ -138,7 +150,7 @@ class Module
 
         /** @var PostProcessor\AbstractPostProcessor $postProcessor */
         $postProcessor = $di->get(
-                $configuration['errors']['post_processor'], array('vars' => $vars, 'response' => $e->getResponse())
+                $config['errors']['post_processor'], array('vars' => $vars, 'response' => $e->getResponse())
         );
 
         $postProcessor->process();

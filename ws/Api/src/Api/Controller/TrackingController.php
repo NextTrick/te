@@ -15,6 +15,7 @@ class TrackingController extends BaseRestfulController
 
     public function get($id)
     {        
+        throw new \Exception('error');
         $params = $this->getRequestParams();      
         $params['serviceId'] = ServiceRepository::ENDPOINT_TRACKING_ID;
         $params['searchKey'] = $id;                
