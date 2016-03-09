@@ -49,20 +49,27 @@ return array(
     ),
     
     // Db paráms    
+    // Db paráms    
     'db' => array(
         //this is for primary adapter....
-        'username' => 'angel.jara',
-        'password' => '2650953180',
+        'username' => 'root',
+        'password' => 'likerow',
         'driver' => 'Pdo',
-        'dsn' => 'mysql:dbname=bongo;host=10.50.1.8',
+        'dsn' => 'mysql:dbname=fcb_trackingengine;host=23.21.99.186',
         'profiler' => true,
         'driver_options' => array(
             PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\''
         ),
         'adapters' => array(
-            'db1' => array(
+            'accountManagerDb' => array(
                 'username' => 'root',
-                'password' => '',
+                'password' => 'likerow',
+                'driver' => 'Pdo',
+                'dsn' => 'mysql:dbname=fcb_accountmanager;host=23.21.99.186',
+                'profiler' => true,
+                'driver_options' => array(
+                    PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\''
+                ),
             ),
             'db2' => array(
                 'username' => 'other_user',

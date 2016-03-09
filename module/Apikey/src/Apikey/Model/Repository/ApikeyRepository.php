@@ -17,4 +17,25 @@ class ApikeyRepository extends AbstractRepository
         
         return $this->getBy($where, true);
     }
+    
+    public function getByKeyServiceId($key, $serviceId)
+    {
+        $select = $this->sql->select(array('a' => $this->_table));
+        $select->join(array('b' => 'fcb_statistic_service_apikey'), 'a.apikeyId = b.apikeyId', array('*'))
+              ->join(array('c' => 'fcb_service_service'), 'b.serviceId = c.serviceId', array());
+        $select->where->equalTo('a.key', $key);
+        $select->where->equalTo('c.serviceId', $serviceId);
+        
+        return $this->fetchRow($select);
+    }
+    
+    public function getByKeyProfileId($key, $profileId)
+    {
+        $where = array(
+            'key' => $key,
+            'profileId' => $profileId,
+        );
+        
+        return $this->getBy($where, true);
+    }
 }

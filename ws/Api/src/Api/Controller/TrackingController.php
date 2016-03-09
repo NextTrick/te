@@ -8,6 +8,8 @@ use Service\Model\Repository\ServiceRepository;
 
 class TrackingController extends BaseRestfulController
 {    
+    const ENDPOINT_TRACKING_ID = ServiceRepository::ENDPOINT_TRACKING_ID;
+    
     public function getList()
     {
         return array();
@@ -15,16 +17,11 @@ class TrackingController extends BaseRestfulController
 
     public function get($id)
     {        
-        throw new \Exception('error');
         $params = $this->getRequestParams();      
-        $params['serviceId'] = ServiceRepository::ENDPOINT_TRACKING_ID;
+        $params['serviceId'] = self::ENDPOINT_TRACKING_ID;
         $params['searchKey'] = $id;                
         $params['apikeyId'] = $this->apikeyId;
-        
-        //TODO: delete test data
-//        $params['searchKey'] = '149331877648230';
-//        $params['key'] = '2342FF2343223FFFSS';
-//        $params['apikeyId'] = 1;
+        $params['profileId'] = $this->apikeyData['profileId'];
         
         $trackingService = $this->getTrackingService();                  
         return $trackingService->getTracking($params);        
