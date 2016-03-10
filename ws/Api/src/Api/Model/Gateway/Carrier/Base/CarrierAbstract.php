@@ -27,6 +27,11 @@ abstract class CarrierAbstract implements CarrierInterface
     
     public $tracking;
         
+    public function __construct($serviceLocator) 
+    {        
+        $this->serviceLocator = $serviceLocator;      
+    }
+    
     public static function getTrackingSkeleton()
     {
         return array(

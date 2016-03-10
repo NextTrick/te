@@ -1,0 +1,5 @@
+<TrackFieldRequest PASSWORD="<?php echo $this->password; ?>" USERID="<?php echo $this->userId ?>" APPID="">
+   <Revision>1</Revision>
+   <ClientIp><?php echo $this->clientIp; ?></ClientIp>
+   <TrackID ID="<?php echo $this->trackId; ?>" />
+</TrackFieldRequest>

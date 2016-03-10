@@ -150,8 +150,16 @@ return array(
                 'userName' => 'xxxx',
                 'password' => 'xxx',
                 'serviceAccessToken' => 'xxxx',
-                'endpoint' => 'https://wwwcie.ups.com/webservices/Track', 
+                'url' => 'https://wwwcie.ups.com/webservices/Track', 
                 //'endpoint' => 'https://onlinetools.ups.com/webservices/Track', // PRODUCTION
+            ),
+        ),
+        'Usps' => array(
+            'tracking' => array(              
+                'userId' => '916BONGO5774',  
+                'password' => '740DP32QR984',                  
+                'url' => 'http://stg-production.shippingapis.com/ShippingAPI.dll?API=TrackV2', 
+                //'url' => 'http://production.shippingapis.com/ShippingAPI.dll?API=TrackV2', , // PRODUCTION
             ),
         ),
     ),
