@@ -60,12 +60,13 @@ class GMapsService
     private $_baseUrl;
     
     public $serviceLocator;
-    
+
+
     public function __construct($serviceLocator, $key) 
     {
         $this->serviceLocator = $serviceLocator;
         $this->_key= $key;
-        $this->_baseUrl= "http://" . self::MAPS_HOST . "/maps/api/geocode/xml?"; //key=" . $this->_key;
+        $this->_baseUrl= "http://" . self::MAPS_HOST . "/maps/api/geocode/json?"; //key=" . $this->_key;
     }
     
     /**
@@ -90,27 +91,18 @@ class GMapsService
      */
     private function _connect($param) {
         $request_url = $this->_baseUrl . "address=" . urlencode($param);
-        $xml = simplexml_load_file($request_url);  
-        //var_dump($request_url, $xml);exit;
-        if (! empty($xml->Response)) {
-            $point= $xml->Response->Placemark->Point;
-            if (! empty($point)) {
-                $coordinatesSplit = explode(",", $point->coordinates);
-                // Format: Longitude, Latitude, Altitude
-                $this->_latitude = $coordinatesSplit[1];
-                $this->_longitude = $coordinatesSplit[0];    
+        $client = new \Zend\Http\Client();
+        $client->setUri($request_url)
+                ->setMethod('GET');
+        $responseHttp = $client->send();
+        if($responseHttp->isOk()) {
+            $responseBody = json_decode($responseHttp->getBody(), TRUE);
+            if(!empty($responseBody['results'])){
+                $result = reset($responseBody['results']);
+                $this->_latitude = $result['geometry']['location']['lat'];
+                $this->_longitude = $result['geometry']['location']['lng'];
             }
-            $this->_address= $xml->Response->Placemark->address;
-            $this->_countryName= $xml->Response->Placemark->AddressDetails->Country->CountryName;
-            $this->_countryNameCode= $xml->Response->Placemark->AddressDetails->Country->CountryNameCode;
-            $this->_administrativeAreaName= $xml->Response->Placemark->AddressDetails->Country->AdministrativeArea->AdministrativeAreaName;
-            $administrativeArea= $xml->Response->Placemark->AddressDetails->Country->AdministrativeArea;
-            if (!empty($administrativeArea->SubAdministrativeArea)) {
-                $this->_postalCode= $administrativeArea->SubAdministrativeArea->Locality->PostalCode->PostalCodeNumber;
-            } elseif (!empty($administrativeArea->Locality)) {
-                $this->_postalCode= $administrativeArea->Locality->PostalCode->PostalCodeNumber;
-            }
-            return true;
+            return true;  
         } else {
             return false;
         }

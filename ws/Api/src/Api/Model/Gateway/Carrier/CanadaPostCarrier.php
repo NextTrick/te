@@ -68,11 +68,10 @@ class CanadaPostCarrier extends CarrierAbstract
 
     public function responseOk($params)
     {
-        $resp = $this->getGMapsService()->getInfoLocation('HALIFAX, NS');
-        var_dump($resp);exit;
         $events = array();
         if(!empty($params['significant-events']['occurrence'])) {
             foreach ($params['significant-events']['occurrence']  as $event) {
+                $this->getGMapsService()->getInfoLocation($event['event-site'] . ', ' . $event['event-site']);
                 $events[] = array(
                     'date' => $event['2013-01-13'] . ' ' . $event['13:23:49'],                    
                     'eventCode' => $event['event-identifier'],
@@ -82,7 +81,11 @@ class CanadaPostCarrier extends CarrierAbstract
                         'StateOrProvinceCode' => $event['event-province'],
                         'countryName' => $event['event-site'],
                         'countryCode' => '',                                                
-                    ),      
+                    ),  
+                    'location' => array(
+                        'latitud' => $this->getGMapsService()->getLatitude(),
+                        'longitud' => $this->getGMapsService()->getLongitude(),
+                    ),
                 );
             }
         }
