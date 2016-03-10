@@ -3,7 +3,7 @@ namespace Api\Model\Service;
 
 class GMapsService
 {
-    const MAPS_HOST = 'maps.google.com';
+    const MAPS_HOST = 'maps.googleapis.com';
     /**
      * Latitude 
      * 
@@ -65,7 +65,7 @@ class GMapsService
     {
         $this->serviceLocator = $serviceLocator;
         $this->_key= $key;
-        $this->_baseUrl= "http://" . self::MAPS_HOST . "/maps/geo?output=xml&key=" . $this->_key;
+        $this->_baseUrl= "http://" . self::MAPS_HOST . "/maps/api/geocode/xml?"; //key=" . $this->_key;
     }
     
     /**
@@ -89,8 +89,9 @@ class GMapsService
      * @return boolean
      */
     private function _connect($param) {
-        $request_url = $this->_baseUrl . "&oe=utf-8&q=" . urlencode($param);
-        $xml = simplexml_load_file($request_url);      
+        $request_url = $this->_baseUrl . "address=" . urlencode($param);
+        $xml = simplexml_load_file($request_url);  
+        //var_dump($request_url, $xml);exit;
         if (! empty($xml->Response)) {
             $point= $xml->Response->Placemark->Point;
             if (! empty($point)) {

@@ -158,6 +158,7 @@ class CanadaPostCarrier extends CarrierAbstract
     
     public function isSearchKeyOwner($searchkey)
     {         
+        return true;
         $response = false;
         if(strlen($searchkey) == 16) {
             $response = true;
