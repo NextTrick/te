@@ -1,0 +1,23 @@
+
+<tracking-summary>
+    <pin-summary>
+        <pin>1680678172650919</pin>
+        <origin-postal-id/>
+        <destination-postal-id>K0B</destination-postal-id>
+        <destination-province>ON</destination-province>
+        <service-name>Xpresspost</service-name>
+        <mailed-on-date>2011-01-10</mailed-on-date>
+        <expected-delivery-date>2011-01-12</expected-delivery-date>
+        <actual-delivery-date>2011-01-27</actual-delivery-date>
+        <delivery-option-completed-ind>2</delivery-option-completed-ind>
+        <event-date-time>20110127:140229</event-date-time>
+        <event-description>Item successfully delivered</event-description>
+        <attempted-date>2011-01-11</attempted-date>
+        <customer-ref-1/>
+        <customer-ref-2/>
+        <return-pin/>
+        <event-type>DELIVERED</event-type>
+        <event-location/>
+        <signatory-name/>
+    </pin-summary>
+</tracking-summary>

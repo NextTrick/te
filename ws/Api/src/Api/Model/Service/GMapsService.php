@@ -61,7 +61,7 @@ class GMapsService
     
     public $serviceLocator;
     
-    public function __construct($serviceLocator) 
+    public function __construct($serviceLocator, $key) 
     {
         $this->serviceLocator = $serviceLocator;
         $this->_key= $key;

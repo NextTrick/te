@@ -3,15 +3,15 @@
 namespace Api\Model\Gateway\Carrier;
 
 use Api\Model\Gateway\Carrier\Base\CarrierAbstract;
-use Api\Model\Gateway\Carrier\Ws\DhlWs;
+use Api\Model\Gateway\Carrier\Ws\CanadaPostWs;
 use Carrier\Model\Repository\CarrierRepository;
 use Api\Controller\Base\BaseResponse;
 
-class DhlCarrier extends CarrierAbstract
+class CanadaPostCarrier extends CarrierAbstract
 {
-    const ALIAS = 'Dhl';
+    const ALIAS = 'CanadaPost';
     
-    const DB_ID = CarrierRepository::DHL_ID;
+    const DB_ID = CarrierRepository::CANADAPOST_ID;
 
     const STATUS_SUCCESS = 'success';
 
@@ -23,20 +23,20 @@ class DhlCarrier extends CarrierAbstract
     public function getTracking($params = array()) 
     {
         $searchId = $this->saveSearch($params);
-        $this->tracking = $this->getByTrackingNumber($params['searchKey']);
+        $this->tracking = $this->getByTrackingNumber($params['searchKey'], $params);
         $this->saveResquest($searchId);
         if ($this->tracking['status']['code'] == BaseResponse::RESPONSE_STATUS_SUCCESS_CODE) {
             $this->updateSearch($searchId);            
         }
         return parent::getTracking($params);
     }
-    public function getByTrackingNumber($trackingNumber)
+    public function getByTrackingNumber($trackingNumber, $params)
     {
         $dateTime = date('Y-m-d H:i:s');        
         $returnData = $this->getLastValidTrack($trackingNumber);
         if (empty($returnData)) {
             $returnData = $this->formatResponse(
-                    $this->service->getByTrackingNumber($trackingNumber)
+                    $this->service->getByTrackingNumber($trackingNumber, $params)
                 );
             $returnData['status']['dateTime'] = $dateTime;    
         }
@@ -48,12 +48,12 @@ class DhlCarrier extends CarrierAbstract
         $response = array();
         if($params['success']){
             $data = $params['data'];
-            if($data['AWBInfo']['Status']['ActionStatus'] == self::STATUS_SUCCESS){
+            if(!empty($data['pin'])){
                 $response = $this->responseOk($data);
             } else {
                 $response = BaseResponse::getErrorSkeleton();
-                $response['error']['message'] = $data['AWBInfo']['Status']['Condition']['ConditionData'];
-                $response['error']['code'] =$data['AWBInfo']['Status']['Condition']['ConditionCode'];
+                $response['error']['message'] = $data['message']['description'];
+                $response['error']['code'] = $data['message']['code'];
                 $response = array_merge(BaseResponse::getErrorSkeleton(), $response);
             }
         }
@@ -68,19 +68,19 @@ class DhlCarrier extends CarrierAbstract
 
     public function responseOk($params)
     {
-        $info = $params['AWBInfo'];
-        $shipmentInfo = $info['ShipmentInfo'];
+        $resp = $this->getGMapsService()->getInfoLocation('HALIFAX, NS');
+        var_dump($resp);exit;
         $events = array();
-        if(!empty($info['ShipmentInfo']['ShipmentEvent'])) {
-            foreach ($info['ShipmentInfo']['ShipmentEvent']  as $event) {
+        if(!empty($params['significant-events']['occurrence'])) {
+            foreach ($params['significant-events']['occurrence']  as $event) {
                 $events[] = array(
-                    'date' => $event['Date'] . ' ' . $event['Time'],                    
-                    'eventCode' => $event['ServiceEvent']['EventCode'],
-                    'eventDescription' => $event['ServiceEvent']['Description'],
+                    'date' => $event['2013-01-13'] . ' ' . $event['13:23:49'],                    
+                    'eventCode' => $event['event-identifier'],
+                    'eventDescription' => $event['event-description'],
                     'address' => array(
                         'postalCode' => '',
-                        'StateOrProvinceCode' => $event['ServiceArea']['ServiceAreaCode'],
-                        'countryName' => $event['ServiceArea']['Description'],
+                        'StateOrProvinceCode' => $event['event-province'],
+                        'countryName' => $event['event-site'],
                         'countryCode' => '',                                                
                     ),      
                 );
@@ -98,7 +98,7 @@ class DhlCarrier extends CarrierAbstract
             ), 
             'trackingDetails' => array(
                 array(
-                    'trackingKey' => $info['AWBNumber'],
+                    'trackingKey' => $params['pin'],
                     'statusDetail' => array(
                         'creationTime' => $endEvent['date'],
                         'code' => $endEvent['eventCode'],
@@ -111,23 +111,23 @@ class DhlCarrier extends CarrierAbstract
                             'countryName' => $endEvent['address']['countryName'],
                         ),                
                     ),
-                    'carrierCode' => '',
+                    'carrierCode' => self::ALIAS,
                     'OperatingCompanyOrCarrierDescription' => '',
                     'originAddress' => array(
-                        'StateOrProvinceCode' => $shipmentInfo['OriginServiceArea']['ServiceAreaCode'],
+                        'StateOrProvinceCode' => '',
                         'countryCode' => '',
-                        'countryName' => $shipmentInfo['OriginServiceArea']['Description'],
+                        'countryName' => '',
                     ),
                     'destinationAddress' => array(
-                        'StateOrProvinceCode' => $shipmentInfo['DestinationServiceArea']['ServiceAreaCode'],
+                        'StateOrProvinceCode' => '',
                         'countryCode' => '',
-                        'countryName' => $shipmentInfo['DestinationServiceArea']['Description'],
+                        'countryName' => '',
                     ),
                     'events' => $events,
                     'shipmentInfo' => array(
                         'weight' => array(
-                            'value' => $shipmentInfo['Weight'],
-                            'units' => $shipmentInfo['WeightUnit'],
+                            'value' => '',
+                            'units' => '',
                         ),
                         'dimensions' => array(
                             'length' => '',
@@ -139,11 +139,11 @@ class DhlCarrier extends CarrierAbstract
                             'code' => '',
                             'Message' => '',
                         ),                
-                        'numberPieces' => $shipmentInfo['Pieces'],
+                        'numberPieces' => '',
                         'PackageSequenceNumber' => '',                
                         'packaging' => '',
                         'service' =>  array(                    
-                            'description' => $shipmentInfo['ShipmentDesc'],                    
+                            'description' => $params['service-name'],                    
                         ),                
                         'pickupDate' => '', //shipTimestamp on fedex                                
                         'lastUpdated' => '', //ActualDeliveryTimestamp on fedex
@@ -158,19 +158,32 @@ class DhlCarrier extends CarrierAbstract
     
     public function isSearchKeyOwner($searchkey)
     {         
+        $response = false;
+        if(strlen($searchkey) == 16) {
+            $response = true;
+        }
+        return $response;
+        
         $return = false;
         if (preg_match('/^([0-9]{20})?([0-9]{4}[0-9]{4}[0-9]{4}[0-9]{2})$/', $searchkey)) {
             $return = true;
         }
         
         return $return;
-    }
+    }   
     
     public function setWs($wsConfig)
     {
-        $this->service = new DhlWs(
+        $this->service = new CanadaPostWs(
                 $wsConfig, 
                 array('searchKey' => $this->searchKey)
             );         
+    }
+    /**
+     * @return \Api\Model\Service\GMapsService
+     */
+    public function getGMapsService()
+    {
+        return $this->serviceLocator->get('Api\Model\GMapsService');
     }
 }

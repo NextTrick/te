@@ -22,7 +22,6 @@ class TrackingController extends BaseRestfulController
         $params['searchKey'] = $id;                
         $params['apikeyId'] = $this->apikeyId;
         $params['profileId'] = $this->apikeyData['profileId'];
-        
         $trackingService = $this->getTrackingService();                  
         return $trackingService->getTracking($params);        
     }

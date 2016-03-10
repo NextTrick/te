@@ -38,6 +38,13 @@ class MultiTrackingService extends AbstractService
                     'creationDate' => date('Y-m-d H:i:s'),
                     'token' => $token
                 ));
+           
+           $this->getServiceApikeyService()
+                ->save(array(
+                    'serviceId' => $params['serviceId'],
+                    'apikeyId' => $params['apikeyId'],
+                ));
+           
           $response['data'] = array(
                 'token' => $token,
               ); 
@@ -48,9 +55,10 @@ class MultiTrackingService extends AbstractService
     /**
      * 
      * @param type $token
+     * @param type $params
      * @return type
      */
-    public function deleteMultiTracking($token)
+    public function deleteMultiTracking($token, $params)
     {
         $response = array(
              'status' => array(
@@ -80,17 +88,24 @@ class MultiTrackingService extends AbstractService
             $response['status']['code'] = BaseResponse::RESPONSE_STATUS_ERROR_CODE;
             $response['error']['code'] = self::ERROR_CODE_900;
             $response['error']['message'] = $e->getMessage();
+        } else {
+            $this->getServiceApikeyService()
+                ->save(array(
+                    'serviceId' => $params['serviceId'],
+                    'apikeyId' => $params['apikeyId'],
+                ));
         }
+        
         return $response;
     }
-    
+   
     /**
      * 
-     * @param type $data
      * @param type $token
+     * @param type $params
      * @return type
      */
-    public function updateMultiTracking($data, $token)
+    public function updateMultiTracking($token, $params)
     {
         $response = array(
              'status' => array(
@@ -120,6 +135,12 @@ class MultiTrackingService extends AbstractService
             $response['status']['code'] = BaseResponse::RESPONSE_STATUS_ERROR_CODE;
             $response['error']['code'] = self::ERROR_CODE_900;
             $response['error']['message'] = $e->getMessage();
+        } else {
+            $this->getServiceApikeyService()
+                ->save(array(
+                    'serviceId' => $params['serviceId'],
+                    'apikeyId' => $params['apikeyId'],
+                ));
         }
         return $response;
     }
@@ -133,5 +154,12 @@ class MultiTrackingService extends AbstractService
             );
         }
         return $response;
+    }
+    /**
+     * @return ServiceApikeyService
+     */
+    public function getServiceApikeyService()
+    {
+        return $this->getServiceLocator()->get('Model\ServiceApikeyService');
     }
 }

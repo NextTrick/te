@@ -15,6 +15,7 @@ class CarrierRepository extends AbstractRepository
     const FEDEX_ID = 1;
     const DHL_ID = 2;
     const UPS_ID = 3;
+    const CANADAPOST_ID =4; 
     
     public function getByStatus($status = 1)
     {
