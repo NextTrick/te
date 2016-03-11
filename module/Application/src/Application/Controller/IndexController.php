@@ -11,12 +11,17 @@ namespace Application\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
+use Doctrine\ORM\EntityManager;
 
 class IndexController extends AbstractActionController
 {
     public function indexAction()
-    {
-        echo __METHOD__; exit;
+    {                     
+        $entityManager = $this->getServiceLocator()->get('doctrine.entitymanager.orm_default');        
+        $carrierRepository = $entityManager->getRepository('Application\Model\Entity\FcbCarrierCarrier');
+        
+        //$carrierEntity = $entityManager->find('Application\Model\Entity\FcbCarrierCarrier', 1);
+        echo 'hi222'; exit;    
         return new ViewModel();
     }
 }
