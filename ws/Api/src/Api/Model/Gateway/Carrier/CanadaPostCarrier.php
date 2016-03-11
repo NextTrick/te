@@ -71,7 +71,10 @@ class CanadaPostCarrier extends CarrierAbstract
         $events = array();
         if(!empty($params['significant-events']['occurrence'])) {
             foreach ($params['significant-events']['occurrence']  as $event) {
-                $this->getGMapsService()->getInfoLocation($event['event-site'] . ', ' . $event['event-site']);
+                $this->getGMapsService()->getInfoLocation(array(
+                    'search' => $event['event-site'] . ', ' . $event['event-site'],
+                    'carrierId' => self::DB_ID,
+                ));
                 $events[] = array(
                     'date' => $event['2013-01-13'] . ' ' . $event['13:23:49'],                    
                     'eventCode' => $event['event-identifier'],
@@ -79,7 +82,7 @@ class CanadaPostCarrier extends CarrierAbstract
                     'address' => array(
                         'postalCode' => '',
                         'StateOrProvinceCode' => $event['event-province'],
-                        'countryName' => $event['event-site'],
+                        'countryName' => '',
                         'countryCode' => '',                                                
                     ),  
                     'location' => array(

@@ -25,19 +25,37 @@ class MultitrackingController extends BaseRestfulController
         return $trackingService->getMultiTracking($params);
     }
 
-    public function create($data)
+    public function create($params)
     {
-        return array();
+        $params = $this->getRequestParams();
+        $params['serviceId'] = self::ENDPOINT_MULTITRACKING_ID;
+        $params['apikeyId'] = $this->apikeyId;
+        $params['trackings'] = $params['trackings'];
+        $params['profileId'] = $this->apikeyData['profileId'];
+        
+        return $this->getMultiTrackingService()
+                   ->insertMultiTracking($params);        
     }
 
-    public function update($id, $data)
+    public function update($token, $params)
     {
-        return array();
+        $params = $this->getRequestParams();
+        $params['serviceId'] = self::ENDPOINT_MULTITRACKING_ID;
+        $params['apikeyId'] = $this->apikeyId;     
+        $params['trackings'] = $params['trackings'];
+        $params['profileId'] = $this->apikeyData['profileId'];
+       
+        return $this->getMultiTrackingService()
+                   ->updateMultiTracking($token, $params); 
     }
 
-    public function delete($id)
+    public function delete($token)
     {
-        return array();
+        $params = $this->getRequestParams();
+        $params['serviceId'] = self::ENDPOINT_MULTITRACKING_ID;
+        $params['apikeyId'] = $this->apikeyId;     
+        $params['profileId'] = $this->apikeyData['profileId'];
+        return $this->getMultiTrackingService()->deleteMultiTracking($token, $params);
     }
     
     /**
@@ -47,4 +65,12 @@ class MultitrackingController extends BaseRestfulController
     {
         return $this->getServiceLocator()->get('Api\Model\TrackingService');
     }   
+    
+    /**
+     * @return \Service\Model\Service\MultiTrackingService
+     */
+    public function getMultiTrackingService()
+    {
+        return $this->getServiceLocator()->get('Model\MultiTrackingService');
+    }
 }
