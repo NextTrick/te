@@ -25,7 +25,7 @@ class FedexCarrier extends CarrierAbstract
     public function getTracking($params)
     {        
         $searchId = $this->saveSearch($params);  
-        $this->tracking = $this->getByTrackingNumber($params['searchKey']); 
+        $this->tracking = $this->getByTrackingNumber($params['searchKey']);         
         $this->saveResquest($searchId);        
         if ($this->tracking['status']['code'] == BaseResponse::RESPONSE_STATUS_SUCCESS_CODE) {
             $this->updateSearch($searchId);            
@@ -74,7 +74,7 @@ class FedexCarrier extends CarrierAbstract
                     }
 
                     $returnData['trackingDetails'][$key]['carrierCode'] = $trackingDetail->CarrierCode;
-                    $returnData['trackingDetails'][$key]['OperatingCompanyOrCarrierDescription'] 
+                    $returnData['trackingDetails'][$key]['operatingCompanyOrCarrierDescription'] 
                             = $trackingDetail->OperatingCompanyOrCarrierDescription;
 
                     $returnData['trackingDetails'][$key]['destinationAddress'] = array(

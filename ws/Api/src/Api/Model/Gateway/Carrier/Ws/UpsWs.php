@@ -56,8 +56,7 @@ class UpsWs extends BaseWs
                     $responseData = $this->getGenericErrorData();
                 }
             }         
-        } catch (\Exception $e) {            
-            $responseData['success'] = false;                        
+        } catch (\Exception $e) {                                         
             $responseData = $this->getGenericErrorData();                
             $responseData['error']['message'] = $e->getMessage();
             $responseData['error']['exception'] = $e->getTraceAsString();                      
