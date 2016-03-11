@@ -135,9 +135,9 @@ class UspsCarrier extends CarrierAbstract
     }
             
     public function isSearchKeyOwner($searchkey)
-    {        
+    {
         $return = false;
-        if (preg_match('/^([0-9]{20})?([0-9]{4}[0-9]{4}[0-9]{4}[0-9]{2})$/', $searchkey)) {
+        if (preg_match('/^[0-9]{4}[0-9]{4}[0-9]{4}[0-9]{4}[0-9]{4}[0-9]{2}$/', $searchkey)) {
             $return = true;
         }
         

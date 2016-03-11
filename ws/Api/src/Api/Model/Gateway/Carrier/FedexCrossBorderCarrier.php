@@ -45,6 +45,9 @@ class FedexCrossBorderCarrier extends CarrierAbstract
                 $paramsTrack['serviceId'] = ServiceRepository::ENDPOINT_TRACKING_ID;
                 $paramsTrack['searchKey'] = $tracking;                
                 $paramsTrack['apikeyId'] = $params['apikeyId'];
+                $paramsTrack['key'] = $params['key'];
+                $paramsTrack['profileId'] = $params['profileId'];
+                
                 $responseTracking = $trackingService->getTracking($paramsTrack);
                 if($responseTracking['status']['code'] == BaseResponse::RESPONSE_STATUS_SUCCESS_CODE) {
                     $trackingvalido = TRUE;

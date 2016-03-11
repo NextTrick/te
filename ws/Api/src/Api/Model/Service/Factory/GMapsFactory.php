@@ -9,7 +9,8 @@ use Api\Model\Service\GMapsService;
 class GMapsFactory implements FactoryInterface
 {
     public function createService(ServiceLocatorInterface $serviceLocator)
-    {               
-        return new GMapsService($serviceLocator);
+    {    
+        $config = $serviceLocator->get('config');
+        return new GMapsService($serviceLocator, $config['googleApi']['key']);
     }
 }

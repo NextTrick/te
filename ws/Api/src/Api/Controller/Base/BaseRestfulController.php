@@ -5,7 +5,7 @@ namespace Api\Controller\Base;
 use Zend\Mvc\Controller\AbstractRestfulController;
 use Api\Controller\Base\BaseResponse;
 use Util\Common\Filter;
-
+use Service\Model\Repository\ServiceRepository;
 class BaseRestfulController extends AbstractRestfulController
 {
     public $apikeyId;
@@ -13,6 +13,8 @@ class BaseRestfulController extends AbstractRestfulController
     public $apiKeyData = array();
 
     const ERROR_MESSAGE_501 = 'Apikey no valido';
+    
+    const ENDPOINT_TRACKING_ID = ServiceRepository::ENDPOINT_TRACKING_ID;
                
     public $skeletonResponse = array(
         'status' => array(
@@ -41,7 +43,6 @@ class BaseRestfulController extends AbstractRestfulController
             $apikeyData = $this->getApiKeyService()->getRepository()
                     ->getByKeyServiceId($params['key'], $this::ENDPOINT_TRACKING_ID);        
             $this->getApiKeyService()->getRepository()->setAdapter($adapter); 
-            
             if (empty($apikeyData)) {
                 $paramsValidation[] = array(
                     'code' => 1,
@@ -58,7 +59,7 @@ class BaseRestfulController extends AbstractRestfulController
             $this->skeletonResponse['error']['code'] = BaseResponse::STATUS_CODE_501;
             $this->skeletonResponse['error']['message'] = self::ERROR_MESSAGE_501;
             $this->skeletonResponse['error']['errors'] = $paramsValidation;
-            json_encode($this->skeletonResponse);            
+            echo json_encode($this->skeletonResponse); exit;           
         }
     }
 

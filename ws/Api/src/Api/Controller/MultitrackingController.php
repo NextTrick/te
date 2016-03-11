@@ -6,7 +6,7 @@ use Service\Model\Repository\ServiceRepository;
 
 class MultitrackingController extends BaseRestfulController
 {
-    const ENDPOINT_TRACKING_ID = ServiceRepository::ENDPOINT_MULTITRACKING_ID;
+    const ENDPOINT_MULTITRACKING_ID = ServiceRepository::ENDPOINT_MULTITRACKING_ID;
     
     public function getList()
     {
@@ -15,6 +15,7 @@ class MultitrackingController extends BaseRestfulController
 
     public function get($id)
     {
+        $params = $this->getRequestParams();
         $params['serviceId'] = self::ENDPOINT_MULTITRACKING_ID;
         $params['searchKey'] = $id;                
         $params['apikeyId'] = $this->apikeyId;
