@@ -34,7 +34,7 @@ return array(
     ),
     
     'view_manager' => array(
-        'base_path' => "http://trackingengine.bongous.com/",
+        'base_path' => "http://trackingengine.bongous.dev/",
         'display_not_found_reason' => true,
         'display_exceptions' => true,
         'charset' => 'UTF-8',
@@ -48,35 +48,6 @@ return array(
     'app' => array(                
     ),
     
-    // Db paráms    
-    // Db paráms    
-    'db' => array(
-        //this is for primary adapter....
-        'username' => 'root',
-        'password' => 'likerow',
-        'driver' => 'Pdo',
-        'dsn' => 'mysql:dbname=fcb_trackingengine;host=23.21.99.186',
-        'profiler' => true,
-        'driver_options' => array(
-            PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\''
-        ),
-        'adapters' => array(
-            'accountManagerDb' => array(
-                'username' => 'root',
-                'password' => 'likerow',
-                'driver' => 'Pdo',
-                'dsn' => 'mysql:dbname=fcb_accountmanager;host=23.21.99.186',
-                'profiler' => true,
-                'driver_options' => array(
-                    PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\''
-                ),
-            ),
-            'db2' => array(
-                'username' => 'other_user',
-                'password' => 'other_user_passwd',
-            ),
-        ),
-    ),
     'mail' => array(
         'transport' => array(
             'options' => array(
@@ -105,14 +76,14 @@ return array(
     //Servers
     'servers' => array(
         'static' => array(
-            'host' => 'http://listener.bongous.com/',
+            'host' => 'http://trackingengine.bongous.dev/',
             'version' => '?v1.1'
         ),
         'element' => array(
-            'host' => 'http://listener.bongous.com/',                
+            'host' => 'http://trackingengine.bongous.dev/',                
         ),
         'content' => array(
-            'host' => 'http://listener.bongous.com/',                
+            'host' => 'http://trackingengine.bongous.dev/',                
         ),            
     ), 
     

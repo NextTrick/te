@@ -29,6 +29,18 @@ abstract class AbstractRepository implements ServiceLocatorAwareInterface
     
     /**
      *
+     * @var string 
+     */
+    protected $_creationDate = 'creationDate';
+    
+    /**
+     *
+     * @var string 
+     */
+    protected $_editionDate = 'editionDate';
+    
+    /**
+     *
      * @var \Zend\ServiceManager\ServiceLocatorInterface
      */
     protected $_sl;
@@ -372,13 +384,16 @@ abstract class AbstractRepository implements ServiceLocatorAwareInterface
         }
         
         $data = $this->unsetRels($data);
-
+        $cols = $this->getCols($this->_table);        
         if (empty($data[$this->_id])) {
             $fecha = new \DateTime('NOW');
-            if (array_key_exists('fecha_creacion', $data)) {
-                $data['fecha_creacion'] = $fecha->format('Y-m-d H:i:s');
+            
+            if (in_array($this->_creationDate, $cols)) {
+                if (!array_key_exists($this->_creationDate, $data)) {
+                    $data[$this->_creationDate] = $fecha->format('Y-m-d H:i:s');
+                }
             } 
-
+            
             $id = $this->insert($data);
             if($id) {
                 return $id;
@@ -386,14 +401,17 @@ abstract class AbstractRepository implements ServiceLocatorAwareInterface
         } else {
             $id = $data[$this->_id];
             $fecha = new \DateTime('NOW');
-            if (array_key_exists('fecha_edicion', $data)) {
-                $data['fecha_edicion'] = $fecha->format('Y-m-d H:i:s');
+            
+            if (in_array($this->_editionDate, $cols)) {
+                if (!array_key_exists($this->_editionDate, $data)) {
+                    $data[$this->_editionDate] = $fecha->format('Y-m-d H:i:s');
+                }
             }                        
             $where = array(
                 $this->_id => $id,
             );
             unset($data[$this->_id]);
-                
+                            
             if($this->update($data, $where)) {
                 return $id;
             }
