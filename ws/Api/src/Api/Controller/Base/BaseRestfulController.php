@@ -99,7 +99,7 @@ class BaseRestfulController extends AbstractRestfulController
             $extraParams['key'] = Filter::trimStripTag($headerParams['key']);
         }
         
-        //$extraParams['key'] = '2342FF2343223FFFSS'; 
+//        $extraParams['key'] = '2342FF2343223FFFSS'; 
         
         return array_merge($paramsRoute, $paramsPost, $paramsQuery, $extraParams);
     }

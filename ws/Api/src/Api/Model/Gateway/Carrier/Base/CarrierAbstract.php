@@ -48,6 +48,7 @@ abstract class CarrierAbstract implements CarrierInterface
                         'code' => '',
                         'description' => '',
                         'location' => array(
+                            'postalCode' => '',
                             'streetLines' => '',
                             'City' => '',
                             'stateOrProvinceCode' => '',
@@ -56,16 +57,18 @@ abstract class CarrierAbstract implements CarrierInterface
                         ),                
                     ),
                     'carrierCode' => '',
-                    'OperatingCompanyOrCarrierDescription' => '',            
+                    'operatingCompanyOrCarrierDescription' => '',            
                     'originAddress' => array(
                         'stateOrProvinceCode' => '',
                         'countryCode' => '',
                         'countryName' => '',
+                        'postalCode' => '',
                     ),            
                     'destinationAddress' => array(
                         'stateOrProvinceCode' => '',
                         'countryCode' => '',
                         'countryName' => '',
+                        'postalCode' => '',
                     ),
                     'events' => array(
                         array(
@@ -168,11 +171,15 @@ abstract class CarrierAbstract implements CarrierInterface
                 'carrierId' => $this::DB_ID,
                 'trackingKey' => $tracking['trackingKey'],
                 'statusCreationDateTime' =>$tracking['statusDetail']['creationDateTime'],
-                'statusCode' => $tracking['statusDetail']['code'],
+                'statusCode' => !empty($tracking['statusDetail']['code']) 
+                                ? $tracking['statusDetail']['code'] : '',
                 'statusDescription' => $tracking['statusDetail']['description'],
-                'statusLocStateOrProvinceCode' => $tracking['statusDetail']['location']['stateOrProvinceCode'],
-                'statusLocCountryCode' => $tracking['statusDetail']['location']['countryCode'],
-                'statusLocCountryName' => $tracking['statusDetail']['location']['countryName'],
+                'statusLocStateOrProvinceCode' => !empty($tracking['statusDetail']['location']['stateOrProvinceCode']) 
+                                          ? $tracking['statusDetail']['location']['stateOrProvinceCode'] : '',
+                'statusLocCountryCode' => !empty($tracking['statusDetail']['location']['countryCode']) 
+                                          ? $tracking['statusDetail']['location']['countryCode'] : '',
+                'statusLocCountryName' => !empty($tracking['statusDetail']['location']['countryName']) 
+                                          ? $tracking['statusDetail']['location']['countryName'] : '',
                 'track' => json_encode($this->tracking),
             );
 

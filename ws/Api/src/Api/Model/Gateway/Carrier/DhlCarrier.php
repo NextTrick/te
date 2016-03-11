@@ -112,7 +112,7 @@ class DhlCarrier extends CarrierAbstract
                         ),                
                     ),
                     'carrierCode' => '',
-                    'OperatingCompanyOrCarrierDescription' => '',
+                    'operatingCompanyOrCarrierDescription' => '',
                     'originAddress' => array(
                         'StateOrProvinceCode' => $shipmentInfo['OriginServiceArea']['ServiceAreaCode'],
                         'countryCode' => '',
@@ -157,14 +157,7 @@ class DhlCarrier extends CarrierAbstract
     
     
     public function isSearchKeyOwner($searchkey)
-    {         
-        $response = false;
-        if(strlen($searchkey) != 40) {
-            $response = true;
-        }
-        
-        return $response;
-        
+    {       
         $return = false;
         if (preg_match('/^([0-9]{20})?([0-9]{4}[0-9]{4}[0-9]{4}[0-9]{2})$/', $searchkey)) {
             $return = true;

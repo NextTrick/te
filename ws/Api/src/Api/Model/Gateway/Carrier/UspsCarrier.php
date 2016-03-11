@@ -35,102 +35,89 @@ class UspsCarrier extends CarrierAbstract
         $returnData = $this->getLastValidTrack($trackingNumber);
         
         if (empty($returnData)) {
-            $returnData['status']['dateTime'] = $dateTime;    
+            $returnData = array();
             
-            $response = $this->service->getByTrackId($trackingNumber);        
+            $response = $this->service->getByTrackId($trackingNumber);             
             if ($response['success']) {
-                $responseObject = $response['data'];
-                $trackingDetails = $responseObject->CompletedTrackDetails->TrackDetails;            
-                if (empty($responseObject->CompletedTrackDetails->TrackDetailsCount)) {
-                    $trackingDetails = array($trackingDetails);
+                $responseData = $response['data'];                   
+                $trackingDetails = array();
+                
+                $trackingInfos = $responseData['TrackResponse'];
+                if (!empty($trackingInfos['TrackInfo'])) {
+                    $trackingInfos = array($trackingInfos['TrackInfo']);
                 }
-
-                foreach ($trackingDetails as $key => $trackingDetail) {                    
-                    $returnData['trackingDetails'][$key]['trackingKey'] = $trackingDetail->TrackingNumber;
-
-                    $statusDetail = $trackingDetail->StatusDetail;
-                    $returnData['trackingDetails'][$key]['statusDetail'] = array(
-                        'creationDateTime' => $statusDetail->CreationTime,
-                        'code' => $statusDetail->Code,
-                        'description' => $statusDetail->Description,
-                        'creationDateTime' => $statusDetail->CreationTime,
+                
+                foreach ($trackingInfos as $trackingInfo) {
+                     $statusDetail = array (
+                        'creationDateTime' => $trackingInfo['TrackSummary']['EventDate'],
+                        'description' => $trackingInfo['TrackSummary']['Event'],
+                        'location' => array(                            
+                            'City' => $trackingInfo['TrackSummary']['EventCity'],
+                            'stateOrProvinceCode' => $trackingInfo['TrackSummary']['EventState'], 
+                            'postalCode' => $trackingInfo['TrackSummary']['EventZIPCode'],
+                        ), 
                     );
-
-                    $returnData['trackingDetails'][$key]['statusDetail']['location'] = array(                                       
-                        'city' => $statusDetail->Location->City,
-                        'stateOrProvinceCode' => $statusDetail->Location->StateOrProvinceCode,
-                        'countryCode' => $statusDetail->Location->CountryCode,
-                        'countryName' => $statusDetail->Location->CountryName,
-                    );
-
-                    if (!empty($statusDetail->Location->StreetLines)) {
-                        $returnData['trackingDetails'][$key]['statusDetail']['location']['streetLines'] 
-                                = $statusDetail->Location->StreetLines;
+                    
+                    if (!empty($trackingInfo['TrackSummary']['EventCountry'])) {
+                        $statusDetail['location']['countryName'] = $trackingInfo['TrackSummary']['EventCountry'];
                     }
-
-                    $returnData['trackingDetails'][$key]['carrierCode'] = $trackingDetail->CarrierCode;
-                    $returnData['trackingDetails'][$key]['OperatingCompanyOrCarrierDescription'] 
-                            = $trackingDetail->OperatingCompanyOrCarrierDescription;
-
-                    $returnData['trackingDetails'][$key]['destinationAddress'] = array(
-                        'stateOrProvinceCode' => $trackingDetail->DestinationAddress->StateOrProvinceCode,
-                        'countryCode' => $trackingDetail->DestinationAddress->CountryCode,
-                        'countryName' => $trackingDetail->DestinationAddress->CountryName,
-                    ); 
-
-                    foreach ($trackingDetail->Events as $k => $event) {                    
-                        $returnData['trackingDetails'][$key]['events'][$k] = array(
-                            'dateTime' => $event->Timestamp,
-                            'eventCode' => $event->EventType,
-                            'eventDescription' => $event->EventDescription,
+                    
+                    $originAddress = array(
+                        'stateOrProvinceCode' => $trackingInfo['OriginState'],
+                        'postalCode' => $trackingInfo['OriginZip'],
+                    );
+                    
+                    $destinationAddress = array(
+                        'stateOrProvinceCode' => $trackingInfo['DestinationState'],
+                        'postalCode' => $trackingInfo['DestinationZip'],
+                    );
+                    
+                    $trackingDetailsResponse = $trackingInfo['TrackDetail'];
+                    if (!empty($trackingDetailsResponse['EventTime'])) {
+                        $trackingDetailsResponse = array($trackingInfo['TrackDetail']);
+                    }
+                    
+                    $events = array();
+                    foreach ($trackingDetailsResponse as $key => $trackingDetail) {
+                        $events[$key] = array(
+                            'dateTime' => $trackingDetail['EventDate'],                    
+                            'eventCode' => $trackingDetail['EventCode'],
+                            'eventDescription' => $trackingDetail['Event'],
                             'address' => array(
-                                'postalCode' => $event->Address->PostalCode,                            
-                                'countryName' => $event->Address->CountryName,
-                                'countryCode' => $event->Address->CountryCode,                                
+                                'postalCode' => $trackingDetail['EventZIPCode'],
+                                'stateOrProvinceCode' => $trackingDetail['EventState'],                                             
                             ),
                         );
-
-                        if (!empty($event->Address->StateOrProvinceCode)) {
-                            $returnData['trackingDetails'][$key]['events'][$k]['address']['stateOrProvinceCode'] =
-                                    $event->Address->StateOrProvinceCode;
+                        
+                        if (!empty($trackingDetail['EventCountry'])) {
+                            $events[$key]['address']['countryName'] =  $trackingDetail['EventCountry'];
                         }
                     }
-
-                    $firstEvent = reset($returnData['trackingDetails'][$key]['events']);
-                    $returnData['trackingDetails'][$key]['originAddress'] = array(
-                        'stateOrProvinceCode' => $firstEvent['address']['stateOrProvinceCode'],
-                        'countryName' => $firstEvent['address']['countryName'],
-                        'countryCode' => $firstEvent['address']['countryCode'],
-                    );
-
-                    $returnData['trackingDetails'][$key]['shipmentInfo'] = array(
-                        'weight' => array(
-                            'value' => $trackingDetail->PackageWeight->Value,
-                            'units' => $trackingDetail->PackageWeight->Units,
-                        ),
-                        'dimensions' => array(
-                            'length' => $trackingDetail->PackageDimensions->Length,
-                            'width' => $trackingDetail->PackageDimensions->Width,
-                            'height' => $trackingDetail->PackageDimensions->Height,
-                            'units' => $trackingDetail->PackageDimensions->Units,
-                        ),                
-                        'notification' => array(
-                            'code' => $trackingDetail->Notification->Code,
-                            'Message' => $trackingDetail->Notification->Message,
-                        ),                        
-                        'packageSequenceNumber' => $trackingDetail->PackageSequenceNumber,                
-                        'packaging' => $trackingDetail->Packaging,
+                                  
+                    $firstEvent = $events[$key];
+                    $lastEvent = $events[0];
+                    
+                    $shipmentInfo = array(                            
                         'service' =>  array(                    
-                            'description' => $trackingDetail->Service->Description,                  
+                            'description' => $trackingInfo['Service']                    
                         ),                
-                        'pickupDateTime' => $trackingDetail->ShipTimestamp, //shipTimestamp on fedex                                                           
-                    ); 
-                    if (!empty($trackingDetail->ActualDeliveryTimestamp)) {
-                        $returnData['trackingDetails'][$key]['shipmentInfo']['lastUpdated'] 
-                                = $trackingDetail->ActualDeliveryTimestamp; //ActualDeliveryTimestamp on fedex
-                    }  
+                        'pickupDateTime' => $firstEvent['dateTime'],
+                        'lastUpdated' => $lastEvent['dateTime'],
+                    );   
+                    
+                    $trackingDetails[] = array(                    
+                        'trackingKey' => $trackingNumber,
+                        'statusDetail' => $statusDetail,
+                        'operatingCompanyOrCarrierDescription' => $trackingInfo['Service'],
+                        'originAddress' => $originAddress,
+                        'destinationAddress' => $destinationAddress,
+                        'events' => $events,
+                        'shipmentInfo' => $shipmentInfo,                        
+                    );
                 }
-
+                
+                $returnData['trackingDetails'] = $trackingDetails;
+                $returnData['status']['dateTime'] = $dateTime;   
                 $returnData['status']['code'] = BaseResponse::RESPONSE_STATUS_SUCCESS_CODE;            
                 $returnData = array_merge(self::getTrackingSkeleton(), $returnData);                       
             } else {                
@@ -148,8 +135,7 @@ class UspsCarrier extends CarrierAbstract
     }
             
     public function isSearchKeyOwner($searchkey)
-    {
-        return false;
+    {        
         $return = false;
         if (preg_match('/^([0-9]{20})?([0-9]{4}[0-9]{4}[0-9]{4}[0-9]{2})$/', $searchkey)) {
             $return = true;

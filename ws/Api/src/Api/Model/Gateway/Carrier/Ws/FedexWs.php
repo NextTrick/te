@@ -58,7 +58,6 @@ class FedexWs extends BaseWs
                 }
             }         
         } catch (\Exception $e) {            
-            $responseData['success'] = false; 
             $lastResponse = $this->client->__getLastResponse();
             if (!empty($lastResponse)) {
                 $lastResponse = simplexml_load_string($lastResponse);                  

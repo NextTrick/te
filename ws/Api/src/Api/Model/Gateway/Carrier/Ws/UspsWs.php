@@ -9,9 +9,7 @@ use Zend\View\Renderer\PhpRenderer;
 use Zend\View\Model\ViewModel;
 
 class UspsWs extends BaseWs
-{   
-    private $request = array();
-    
+{  
     /**     
      * @var Client 
      */
@@ -19,15 +17,8 @@ class UspsWs extends BaseWs
     
     protected $userId;
     
-    protected $password; 
+    protected $password;
     
-    const STATUS_ERROR = 'Error';    
-    const STATUS_SUCCESS = 'Success';
-    
-    protected $errorStatus = array(
-        self::STATUS_ERROR,
-    );
-         
     public function __construct($config)
     {
         $this->userId = $config['userId'];
@@ -49,25 +40,90 @@ class UspsWs extends BaseWs
         $requestParamesters = $this->getRequetParameters($trackId);        
                        
         $this->client->setMethod('GET');
-        $this->client->setParameterGet($requestParamesters);        
+        $this->client->setParameterGet($requestParamesters);  
+        
         try {
-            $response = $this->client->send();
-            var_dump($this->client->getLastRawRequest()); exit;
+//            $response = $this->getResponse();            
+            $response = $this->client->send();           
             if ($response->isSuccess()) {
-                $responseXml = $this->parseXml($response->getBody());                
-                $responseData['data'] = $responseXml;
+//            if (true) {
+                $responseXml = $this->parseXml($response->getBody());
+//                $responseXml = $this->parseXml($response);                             
+                if (!empty($responseXml['TrackResponse']['TrackInfo']['TrackSummary'])) {
+                    $responseData['data'] = $responseXml;
+                } else {
+                    $responseData = $this->parseError($responseXml);                    
+                }   
             } else {
                 $responseXml = $this->parseXml($response->getBody());
-                $responseData = $this->parseError($responseXml);
-                $responseData['success'] = false;
+                $responseData = $this->parseError($responseXml);                
             }           
         } catch (\Exception $e) {
-            $responseData['success'] = false;   
-            $responseData['exception'] = $this->errorCodeGeneric;
-            $responseData['message'] = $e->getMessage();
+            $responseData = $this->getGenericErrorData();                              
+            $responseData['error']['message'] = $e->getMessage();
+            $responseData['error']['exception'] = $e->getTraceAsString();
         }
-        var_dump($responseData); exit;
+        
         return $responseData;
+    }
+    
+    public function getResponse()
+    {
+        $string = '<TrackResponse>
+    <TrackInfo ID="5551212699300000962610">
+       <Class>USPS Retail Ground&amp;#153;</Class>
+       <ClassOfMailCode>BP</ClassOfMailCode>
+       <DestinationCity>KBEA</DestinationCity>
+       <DestinationState>TX</DestinationState>
+       <DestinationZip>12345</DestinationZip>
+       <EmailEnabled>true</EmailEnabled>
+       <KahalaIndicator>false</KahalaIndicator>
+       <MailTypeCode>DM</MailTypeCode>
+       <MPDATE>2016-01-08 10:34:04.000000</MPDATE>
+       <MPSUFFIX>412725500</MPSUFFIX>
+       <OriginCity>LAKE CHARLES</OriginCity>
+       <OriginState>IL</OriginState>
+       <OriginZip>12345</OriginZip>
+       <PodEnabled>false</PodEnabled>
+       <RestoreEnabled>false</RestoreEnabled>
+       <RramEnabled>false</RramEnabled>
+       <RreEnabled>false</RreEnabled>
+       <Service>USPS Tracking&lt;SUP&gt;&amp;#174;&lt;/SUP&gt;</Service>
+       <ServiceTypeCode>346</ServiceTypeCode>
+       <Status>Arrived at facility</Status>
+       <StatusCategory>In Transit</StatusCategory>
+       <StatusSummary>Your item arrived at our USPS facility in COLUMBUS, OH 43218 on January 6, 2016 at 10:45 pm. The item is currently in transit to the destination.</StatusSummary>
+       <TABLECODE>T</TABLECODE>
+       <TrackSummary>
+          <EventTime>10:45 pm</EventTime>
+          <EventDate>January 6, 2016</EventDate>
+          <Event>Arrived at USPS Facility</Event>
+          <EventCity>COLUMBUS</EventCity>
+          <EventState>OH</EventState>
+          <EventZIPCode>43218</EventZIPCode>
+          <EventCountry />
+          <FirmName />
+          <Name />
+          <AuthorizedAgent>false</AuthorizedAgent>
+          <EventCode>10</EventCode>
+       </TrackSummary>
+       <TrackDetail>
+          <EventTime>9:10 am</EventTime>
+          <EventDate>January 6, 2016</EventDate>
+          <Event>Acceptance</Event>
+          <EventCity>LAKE CHARLES</EventCity>
+          <EventState>IL</EventState>
+          <EventZIPCode>12345</EventZIPCode>
+          <EventCountry />
+          <FirmName />
+          <Name />
+          <AuthorizedAgent>false</AuthorizedAgent>
+          <EventCode>03</EventCode>
+       </TrackDetail>
+    </TrackInfo>
+ </TrackResponse>';
+        
+        return $string;
     }
     
     public function getGenericErrorData()
@@ -79,23 +135,11 @@ class UspsWs extends BaseWs
     
     protected function parseError($response)
     {
-        $return = $this->getGenericErrorData();
-        
-        if (!empty($response->Errors->ErrorDetail->PrimaryErrorCode)) { 
-            $tempError = array('');
-//            foreach ($response->ErrorDetail as $notification) {                
-                $tempError['code'][] = $response->Errors->ErrorDetail->PrimaryErrorCode->Code;
-                $tempError['message'][] = $response->Errors->ErrorDetail->PrimaryErrorCode->Description;
-                $tempError['aditionalMessage'][] = $response->Errors->ErrorDetail->PrimaryErrorCode->Digest;              
-//            }
-            
-            $returnError = array();
-            $returnError['code'] = implode('|', $tempError['code']);
-            $returnError['message'] = implode('|', $tempError['message']);
-            $returnError['aditionalMessage'] = implode('|', $tempError['aditionalMessage']);
-            
-            $return['error'] = $returnError;
-        } 
+        $return = $this->getGenericErrorData();        
+        if (!empty($response['TrackResponse']['TrackInfo']['Error'])) {
+            $return['code'] = $response['TrackResponse']['TrackInfo']['Error']['Number'];
+            $return['message'] = $response['TrackResponse']['TrackInfo']['Error']['Description'];                                 
+        }
         
         return $return;
     }
@@ -134,7 +178,10 @@ class UspsWs extends BaseWs
       
     protected function parseXml($xmlString)
     {
-        $xml = simplexml_load_string($xmlString);
+        $xml = simplexml_load_string('<root>' . preg_replace('/<\?xml.*\?>/',
+                '' , $xmlString) . '</root>');
+//        $xml = simplexml_load_string($xmlString);
+        //var_dump($xml); exit;
         return json_decode(json_encode($xml), TRUE);
     }
 }
