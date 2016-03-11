@@ -90,21 +90,43 @@ class GMapsService
      * @return boolean
      */
     private function _connect($param) {
-        $request_url = $this->_baseUrl . "address=" . urlencode($param);
-        $client = new \Zend\Http\Client();
-        $client->setUri($request_url)
-                ->setMethod('GET');
-        $responseHttp = $client->send();
-        if($responseHttp->isOk()) {
-            $responseBody = json_decode($responseHttp->getBody(), TRUE);
-            if(!empty($responseBody['results'])){
-                $result = reset($responseBody['results']);
-                $this->_latitude = $result['geometry']['location']['lat'];
-                $this->_longitude = $result['geometry']['location']['lng'];
+        $key = sha1($param['search']); 
+        $carrierCoordenadas = $this->getCarrierCoordinatesService()
+                        ->getRepository()->getByCode($key);
+        
+        if(empty($carrierCoordenadas)) {
+            $request_url = $this->_baseUrl . "address=" . urlencode($param['search']);
+            $client = new \Zend\Http\Client();
+            $client->setUri($request_url)
+                    ->setMethod('GET');
+            $responseHttp = $client->send();
+            if($responseHttp->isOk()) {
+                $responseBody = json_decode($responseHttp->getBody(), TRUE);
+                if(!empty($responseBody['results'])){
+                    $result = reset($responseBody['results']);
+                    $this->_latitude = $result['geometry']['location']['lat'];
+                    $this->_longitude = $result['geometry']['location']['lng'];
+                    $this->getCarrierCoordinatesService()
+                        ->getRepository()->insert(
+                                array(
+                                    'carrierId' => $param['carrierId'],
+                                    'latitud' => $this->_latitude,
+                                    'longitud' => $this->_longitude,
+                                    'code' => $key,
+                                    'nameCoordinate' => $param['search'],
+                                )
+                            );
+                }
+                
+                return true;  
+            } else {
+                return false;
             }
-            return true;  
-        } else {
-            return false;
+        }
+        else {
+            $this->_latitude = $carrierCoordenadas['latitud'];
+            $this->_longitude = $carrierCoordenadas['longitud'];
+            return true;
         }
     }
     /**
@@ -162,5 +184,13 @@ class GMapsService
      */
     public function getLongitude () {
         return $this->_longitude;
+    }
+    /**
+     * 
+     * @return \Carrier\Model\Service\CarrierCoordinatesService
+     */
+    private function getCarrierCoordinatesService()
+    {
+        return $this->serviceLocator->get('Model\CarrierCoordinatesService');
     }
 }
