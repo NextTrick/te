@@ -1,0 +1,54 @@
+<?php
+
+namespace Application\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * FcbServiceService
+ *
+ * @ORM\Table(name="fcb_service_service")
+ * @ORM\Entity
+ */
+class FcbServiceService
+{
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="serviceId", type="integer", nullable=false)
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
+     */
+    private $serviceid;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="endpoint", type="string", length=256, nullable=false)
+     */
+    private $endpoint;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     */
+    private $creationdate;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="editionDate", type="datetime", nullable=true)
+     */
+    private $editiondate;
+
+    /**
+     * @var boolean
+     *
+     * @ORM\Column(name="status", type="boolean", nullable=false)
+     */
+    private $status = '1';
+
+
+}
+
