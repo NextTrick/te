@@ -1,0 +1,7 @@
+---
+# handlers file for webservices
+  - name: restart httpd
+    service: name=httpd state=restarted enabled=yes
+
+  - name: restart memcache
+    service: name=memcached state=restarted enabled=yes

@@ -12,4 +12,4 @@ INSERT INTO fcb_service_service (serviceId, endpoint, creationDate, status) VALU
 INSERT INTO fcb_service_service (serviceId, endpoint, creationDate, status) VALUES (3, 'unifed_tracking', now(), 1);
 
 --  Test fcb_apikey_apikey
-INSERT INTO fcb_apikey_apikey (apikeyId, `key`, creationDate) VALUES (null, '2342FF2343223FFFSS', now());
+INSERT INTO fcb_apikey_apikey (apikeyId, `key`, creationDate, profileId) VALUES (null, '2342FF2343223FFFSS', now(), 1);

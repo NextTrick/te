@@ -1,0 +1,64 @@
+---
+- name: install the webtatic repo from a remote repo
+  yum: name=https://mirror.webtatic.com/yum/el6/latest.rpm state=present
+    
+- name: Instalar paquetes comunes del SO
+  yum: name={{ item }} state=present
+  with_items: common_packages
+ 
+- name: install the webtatic repo from a remote repo
+  yum: name=http://rpms.famillecollet.com/enterprise/remi-release-6.rpm
+
+- name: install memcache module for PHP5.5 from remi repo
+  yum: name={{item}} enablerepo=remi,remi-php55 disablerepo=webtatic state=present
+  with_items:
+     - php-pecl-memcached
+     
+- name: Install Composer
+  shell: curl -sS https://getcomposer.org/installer | php && mv composer.phar /usr/local/bin/composer creates=/usr/local/bin/composer
+  
+- name: Give vagrant permission to library folder
+  file: path=/var/lib/php/ owner=vagrant group=vagrant recurse=yes
+  
+# Install mysql 
+- name: Install MySQL Community YUM Repo.
+  yum: name=http://dev.mysql.com/get/mysql-community-release-el6-5.noarch.rpm state=installed
+
+- name: Install MySQL
+  yum: name=mysql-community-server state=installed
+
+- name: Install MySQL-python
+  yum: name=MySQL-python state=installed
+
+- name: Ensure MySQL is running
+  service: name=mysqld state=started enabled=true
+
+- name: Ensure MySQL starts at boot
+  command: /sbin/chkconfig mysqld on
+
+- name: Ensure IPTables is not running
+  service: name=iptables state=stopped enabled=false
+
+- name: Annonymous Users not in MySQL
+  mysql_user: name='' host={{item}} state=absent
+  with_items:
+     - localhost
+
+- name: Test Database is Removed
+  mysql_db: name=test state=absent
+  
+# tasks file for webservices
+- name: template php.ini
+  template: src=php.ini dest=/etc/php.ini
+
+- name: template hosts
+  template: src=hosts dest=/etc/hosts
+
+- name: template httpd.conf
+  template: src=httpd.conf dest=/etc/httpd/conf/
+
+- name: Create vhosts folder
+  file: path=/etc/httpd/vhosts.d state=directory
+
+- name: template VirtualHostForMultipleVhosts
+  template: src=NameVirtualHosts.conf dest=/etc/httpd/vhosts.d/
