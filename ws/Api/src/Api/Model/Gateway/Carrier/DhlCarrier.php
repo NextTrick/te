@@ -73,6 +73,10 @@ class DhlCarrier extends CarrierAbstract
         $events = array();
         if(!empty($info['ShipmentInfo']['ShipmentEvent'])) {
             foreach ($info['ShipmentInfo']['ShipmentEvent']  as $event) {
+                $this->getGMapsService()->getInfoLocation(array(
+                    'search' => $event['ServiceArea']['ServiceAreaCode'] . ', ' . $event['ServiceArea']['Description'],
+                    'carrierId' => self::DB_ID,
+                ));
                 $events[] = array(
                     'date' => $event['Date'] . ' ' . $event['Time'],                    
                     'eventCode' => $event['ServiceEvent']['EventCode'],
@@ -159,7 +163,10 @@ class DhlCarrier extends CarrierAbstract
     public function isSearchKeyOwner($searchkey)
     {
         $return = false;
+<<<<<<< HEAD
         
+=======
+>>>>>>> 0321717cef11a4c6a6257c8f1cef2a74a7e8335f
         if (preg_match('/^([0-9]{20})?([0-9]{4}[0-9]{4}[0-9]{4}[0-9]{2})$/', $searchkey)) {
             $return = true;
         }
@@ -173,5 +180,13 @@ class DhlCarrier extends CarrierAbstract
                 $wsConfig, 
                 array('searchKey' => $this->searchKey)
             );         
+    }
+    
+    /**
+     * @return \Api\Model\Service\GMapsService
+     */
+    public function getGMapsService()
+    {
+        return $this->serviceLocator->get('Api\Model\GMapsService');
     }
 }
