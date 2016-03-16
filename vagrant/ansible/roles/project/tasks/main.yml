@@ -1,0 +1,49 @@
+- name: Install composer on {{ project_name }}
+  composer: command=install working_dir=/opt/fcb/{{ project_name }}
+
+# Set up TrackingEngine database
+- name: Create database {{ item }}
+  mysql_db: name={{ item }} state=present
+  with_items: databases
+
+- name: Create user and password for dbs
+  mysql_user: name={{ mysql_user }} password={{ mysql_password }} priv=*.*:ALL,GRANT state=present
+
+- name: Copy master sqls
+  copy: src=/opt/fcb/{{ project_name }}/scripts/sql/{{item}} dest=/tmp/{{ item }}
+  with_items: master_db_sql
+  
+- name: excute master sql scritps  to fcb_trackingengine
+  mysql_db: name=fcb_trackingengine state=import target=/tmp/{{ item }}
+  with_items: master_fcb_trackingengine_sql
+
+- name: excute master sql scritps to fcb_accountmanager
+  mysql_db: name=fcb_accountmanager state=import target=/tmp/{{ item }}
+  with_items: master_fcb_accountmanager_sql 
+ 
+# Set up prject Vitual host
+- name: vhost trackingengine.bongous.dev
+  template: src=trackingengine.bongous.dev.conf dest=/etc/httpd/vhosts.d/
+  notify: restart httpd
+  
+- name: host file | update host file
+  lineinfile: "dest=/etc/hosts
+    insertafter=EOF
+    line='127.0.0.1  trackingengine.bongous.dev'
+    regexp='127.0.0.1  trackingengine.bongous.dev'
+    state=present"
+  notify: restart httpd
+
+# Set Up project configuration
+- name: Create vhosts FedexTrackingEngine Data Directories
+  file: path=/opt/fcb/FedexTrackingEngine/data/{{item}} state=directory owner=root mode=0777
+  with_items:
+     - cache
+     - log
+
+- name: Copy local FedexTrackingEngine config file
+  copy: src={{item}} dest=/root/{{item}} owner=vagrant
+  with_items:
+     - local.php       
+       
+- command: mv -f /root/local.php /opt/fcb/FedexTrackingEngine/config/autoload/

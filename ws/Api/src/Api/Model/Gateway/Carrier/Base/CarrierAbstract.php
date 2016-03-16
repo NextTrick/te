@@ -26,6 +26,8 @@ abstract class CarrierAbstract implements CarrierInterface
     public $service;
     
     public $tracking;
+    
+    public $lastTrack;
         
     public function __construct($serviceLocator) 
     {        
@@ -201,10 +203,21 @@ abstract class CarrierAbstract implements CarrierInterface
                 ->getLastValidTrack($trackingKey, $carrierId, $trackLifeTime);
         
         if (!empty($trackData)) {
-            $return = json_decode($trackData['track']);
+            $return = json_decode($trackData['track'], true);
+            $this->setLastTrack($return);
         }
         
         return $return;
+    }
+    
+    public function setLastTrack($return)
+    {
+        $this->lastTrack = $return;
+    }
+    
+    public function getLastTrack()
+    {
+        return $this->lastTrack;
     }
     
     public function saveResquest($searchId)

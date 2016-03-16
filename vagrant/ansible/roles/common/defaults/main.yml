@@ -1,0 +1,21 @@
+---
+common_packages:
+  - vim
+  - nano
+  - curl
+  - telnet
+  - memcached
+  - git
+  - httpd
+  #PHP 55
+  - php55w
+  - php55w-cli
+  - php55w-common
+  - php55w-gd
+  - php55w-mbstring
+  - php55w-mcrypt
+  - php55w-mysql
+  - php55w-pdo
+  - php55w-pecl-memcache
+  - php55w-soap
+  - php55w-xml

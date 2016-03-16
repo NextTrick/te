@@ -1,0 +1,24 @@
+---
+mysql_user: bongodbuser
+mysql_password: B0ng0
+
+databases: 
+    - fcb_trackingengine
+    - fcb_accountmanager
+    
+master_db_sql: 
+    - 000_fcb_trackingengine.sql
+    - 000_fcb_accountmanager.sql
+    - 001_masterdata_trackingengine.sql        
+    - 002_masterdata_accountmanager.sql
+    
+master_fcb_trackingengine_sql: 
+    - 000_fcb_trackingengine.sql    
+    - 001_masterdata_trackingengine.sql            
+
+master_fcb_accountmanager_sql: 
+    - 000_fcb_accountmanager.sql   
+    - 002_masterdata_accountmanager.sql            
+    
+project_name: FedexTrackingEngine
+

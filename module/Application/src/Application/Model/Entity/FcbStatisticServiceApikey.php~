@@ -1,0 +1,60 @@
+<?php
+
+namespace Application\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * FcbStatisticServiceApikey
+ *
+ * @ORM\Table(name="fcb_statistic_service_apikey", indexes={@ORM\Index(name="fk_Fcb_Ts_EndPointApikey_FcbTs_Ts_ApiKey_idx", columns={"apikeyId"}), @ORM\Index(name="fk_Fcb_Ts_ServiceApikey_Fcb_Ts_Service1_idx", columns={"serviceId"})})
+ * @ORM\Entity
+ */
+class FcbStatisticServiceApikey
+{
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="serviceApikeyId", type="integer", nullable=false)
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
+     */
+    private $serviceapikeyid;
+
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="counter", type="integer", nullable=false)
+     */
+    private $counter = '0';
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     */
+    private $creationdate;
+
+    /**
+     * @var \Application\Entity\FcbApikeyApikey
+     *
+     * @ORM\ManyToOne(targetEntity="Application\Entity\FcbApikeyApikey")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="apikeyId", referencedColumnName="apikeyId")
+     * })
+     */
+    private $apikeyid;
+
+    /**
+     * @var \Application\Entity\FcbServiceService
+     *
+     * @ORM\ManyToOne(targetEntity="Application\Entity\FcbServiceService")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="serviceId", referencedColumnName="serviceId")
+     * })
+     */
+    private $serviceid;
+
+
+}
+

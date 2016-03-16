@@ -1,0 +1,67 @@
+<?php
+
+namespace Application\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+
+/**
+ * FcbSearchSearch
+ *
+ * @ORM\Table(name="fcb_search_search", indexes={@ORM\Index(name="fk_Fcb_Ts_Search_Fcb_Ts_Carrier1_idx", columns={"carrierId"}), @ORM\Index(name="fk_Fcb_Ts_Search_Fcb_Ts_ServiceApikey1_idx", columns={"serviceApikeyId"})})
+ * @ORM\Entity
+ */
+class FcbSearchSearch
+{
+    /**
+     * @var integer
+     *
+     * @ORM\Column(name="seachId", type="integer", nullable=false)
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="IDENTITY")
+     */
+    private $seachid;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="tracnkingId", type="string", length=45, nullable=true)
+     */
+    private $tracnkingid;
+
+    /**
+     * @var \DateTime
+     *
+     * @ORM\Column(name="creationDate", type="datetime", nullable=false)
+     */
+    private $creationdate;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="ip", type="string", length=16, nullable=true)
+     */
+    private $ip;
+
+    /**
+     * @var \Application\Entity\FcbCarrierCarrier
+     *
+     * @ORM\ManyToOne(targetEntity="Application\Entity\FcbCarrierCarrier")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="carrierId", referencedColumnName="carrierId")
+     * })
+     */
+    private $carrierid;
+
+    /**
+     * @var \Application\Entity\FcbStatisticServiceApikey
+     *
+     * @ORM\ManyToOne(targetEntity="Application\Entity\FcbStatisticServiceApikey")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="serviceApikeyId", referencedColumnName="serviceApikeyId")
+     * })
+     */
+    private $serviceapikeyid;
+
+
+}
+

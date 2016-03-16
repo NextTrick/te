@@ -1,0 +1,6 @@
+192.168.56.20 api.bongous.dev apitransaction.bongous.dev customertools.bongous.dev partnertools.bongous.dev tools.bongous.dev transaction.bongous.dev
+127.0.0.1 toolz.bongous.dev tranzaction.bongous.dev listener.bongous.dev secure.bongous.dev trackingengine.bongous.dev
+10.50.1.40  git.bongous.com
+
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
