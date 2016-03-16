@@ -178,6 +178,7 @@ class CanadaPostCarrier extends CarrierAbstract
                 array('searchKey' => $this->searchKey)
             );         
     }
+    
     /**
      * @return \Api\Model\Service\GMapsService
      */

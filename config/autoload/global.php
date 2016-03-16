@@ -133,5 +133,16 @@ return array(
                 //'url' => 'http://production.shippingapis.com/ShippingAPI.dll?API=TrackV2', , // PRODUCTION
             ),
         ),
+        'CanadaPost' => array(
+            'tracking' => array(
+                'host' => 'https://ct.soa-gw.canadapost.ca/',
+                'CustomerNumber' => '6e93d53968881714',
+                'ContractId' => '0bfa9fcb9853d1f51ee57a',
+                'ApyKey' => '6e93d53968881714:0bfa9fcb9853d1f51ee57a',
+            )
+        ),
     ),
+    'googleApi' => array(
+        'key' => '',
+    )
 );
