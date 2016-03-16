@@ -46,7 +46,7 @@ class MultitrackingController extends BaseRestfulController
         $params['profileId'] = $this->apikeyData['profileId'];
        
         return $this->getMultiTrackingService()
-                   ->updateMultiTracking($token, $params); 
+                   ->updateMultiTracking($params['param2'], $params); 
     }
 
     public function delete($token)
@@ -55,7 +55,7 @@ class MultitrackingController extends BaseRestfulController
         $params['serviceId'] = self::ENDPOINT_MULTITRACKING_ID;
         $params['apikeyId'] = $this->apikeyId;     
         $params['profileId'] = $this->apikeyData['profileId'];
-        return $this->getMultiTrackingService()->deleteMultiTracking($token, $params);
+        return $this->getMultiTrackingService()->deleteMultiTracking($params['param2'], $params);
     }
     
     /**

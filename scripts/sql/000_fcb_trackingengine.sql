@@ -92,7 +92,7 @@ CREATE TABLE IF NOT EXISTS `fcb_service_multitracking` (
   `trackingKeys` TEXT NULL,
   `apikeyId` INT NOT NULL,
   `creationDate` DATETIME NOT NULL,
-  `edtionDate` DATETIME NULL,
+  `editionDate` DATETIME NULL,
   `token` VARCHAR(250) NULL,
   `status` TINYINT(1) NOT NULL DEFAULT 1 COMMENT '1: active, 0: inactive',
   PRIMARY KEY (`multitrackingId`),

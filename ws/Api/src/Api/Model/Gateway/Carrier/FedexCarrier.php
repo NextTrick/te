@@ -86,7 +86,11 @@ class FedexCarrier extends CarrierAbstract
                         'countryName' => $trackingDetail->DestinationAddress->CountryName,
                     ); 
 
-                    foreach ($trackingDetail->Events as $k => $event) {                    
+                    foreach ($trackingDetail->Events as $k => $event) { 
+                        $this->getGMapsService()->getInfoLocation(array(
+                            'search' => $event->Address->CountryName . ', ' . $event->Address->PostalCode,
+                            'carrierId' => self::DB_ID,
+                        ));
                         $returnData['trackingDetails'][$key]['events'][$k] = array(
                             'dateTime' => $event->Timestamp,
                             'eventCode' => $event->EventType,
@@ -95,6 +99,10 @@ class FedexCarrier extends CarrierAbstract
                                 'postalCode' => $event->Address->PostalCode,                            
                                 'countryName' => $event->Address->CountryName,
                                 'countryCode' => $event->Address->CountryCode,                                
+                            ),
+                            'location' => array(
+                                'latitud' => $this->getGMapsService()->getLatitude(),
+                                'longitud' => $this->getGMapsService()->getLongitude(),
                             ),
                         );
 
@@ -165,4 +173,11 @@ class FedexCarrier extends CarrierAbstract
         return $return;
     }
 
+    /**
+     * @return \Api\Model\Service\GMapsService
+     */
+    public function getGMapsService()
+    {
+        return $this->serviceLocator->get('Api\Model\GMapsService');
+    }
 }
