@@ -163,14 +163,9 @@ class DhlCarrier extends CarrierAbstract
     public function isSearchKeyOwner($searchkey)
     {
         $return = false;
-<<<<<<< HEAD
-        
-=======
->>>>>>> 0321717cef11a4c6a6257c8f1cef2a74a7e8335f
         if (preg_match('/^([0-9]{20})?([0-9]{4}[0-9]{4}[0-9]{4}[0-9]{2})$/', $searchkey)) {
             $return = true;
         }
-        
         return $return;
     }
     
