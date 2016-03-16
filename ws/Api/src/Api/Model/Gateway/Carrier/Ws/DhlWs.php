@@ -80,7 +80,7 @@ class DhlWs extends BaseWs
             $this->client->setRawBody($xml);
             $responseHttp = $this->client->send();
             $responseBody = $this->parseXml($responseHttp->getBody());
-            if(!empty($responseBody['AWBInfo']['Status'])){
+            if(!empty($responseBody['AWBInfo'])){
                 $response = array(
                     'success' => true,
                     'data' => $responseBody

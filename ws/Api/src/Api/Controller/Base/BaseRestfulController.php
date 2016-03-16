@@ -25,6 +25,7 @@ class BaseRestfulController extends AbstractRestfulController
            
     public function init()
     {   
+        
         $this->setIdentifierName('param1');        
         $params = $this->getRequestParams();
         
@@ -44,6 +45,7 @@ class BaseRestfulController extends AbstractRestfulController
             $apikeyData = $this->getApiKeyService()->getRepository()
                     ->getByKeyServiceId($params['key'], $this::ENDPOINT_TRACKING_ID);        
             $this->getApiKeyService()->getRepository()->setAdapter($adapter); 
+            
             if (empty($apikeyData)) {
                 $paramsValidation[] = array(
                     'code' => 1,

@@ -99,9 +99,9 @@ return array(
         'trackLifeTime' => 5, // minutes
         'Dhl' => array(
             'tracking' => array(
-                'siteId' => '846176581',
-                'password' => '5A233F2B2C415144445955595D53304F424A5C414D5951545C54',
-                'host' => 'https://xmlpi-ea.dhl.com/',
+                'siteId' => '911comprep',
+                'password' => 'DiiC08pR3p',
+                'host' => 'https://xmlpitest-ea.dhl.com/',
             )
         ),
         'FedexCrossBorder' => array(

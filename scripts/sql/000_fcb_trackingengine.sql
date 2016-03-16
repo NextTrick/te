@@ -202,7 +202,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `fcb_carrier_coordinates` ;
 
 CREATE TABLE IF NOT EXISTS `fcb_carrier_coordinates` (
-  `coordinateId` INT UNSIGNED NOT NULL,
+  `coordinateId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `carrierId` INT NOT NULL,
   `code` VARCHAR(125) NULL,
   `latitud` VARCHAR(32) NULL,
@@ -215,7 +215,8 @@ CREATE TABLE IF NOT EXISTS `fcb_carrier_coordinates` (
     REFERENCES `fcb_carrier_carrier` (`carrierId`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+ENGINE = InnoDB
+AUTO_INCREMENT=4;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

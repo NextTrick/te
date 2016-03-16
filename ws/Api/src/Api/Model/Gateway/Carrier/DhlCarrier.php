@@ -33,7 +33,7 @@ class DhlCarrier extends CarrierAbstract
     public function getByTrackingNumber($trackingNumber)
     {
         $dateTime = date('Y-m-d H:i:s');        
-        $returnData = $this->getLastValidTrack($trackingNumber);
+        $returnData = NULL;// $this->getLastValidTrack($trackingNumber);
         if (empty($returnData)) {
             $returnData = $this->formatResponse(
                     $this->service->getByTrackingNumber($trackingNumber)
@@ -48,6 +48,7 @@ class DhlCarrier extends CarrierAbstract
         $response = array();
         if($params['success']){
             $data = $params['data'];
+            $data['AWBInfo'] = reset($data['AWBInfo']);
             if($data['AWBInfo']['Status']['ActionStatus'] == self::STATUS_SUCCESS){
                 $response = $this->responseOk($data);
             } else {
@@ -69,25 +70,56 @@ class DhlCarrier extends CarrierAbstract
     public function responseOk($params)
     {
         $info = $params['AWBInfo'];
+        
         $shipmentInfo = $info['ShipmentInfo'];
         $events = array();
         if(!empty($info['ShipmentInfo']['ShipmentEvent'])) {
             foreach ($info['ShipmentInfo']['ShipmentEvent']  as $event) {
-                $this->getGMapsService()->getInfoLocation(array(
-                    'search' => $event['ServiceArea']['ServiceAreaCode'] . ', ' . $event['ServiceArea']['Description'],
-                    'carrierId' => self::DB_ID,
-                ));
-                $events[] = array(
-                    'date' => $event['Date'] . ' ' . $event['Time'],                    
-                    'eventCode' => $event['ServiceEvent']['EventCode'],
-                    'eventDescription' => $event['ServiceEvent']['Description'],
-                    'address' => array(
-                        'postalCode' => '',
-                        'StateOrProvinceCode' => $event['ServiceArea']['ServiceAreaCode'],
-                        'countryName' => $event['ServiceArea']['Description'],
-                        'countryCode' => '',                                                
-                    ),      
-                );
+                if(!is_array($event)) {
+                   $event  = $info['ShipmentInfo']['ShipmentEvent'];
+                   $this->getGMapsService()->getInfoLocation(array(
+                        'search' => $event['ServiceArea']['ServiceAreaCode'] . ', ' . $event['ServiceArea']['Description'],
+                        'carrierId' => self::DB_ID,
+                    ));
+                    $events[] = array(
+                        'date' => $event['Date'] . ' ' . $event['Time'],                    
+                        'eventCode' => $event['ServiceEvent']['EventCode'],
+                        'eventDescription' => $event['ServiceEvent']['Description'],
+                        'address' => array(
+                            'postalCode' => '',
+                            'StateOrProvinceCode' => $event['ServiceArea']['ServiceAreaCode'],
+                            'countryName' => $event['ServiceArea']['Description'],
+                            'countryCode' => '',                                                
+                        ), 
+                        'location' => array(
+                            'latitud' => $this->getGMapsService()->getLatitude(),
+                            'longitud' => $this->getGMapsService()->getLongitude(),
+                        ),
+                    );
+                    break;
+                }
+                else {
+                    $this->getGMapsService()->getInfoLocation(array(
+                        'search' => $event['ServiceArea']['ServiceAreaCode'] . ', ' . $event['ServiceArea']['Description'],
+                        'carrierId' => self::DB_ID,
+                    ));
+                    $events[] = array(
+                        'date' => $event['Date'] . ' ' . $event['Time'],                    
+                        'eventCode' => $event['ServiceEvent']['EventCode'],
+                        'eventDescription' => $event['ServiceEvent']['Description'],
+                        'address' => array(
+                            'postalCode' => '',
+                            'StateOrProvinceCode' => $event['ServiceArea']['ServiceAreaCode'],
+                            'countryName' => $event['ServiceArea']['Description'],
+                            'countryCode' => '',                                                
+                        ), 
+                        'location' => array(
+                            'latitud' => $this->getGMapsService()->getLatitude(),
+                            'longitud' => $this->getGMapsService()->getLongitude(),
+                        ),
+                    );
+                }
+                
             }
         }
         $endEvent = array();
@@ -162,7 +194,7 @@ class DhlCarrier extends CarrierAbstract
     
     public function isSearchKeyOwner($searchkey)
     {
-        $return = false;
+        $return = true;
         if (preg_match('/^([0-9]{20})?([0-9]{4}[0-9]{4}[0-9]{4}[0-9]{2})$/', $searchkey)) {
             $return = true;
         }
