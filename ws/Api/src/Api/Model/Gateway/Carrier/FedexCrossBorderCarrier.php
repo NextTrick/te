@@ -66,6 +66,18 @@ class FedexCrossBorderCarrier extends CarrierAbstract
                 }
             }
             $response = array_merge(self::getTrackingSkeleton(), $response);
+            
+            $id = $this->getServiceRequestService()
+                    ->getRepository()
+                    ->insert(
+                        array(
+                            'request' => json_encode($params),
+                            'requestResponse' => json_encode($response),
+                            'serviceId'=> $params['serviceId'],
+                            'apikeyId'=> $params['apikeyId'],
+                            'requestDate' => date('Y-m-d H:i:s')
+                        )
+                    );
         }
         return $response;
     }
@@ -77,6 +89,14 @@ class FedexCrossBorderCarrier extends CarrierAbstract
             $response = true;
         }
         return $response;
+    }
+    
+    /**
+     * @return ServiceRequestService
+     */
+    private function getServiceRequestService()
+    {
+        return $this->getServiceLocator()->get('Model\ServiceRequestService');
     }
     
     /**
