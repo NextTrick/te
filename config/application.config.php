@@ -17,14 +17,15 @@ return array(
         'Api',
         'Application',
         'Apikey',
-        'Test'
+        'Test',
+        'Track',
     ),
     'module_listener_options' => array(
         'module_paths' => array(
-            './module',            
+            './module',
             './vendor',
             './common',
-            './ws',             
+            './ws',
         ),
         'config_glob_paths' => array(
             'config/autoload/{{,*.}global,{,*.}local}.php',
