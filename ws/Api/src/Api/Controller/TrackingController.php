@@ -5,6 +5,7 @@ namespace Api\Controller;
 use Api\Model\Service\TrackingService;
 use Api\Controller\Base\BaseRestfulController;
 use Service\Model\Repository\ServiceRepository;
+use Track\Model\Service\TrackService;
 
 class TrackingController extends BaseRestfulController
 {    
@@ -28,7 +29,13 @@ class TrackingController extends BaseRestfulController
 
     public function create($data)
     {
-       return array();
+        $params = $this->getRequestParams();      
+        $params['serviceId'] = self::ENDPOINT_TRACKING_ID;        
+        $params['apikeyId'] = $this->apikeyId;
+        $params['profileId'] = $this->apikeyData['profileId'];
+        $trackService = $this->getTrackService();
+        
+        return $trackService->create($params);
     }
 
     public function update($id, $data)
@@ -40,11 +47,20 @@ class TrackingController extends BaseRestfulController
     {
 
     }
+    
     /**
      * @return TrackingService
      */
     public function getTrackingService()
     {
         return $this->getServiceLocator()->get('Api\Model\TrackingService');
+    }
+    
+    /**
+     * @return TrackService
+     */
+    public function getTrackService()
+    {
+        return $this->getServiceLocator()->get('Model\TrackService');
     }
 }
