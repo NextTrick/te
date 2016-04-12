@@ -2,370 +2,159 @@
 namespace Track\Model\Service;
 
 use Util\Model\Service\Base\AbstractService;
+use Track\Model\TrackRequest;
+use Track\Model\Service\UbigeoService;
+use Track\Model\Service\EventStatusService;
+use Track\Model\Service\EventService;
+use Track\Model\Service\ShipmentService;
+use Api\Controller\Base\Response;
+use Api\Controller\Base\BaseResponse;
+use Track\Model\Request\TrackRequest;
 
 class TrackService extends AbstractService
-{
-    public $requestError;
-    
+{        
     public function create($params)
     {
-        $params = $this->getParams();
-//        var_dump($params); exit;
-        $this->checkRequiredParams($params);
+        $params = $this->getParams();        
+        $trackRequest = new TrackRequest($params);
+        $trackRequest->checkRequiredParams();
+        $response = new Response();
         
-        if (!empty($this->requestError)) {
-//            return $this->requestError;
-            var_dump($this->requestError); exit;
-        }
-        var_dump($this->requestError); exit;
+        if (!$trackRequest->hasErrors()) {
+            $trackData = $this->getTrackData($params);            
+            $trackId = $this->getRepository()->save($trackData);            
+            $trackcingKey = $this->generateTrackingKey($trackId);
+            
+            $this->getRepository()->save(
+                    array('trackingKey' => $trackcingKey,
+                          'trackId' => $trackId));
+            
+            $eventData = $this->getEventData($params);
+            $eventData['trackId'] = $trackId;            
+            $this->getEventService()->getRepository()->save($eventData);
+            
+            $shipmentData = $this->getShipmentData($params);
+            $shipmentData['trackId'] = $trackId;
+            $this->getShipmentService()->getRepository()->save($eventData);
+            
+            $response->setResponseStatusSuccess();
+            $response->setResponseData($trackcingKey);
+        } else {
+            $errors = $trackRequest->getErrors();
+            $response->setResponseStatusError();
+            $response->setErrorCode(BaseResponse::ERROR_CODE_900);
+            $response->setErrorMessage(BaseResponse::ERROR_MESSAGE_900);
+            $response->setErrorErrors($errors);
+        }   
         
-        $tablesData = $this->getTablesData($params);                
+        return $response->getArray();
     }
     
-    public function getTablesData($params)
+    protected function getTrackData($params)
     {
-        $eventData = $params['events'];
-        $shipmentData = $params['shipmentInfo'];        
-        unset($params['events']);
-        unset($params['shipmentInfo']);
-        $trackData = $params;
+        $trackData = array();
+        $trackData['operatingCompanyOrCarrierDescription'] = $params['operatingCompanyOrCarrierDescription'];
+        $trackData['originUbigeoId'] = $this->getUbigeoService()->getRepository()
+                ->getByStateOrProvinceCodeCountryCode($params['originAddress']['stateOrProvinceCode'],
+                        $params['originAddress']['countryCode']);
+        $trackData['detinationUbigeoId'] = $this->getUbigeoService()->getRepository()
+                ->getByStateOrProvinceCodeCountryCode($params['destionationAddress']['stateOrProvinceCode'],
+                        $params['originAddress']['countryCode']);
         
-        $returnData = array(
-            'events' => 'eventData',
-            'shipmentInfo' => 'shipmentData',
-            'default' => 'trackData',            
-        );
-        
-        $skeletonParams = $this->getSkeleton();        
-                
-        foreach ($params as $key => $value) {
-            if (is_array($value)) {
-                foreach ($value as $k => $v) {
-                    if (is_array($v)) {
-                        foreach ($v as $inKey => $inValue) {
-                            $table = $this->setValue($skeletonParams, $inKey, $inValue, $table);
-                        }
-                    } else {
-                        $table = $this->setValue($skeletonParams, $k, $v, $table);
-                    }                    
-                }
-            } else {
-                $table = $this->setValue($skeletonParams, $key, $value, $table);
-            }
+        return $trackData;        
+    }  
+    
+    protected function getEventData($params)
+    {
+        $eventData = array();
+        foreach ($params['events'] as $key => $event) {
+            $key  = (int) $key;
+            $eventData[$key]['dateTime'] = $event['dateTime'];
+            $eventData[$key]['eventStatusId'] = $this->getEventStatusService()->getRepository()
+                    ->getByCode($event['eventCode']);            
+            $eventData[$key]['eventDescription'] = $event['eventDescription'];
+            
+            $eventData['ubigeoId'] = $this->getUbigeoService()->getRepository()
+                ->getByStateOrProvinceCodeCountryCode($params['address']['stateOrProvinceCode'],
+                        $params['originAddress']['countryCode']);
         }
         
-        return $returnData;
+        return $eventData;
     }
     
-    public function setValue($skeletonParams, $key, $value, $table)
+    protected function getShiptmentData($params)
     {      
-        if (!empty($value)) {
-            $table[$skeletonParams[$key]['dbColumn']] =  $value;
+        $shipment = $params['shipmentInfo'];
+        
+        $shipmentData = array();
+        $shipmentData['weightValue'] = $shipment['weight']['value'];
+        $shipmentData['weightUnits'] = $shipment['weight']['units'];
+        $shipmentData['dimensionLength'] = $shipment['dimensions']['length'];
+        $shipmentData['dimensionWidth'] = $shipment['dimensions']['width'];
+        $shipmentData['dimensionHeight'] = $shipment['dimensions']['height'];
+        $shipmentData['dimensionUnits'] = $shipment['dimensions']['units'];
+        $shipmentData['pickupDateTime'] = $shipment['pickupDateTime'];
+        $shipmentData['lastUpdated'] = $shipment['lastUpdated'];
+        
+        if (!empty($shipment['numberOfPieces'])) {
+            $shipmentData['numberOfPieces'] = $shipment['numberOfPieces'];
         }
         
-        return $table;
-    }
-        
-    public function checkRequiredParamsOK($params)
-    {
-        $skeletonParams = $this->getSkeleton();
-        
-        foreach ($params as $key => $value) {
-            if (is_array($value)) {
-                foreach ($value as $k => $v) {
-                    if (is_array($v)) {
-                        foreach ($v as $inKey => $inValue) {
-                             $this->checkRequiredValue($skeletonParams, array($key, $k, $inKey),  $inValue);
-                        }
-                    } else {
-                         $this->checkRequiredValue($skeletonParams, array($key, $k),  $v);
-                    }                   
-                }
-            } else {
-                $this->checkRequiredValue($skeletonParams, array($key), $value);
-            }
+        if (!empty($shipment['packageSequenceNumber'])) {
+            $shipmentData['packageSequenceNumber'] = $shipment['packageSequenceNumber'];
         }
-    }
-    
-    public function checkRequiredParams($params)
-    {                
-        $skeletonParams = $this->getSkeleton();
         
-        $requiredCols = array('required', 'dbColumn');
-        
-        foreach ($skeletonParams as $key => $value) {             
-            if (!isset($value['dbColumn'])) { 
-                foreach ($value as $k => $v) {
-                    if (in_array($k, $requiredCols)) {
-                        continue;
-                    }                                              
-                    if (!isset($v['dbColumn'])) {
-                        foreach ($v as $inKey => $inValue) {
-                            if (in_array($inKey, $requiredCols)) {
-                                continue;
-                            }                                                                     
-                            if (!isset($inValue['dbColumn'])) {                                    
-                                foreach ($inValue as $inK => $inV) {                                        
-                                    $this->checkRequiredValue($skeletonParams, $params, array($key, $k, $inKey, $inK));
-                                }
-                            } else {
-                                //var_dump($key, $k, $inKey, 2); exit;
-                                $this->checkRequiredValue($skeletonParams, $params, array($key, $k, $inKey)); 
-                            }                                                                                                                                            
-                        }                                
-                    } else {                            
-                        $this->checkRequiredValue($skeletonParams, $params, array($key, $k));    
-                    }                                                                                              
-                }
-            } else {
-                $this->checkRequiredValue($skeletonParams, $params, array($key)); 
-            }                                            
+        if (!empty($shipment['packaging'])) {
+            $shipmentData['packaging'] = $shipment['packaging'];
         }
-    }
-    
-    public function checkRequiredValueOK($skeletonParams,$keys, $value)
-    {
-        $validation = $this->getValidation($skeletonParams, $keys);
         
-        $keyString = implode('|', $keys);
-        switch ($validation) {
-            case 'REQUIRED':
-                if (empty($value)) {                    
-                    $this->requestError['errors'][$keyString]['code'] = 901;
-                    $this->requestError['errors'][$keyString]['field'] = $keyString;
-                    $this->requestError['errors'][$keyString]['message'] = "Param required";
-                } 
-                break;
-            case 'NOT REQUIRED':
-                break;
-            case 'UNKNOWN':
-                $this->requestError['errors'][$keyString]['code'] = 902;
-                $this->requestError['errors'][$keyString]['field'] = $keyString;
-                $this->requestError['errors'][$keyString]['message'] = "Unknown Param";
-                break;
-            default:
-                break;
-        }       
-    }
-    
-    public function checkRequiredValue($skeletonParams, $params, $keys)
-    {
-        $validation = $this->getValidation($skeletonParams, $params, $keys);
-        
-        $keyString = implode('|', $keys);
-        switch ($validation) {
-            case 'FAIL REQUIRED':                                 
-                $this->requestError['errors'][$keyString]['code'] = 901;
-                $this->requestError['errors'][$keyString]['field'] = $keyString;
-                $this->requestError['errors'][$keyString]['message'] = "Param required";
-                break;
-            case 'UNKNOWN':
-                $this->requestError['errors'][$keyString]['code'] = 902;
-                $this->requestError['errors'][$keyString]['field'] = $keyString;
-                $this->requestError['errors'][$keyString]['message'] = "Unknown Param";
-                break;
-            default:
-                break;
-        }       
-    }
-    
-    public function getValidation($skeletonParams, $params, $keys)
-    {
-        $tempSkeleton = $skeletonParams;
-        $tempParams = $params;
+        if (!empty($shipment['service']['description'])) {
+            $shipmentData['serviceDescription'] = $shipment['service']['description'];
+        }
                 
-        $return = 'OK REQUIRED';
-        foreach ($keys as $k => $key) {            
-            if (isset($tempParams[$key])) {
-                if ((count($keys) - 1) == $k) {
-                    if ($tempSkeleton[$key]['required'] == true) {                        
-                        if (empty($tempParams[$key])) {                            
-                            $return = 'FAIL REQUIRED';
-                        }
-                    } else {                        
-                        $return = 'OK REQUIRED';                        
-                    }
-                } else {
-                    $tempParams = $tempParams[$key];
-                    $tempSkeleton = $tempSkeleton[$key];
-                }                                              
-            } else {
-                if ($tempSkeleton[$key]['required'] == true) {                        
-                    $return = 'FAIL REQUIRED'; 
-                }
-                //var_dump($return, $key, $keys); exit;
-                break;
-            }         
-        }
-        
-       //var_dump($return, $key); exit;
-        
-        return $return;
+        return $shipmentData;
     }
     
-    public function getValidationOK($skeletonParams, $keys)
+    protected function generateTrackingKey($trackId)
     {
-        $tempSkeleton = $skeletonParams;
-        $return = 'UNKNOWN';
-        foreach ($keys as $k => $key) {
-            if (isset($tempSkeleton[$key])) {
-                if ((count($keys) - 1) == $k) {
-                    if ($tempSkeleton[$key]['required'] == true) {
-                        $return = 'REQUIRED';
-                    } else {
-                        $return = 'NOT REQUIRED';
-                    }
-                } else {
-                    $tempSkeleton = $tempSkeleton[$key];
-                }                                              
-            } else {
-                break;
-            }         
-        }
+        $random = \Util\Common\String::creaeRamdonCode(5);
+        $tracId = str_pad($trackId, 5, "0");
         
-        return $return;
+        return 'FCB_' . $trackId . '_' . $random;
     }
     
-    public static function getSkeleton()
+    /**
+     * @return UbigeoService
+     */
+    protected function getUbigeoService()
     {
-        return array(
-            'trackingKey' => array(
-                'required' => false,
-                'dbColumn' => 'trackingKey',
-            ),
-            'carrierCode' => array(
-                'required' => true,
-                'dbColumn' => 'carrierCode',
-            ),
-            'operatingCompanyOrCarrierDescription' => array(
-                'required' => true,
-                'dbColumn' => 'operatingCompanyOrCarrierDescription',
-            ),            
-            'originAddress' => array(
-                'stateOrProvinceCode' => array(
-                    'required' => true,
-                    'dbColumn' => 'stateOrProvinceCode',
-                ),
-                'countryCode' => array(
-                    'required' => true,
-                    'dbColumn' => 'countryCode',
-                ),
-                'required' => true,            
-            ),            
-            'destinationAddress' => array(
-                'stateOrProvinceCode' => array(
-                    'required' => true,
-                    'dbColumn' => 'stateOrProvinceCode',
-                ),
-                'countryCode' => array(
-                    'required' => true,
-                    'dbColumn' => 'countryCode',
-                ),
-                'required' => true,
-            ),
-            'events' => array(
-                '1' => array(
-                    'dateTime' => array(
-                        'required' => true,
-                        'dbColumn' => 'date',
-                    ),                    
-                    'eventCode' => array(
-                        'required' => true,
-                        'dbColumn' => 'code',
-                    ),
-                    'eventDescription' => array(
-                        'required' => false,
-                        'dbColumn' => 'eventDescription',
-                    ),
-                    'address' => array(                    
-                        'stateOrProvinceCode' => array(
-                            'required' => true,
-                            'dbColumn' => 'stateOrProvinceCode',
-                        ),
-                        'countryCode' => array(
-                            'required' => true,
-                            'dbColumn' => 'countryCode',
-                        ),
-                        'required' => true,                
-                    ),   
-                    'required' => true
-                ),
-                'required' => true          
-            ),
-            'shipmentInfo' => array(
-                'weight' => array(
-                    'value' => array(
-                        'required' => true,
-                        'dbColumn' => 'weightValue',
-                    ),
-                    'units' => array(
-                        'required' => true,
-                        'dbColumn' => 'weightUnits',
-                    ),
-                    'required' => true,                    
-                ),
-                'dimensions' => array(
-                    'length' => array(
-                        'required' => true,
-                        'dbColumn' => 'dimensionLength',
-                    ),
-                    'width' => array(
-                        'required' => true,
-                        'dbColumn' => 'dimensionWidth',
-                    ),
-                    'height' => array(
-                        'required' => true,
-                        'dbColumn' => 'dimensionHeight',
-                    ),
-                    'units' => array(
-                        'required' => true,
-                        'dbColumn' => 'dimensionUnits',
-                    ),
-                    'required' => true,                    
-                ),                
-                'notification' => array(
-                    'code' => array(
-                        'required' => false,
-                        'dbColumn' => 'code',
-                    ),
-                    'message' => array(
-                        'required' => false,
-                        'dbColumn' => 'message',
-                    ),
-                    'required' => false,                   
-                ),                
-                'numberOfPieces' => array(
-                    'required' => false,
-                    'dbColumn' => 'numberOfPieces',
-                ),
-                'packageSequenceNumber' => array(
-                    'required' => false,
-                    'dbColumn' => 'packageSequenceNumber',
-                ),                
-                'packaging' => array(
-                    'required' => false,
-                    'dbColumn' => 'packaging',
-                ),
-                'service' =>  array(                    
-                    'description' => array(
-                        'required' => false,
-                        'dbColumn' => 'serviceDescription',
-                    ),
-                    'required' => false,                    
-                ),                
-                'pickupDateTime' => array(
-                    'required' => true,
-                    'dbColumn' => 'pickupDateTime',
-                ), //shipTimestamp on fedex                                
-                'lastUpdated' => array(
-                    'required' => true,
-                    'dbColumn' => 'lastUpdated',
-                ), //ActualDeliveryTimestamp on fedex
-                'required' => true,                
-            )        
-        );
+        return $this->getServiceLocator()->get('Model\UbigeoService');
     }
     
+    /**
+     * @return EventStatusService
+     */
+    protected function getEventStatusService()
+    {
+        return $this->getServiceLocator()->get('Model\EventStatusService');
+    }
+    
+    /**
+     * @return EventService
+     */
+    protected function getEventService()
+    {
+        return $this->getServiceLocator()->get('Model\EventService');
+    }
+    
+    /**
+     * @return ShipmentService
+     */
+    protected function getShipmentService()
+    {
+        return $this->getServiceLocator()->get('Model\ShipmentService');
+    }
+
     public function getParams()
     {        
         return array (
