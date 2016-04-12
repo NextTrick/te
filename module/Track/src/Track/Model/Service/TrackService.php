@@ -54,12 +54,15 @@ class TrackService extends AbstractService
     {
         $trackData = array();
         $trackData['operatingCompanyOrCarrierDescription'] = $params['operatingCompanyOrCarrierDescription'];
-        $trackData['originUbigeoId'] = $this->getUbigeoService()->getRepository()
+        $originUbigeo = $this->getUbigeoService()->getRepository()
                 ->getByStateOrProvinceCodeCountryCode($params['originAddress']['stateOrProvinceCode'],
                         $params['originAddress']['countryCode']);
-        $trackData['detinationUbigeoId'] = $this->getUbigeoService()->getRepository()
+        $trackData['originUbigeoId'] = $originUbigeo['ubigeoId'];
+        
+        $detinationUbigeo = $this->getUbigeoService()->getRepository()
                 ->getByStateOrProvinceCodeCountryCode($params['destionationAddress']['stateOrProvinceCode'],
                         $params['originAddress']['countryCode']);
+        $trackData['detinationUbigeoId'] = $detinationUbigeo['ubigeoId'];
         
         return $trackData;        
     }  
@@ -70,13 +73,16 @@ class TrackService extends AbstractService
         foreach ($params['events'] as $key => $event) {
             $key  = (int) $key;
             $eventData[$key]['dateTime'] = $event['dateTime'];
-            $eventData[$key]['eventStatusId'] = $this->getEventStatusService()->getRepository()
+            $eventStatus = $this->getEventStatusService()->getRepository()
                     ->getByCode($event['eventCode']);            
-            $eventData[$key]['eventDescription'] = $event['eventDescription'];
+            $eventData[$key]['eventStatusId'] = $eventStatus['eventStatusId']; 
             
-            $eventData['ubigeoId'] = $this->getUbigeoService()->getRepository()
+            $eventData[$key]['eventDescription'] = $event['eventDescription'];
+
+            $ubigeo = $this->getUbigeoService()->getRepository()
                 ->getByStateOrProvinceCodeCountryCode($params['address']['stateOrProvinceCode'],
                         $params['originAddress']['countryCode']);
+            $eventData['ubigeoId'] = $ubigeo['ubigeoId'];
         }
         
         return $eventData;
