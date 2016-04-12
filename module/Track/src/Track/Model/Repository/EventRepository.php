@@ -8,4 +8,7 @@ class EventRepository extends AbstractRepository
     protected $_table = 'fcb_track_event';
     
     protected $_id = 'eventId';
+    
+    const STATUS_ENABLED = 1;
+    const STATUS_DISABLED = 0;
 }
