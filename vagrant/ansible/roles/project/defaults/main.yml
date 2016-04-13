@@ -11,10 +11,12 @@ master_db_sql:
     - 000_fcb_accountmanager.sql
     - 001_masterdata_trackingengine.sql        
     - 002_masterdata_accountmanager.sql
+    - 003_masterdata_ubigeo.sql
     
 master_fcb_trackingengine_sql: 
     - 000_fcb_trackingengine.sql    
-    - 001_masterdata_trackingengine.sql            
+    - 001_masterdata_trackingengine.sql    
+    - 003_masterdata_ubigeo.sql
 
 master_fcb_accountmanager_sql: 
     - 000_fcb_accountmanager.sql   
