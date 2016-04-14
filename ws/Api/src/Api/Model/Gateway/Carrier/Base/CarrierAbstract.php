@@ -143,21 +143,10 @@ abstract class CarrierAbstract implements CarrierInterface
     }
     
     public function saveSearch($params)
-    {                
-        $apikeyId = $this->getApikeyService()
-                ->getApikeyIdByKeyProfileId($params['key'], $params['profileId']);
-        
-        $serviceApikeyData = array(
-            'serviceId' => $params['serviceId'],
-            'apikeyId' => $apikeyId,
-        );
-        
-        $serviceApikeyId = $this->getServiceApikeyService()
-                ->save($serviceApikeyData);
-                        
+    {                               
         $searchData = array(
             'carrierId' => $this::DB_ID,
-            'serviceApikeyId' => $serviceApikeyId,
+            'serviceApikeyId' => $params['serviceApikeyId'],
             'trackingKey' => $params['searchKey'],
             'ip' => \Util\Common\Util::getIpClient(),                        
         );

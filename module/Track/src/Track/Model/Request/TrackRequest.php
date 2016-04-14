@@ -8,7 +8,8 @@ class TrackRequest extends Request
 {         
     public function checkRequiredParams()
     {
-        $skeletonParams = $this->getSkeleton();
+        $skeleton = 'get' . ucfirst($this->method) . 'Skeleton';
+        $skeletonParams = $this->$skeleton();
         
         $requiredCols = array('required', 'dbColumn');
         
@@ -93,7 +94,7 @@ class TrackRequest extends Request
         return $return;
     }
     
-    public static function getSkeleton()
+    public static function getCreateSkeleton()
     {
         return array(
             'trackingKey' => array(
@@ -230,6 +231,127 @@ class TrackRequest extends Request
                 ), //ActualDeliveryTimestamp on fedex
                 'required' => true,                
             )        
+        );
+    }
+    
+    public function getUpdateSkeleton() 
+    {
+        return array(
+            'trackingKey' => array(
+                'required' => true,
+                'dbColumn' => 'trackingKey',
+            ),
+            'carrierCode' => array(
+                'required' => false,
+                'dbColumn' => 'carrierCode',
+            ),
+            'operatingCompanyOrCarrierDescription' => array(
+                'required' => false,
+                'dbColumn' => 'operatingCompanyOrCarrierDescription',
+            ),            
+            'originAddress' => array(
+                'stateOrProvinceCode' => array(
+                    'required' => false,
+                    'dbColumn' => 'stateOrProvinceCode',
+                ),
+                'countryCode' => array(
+                    'required' => false,
+                    'dbColumn' => 'countryCode',
+                ),
+                'required' => true,            
+            ),            
+            'destinationAddress' => array(
+                'stateOrProvinceCode' => array(
+                    'required' => false,
+                    'dbColumn' => 'stateOrProvinceCode',
+                ),
+                'countryCode' => array(
+                    'required' => false,
+                    'dbColumn' => 'countryCode',
+                ),
+                'required' => false,
+            ),            
+            'shipmentInfo' => array(
+                'weight' => array(
+                    'value' => array(
+                        'required' => false,
+                        'dbColumn' => 'weightValue',
+                    ),
+                    'units' => array(
+                        'required' => false,
+                        'dbColumn' => 'weightUnits',
+                    ),
+                    'required' => false,                    
+                ),
+                'dimensions' => array(
+                    'length' => array(
+                        'required' => false,
+                        'dbColumn' => 'dimensionLength',
+                    ),
+                    'width' => array(
+                        'required' => false,
+                        'dbColumn' => 'dimensionWidth',
+                    ),
+                    'height' => array(
+                        'required' => false,
+                        'dbColumn' => 'dimensionHeight',
+                    ),
+                    'units' => array(
+                        'required' => false,
+                        'dbColumn' => 'dimensionUnits',
+                    ),
+                    'required' => false,                    
+                ),                
+                'notification' => array(
+                    'code' => array(
+                        'required' => false,
+                        'dbColumn' => 'code',
+                    ),
+                    'message' => array(
+                        'required' => false,
+                        'dbColumn' => 'message',
+                    ),
+                    'required' => false,                   
+                ),                
+                'numberOfPieces' => array(
+                    'required' => false,
+                    'dbColumn' => 'numberOfPieces',
+                ),
+                'packageSequenceNumber' => array(
+                    'required' => false,
+                    'dbColumn' => 'packageSequenceNumber',
+                ),                
+                'packaging' => array(
+                    'required' => false,
+                    'dbColumn' => 'packaging',
+                ),
+                'service' =>  array(                    
+                    'description' => array(
+                        'required' => false,
+                        'dbColumn' => 'serviceDescription',
+                    ),
+                    'required' => false,                    
+                ),                
+                'pickupDateTime' => array(
+                    'required' => false,
+                    'dbColumn' => 'pickupDateTime',
+                ), //shipTimestamp on fedex                                
+                'lastUpdated' => array(
+                    'required' => false,
+                    'dbColumn' => 'lastUpdated',
+                ), //ActualDeliveryTimestamp on fedex
+                'required' => false,                
+            )        
+        );
+    }
+    
+    public function getDeleteSkeleton() 
+    {
+        return array(
+            'trackingKey' => array(
+                'required' => true,
+                'dbColumn' => 'trackingKey',
+            ),            
         );
     }
 }

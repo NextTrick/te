@@ -3,7 +3,7 @@ namespace Service\Model\Repository;
           
 use Util\Model\Repository\Base\AbstractRepository;
 
-class ServiceRequestRepository extends AbstractRepository
+class RequestRepository extends AbstractRepository
 {
     protected $_table = 'fcb_service_request';
     

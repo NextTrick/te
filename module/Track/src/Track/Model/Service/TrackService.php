@@ -10,13 +10,98 @@ use Track\Model\Service\ShipmentService;
 use Api\Controller\Base\Response;
 use Api\Controller\Base\BaseResponse;
 use Track\Model\Request\TrackRequest;
+use Service\Model\Service\RequestService;
+use Api\Controller\Base\BaseRestfulController;
 
 class TrackService extends AbstractService
 {        
     public function create($params)
     {
         $params = $this->getParams();        
-        $trackRequest = new TrackRequest($params);
+        $trackRequest = new TrackRequest($params, BaseRestfulController::METHOD_CREATE);
+        $trackRequest->checkRequiredParams();
+        $response = new Response();
+        
+        if (!$trackRequest->hasErrors()) {
+            $trackData = $this->getTrackData($params);            
+            $trackId = $this->getRepository()->save($trackData);            
+            $trackcingKey = $this->generateTrackingKey($trackId);
+            
+            $this->getRepository()->save(
+                    array('trackingKey' => $trackcingKey,
+                          'trackId' => $trackId));
+            
+            $eventData = $this->getEventData($params);
+            $eventData['trackId'] = $trackId;            
+            $this->getEventService()->getRepository()->save($eventData);
+            
+            $shipmentData = $this->getShipmentData($params);
+            $shipmentData['trackId'] = $trackId;
+            $this->getShipmentService()->getRepository()->save($eventData);
+                      
+            $this->getRequestService()->saveRequest($params, $trackId, BaseRestfulController::METHOD_CREATE);
+                       
+            $response->setResponseStatusSuccess();
+            $response->setResponseData($trackcingKey);
+        } else {
+            $errors = $trackRequest->getErrors();
+            $response->setResponseStatusError();
+            $response->setErrorCode(BaseResponse::ERROR_CODE_900);
+            $response->setErrorMessage(BaseResponse::ERROR_MESSAGE_900);
+            $response->setErrorErrors($errors);
+        }   
+        
+        return $response->getArray();
+    }
+    
+    public function update($params)
+    {
+        $params = $this->getParams();        
+        $trackRequest = new TrackRequest($params, BaseRestfulController::METHOD_UPDATE);
+        $trackRequest->checkRequiredParams();
+        $response = new Response();
+        
+        if (!$trackRequest->hasErrors()) {
+            $trackData = $this->getTrackData($params);            
+            $trackDbData = $this->getRepository()->getByTrackingKey($params['trackingKey']);    
+            if (!empty($trackDbData)) {
+                $trackData['trackId'] = $trackDbData['trackId'];                        
+                $this->getRepository()->save($trackData);
+
+                $shipmentData = $this->getShipmentData($params);               
+                $shipmentDbData = $this->getShipmentService()->getRepository()->getByTrackId($trackId);
+                $shipmentData['shipmentId'] = $shipmentDbData['shipmentId'];
+
+                $this->getShipmentService()->getRepository()->save($shipmentDbData);
+
+                $response->setResponseStatusSuccess();
+                $response->setResponseData($params['trackingKey']);
+            } else {
+                $response->setResponseStatusError();
+                $response->setErrorCode(BaseResponse::ERROR_CODE_900);
+                $response->setErrorMessage(BaseResponse::ERROR_MESSAGE_900);
+                $errors = array(
+                    'code' => BaseResponse::ERROR_CODE_903,
+                    'message' => BaseResponse::ERROR_MESSAGE_903,
+                    'field' => 'trackingKey',
+                );
+                $response->setErrorErrors($errors);
+            }            
+        } else {
+            $errors = $trackRequest->getErrors();
+            $response->setResponseStatusError();
+            $response->setErrorCode(BaseResponse::ERROR_CODE_900);
+            $response->setErrorMessage(BaseResponse::ERROR_MESSAGE_900);
+            $response->setErrorErrors($errors);
+        }   
+        
+        return $response->getArray();
+    }
+    
+    public function delete($params)
+    {
+        $params = $this->getParams();        
+        $trackRequest = new TrackRequest($params, 'delete');
         $trackRequest->checkRequiredParams();
         $response = new Response();
         
@@ -159,6 +244,14 @@ class TrackService extends AbstractService
     protected function getShipmentService()
     {
         return $this->getServiceLocator()->get('Model\ShipmentService');
+    }
+    
+    /**
+     * @return RequestService
+     */
+    protected function getRequestService()
+    {
+        return $this->getServiceLocator()->get('Model\ServiceRequestService');
     }
 
     public function getParams()

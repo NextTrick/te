@@ -51,4 +51,14 @@ class Response
     {
         return $this->getResponse;
     }
+    
+    public function hasError()
+    {
+        $return = false;
+        if ($this->response['error']['code'] == BaseResponse::RESPONSE_STATUS_ERROR_CODE) {
+            $return = true;
+        }
+        
+        return $return;
+    }
 }

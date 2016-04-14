@@ -19,7 +19,7 @@ class MultitrackingController extends BaseRestfulController
         $params['serviceId'] = self::ENDPOINT_MULTITRACKING_ID;
         $params['searchKey'] = $id;                
         $params['apikeyId'] = $this->apikeyId;
-        $params['profileId'] = $this->apikeyData['profileId'];
+        $params['serviceApikeyId'] = $this->serviceApikeyId;;
         
         $trackingService = $this->getTrackingService(); 
         return $trackingService->getMultiTracking($params);
@@ -31,7 +31,7 @@ class MultitrackingController extends BaseRestfulController
         $params['serviceId'] = self::ENDPOINT_MULTITRACKING_ID;
         $params['apikeyId'] = $this->apikeyId;
         $params['trackings'] = $params['trackings'];
-        $params['profileId'] = $this->apikeyData['profileId'];
+        $params['serviceApikeyId'] = $this->serviceApikeyId;
         
         return $this->getMultiTrackingService()
                    ->insertMultiTracking($params);        
@@ -43,7 +43,7 @@ class MultitrackingController extends BaseRestfulController
         $params['serviceId'] = self::ENDPOINT_MULTITRACKING_ID;
         $params['apikeyId'] = $this->apikeyId;     
         $params['trackings'] = $params['trackings'];
-        $params['profileId'] = $this->apikeyData['profileId'];
+        $params['serviceApikeyId'] = $this->serviceApikeyId;;
        
         return $this->getMultiTrackingService()
                    ->updateMultiTracking($params['param2'], $params); 
@@ -54,7 +54,7 @@ class MultitrackingController extends BaseRestfulController
         $params = $this->getRequestParams();
         $params['serviceId'] = self::ENDPOINT_MULTITRACKING_ID;
         $params['apikeyId'] = $this->apikeyId;     
-        $params['profileId'] = $this->apikeyData['profileId'];
+        $params['serviceApikeyId'] = $this->serviceApikeyId;;
         return $this->getMultiTrackingService()->deleteMultiTracking($params['param2'], $params);
     }
     

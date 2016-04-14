@@ -4,7 +4,7 @@ namespace Service;
 return array(
     'factories' => array(
         'Model\MultiTrackingService' => 'Service\Model\Service\Factory\MultiTrackingFactory',    
-        'Model\ServiceRequestService' => 'Service\Model\Service\Factory\ServiceRequestFactory',    
+        'Model\ServiceRequestService' => 'Service\Model\Service\Factory\RequestFactory',    
     ),
     'invokables' => array(        
     ),

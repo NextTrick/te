@@ -22,7 +22,7 @@ class TrackingController extends BaseRestfulController
         $params['serviceId'] = self::ENDPOINT_TRACKING_ID;
         $params['searchKey'] = $id;                
         $params['apikeyId'] = $this->apikeyId;
-        $params['profileId'] = $this->apikeyData['profileId'];
+        $params['serviceApikeyId'] = $this->serviceApikeyId;
         $trackingService = $this->getTrackingService();                  
         return $trackingService->getTracking($params);        
     }
@@ -32,7 +32,7 @@ class TrackingController extends BaseRestfulController
         $params = $this->getRequestParams();      
         $params['serviceId'] = self::ENDPOINT_TRACKING_ID;        
         $params['apikeyId'] = $this->apikeyId;
-        $params['profileId'] = $this->apikeyData['profileId'];
+        $params['serviceApikeyId'] = $this->serviceApikeyId;
         $trackService = $this->getTrackService();
         
         return $trackService->create($params);
@@ -40,7 +40,13 @@ class TrackingController extends BaseRestfulController
 
     public function update($id, $data)
     {
-
+        $params = $this->getRequestParams();      
+        $params['serviceId'] = self::ENDPOINT_TRACKING_ID;        
+        $params['apikeyId'] = $this->apikeyId;
+        $params['serviceApikeyId'] = $this->serviceApikeyId;
+        $trackService = $this->getTrackService();
+        
+        return $trackService->update($params);
     }
 
     public function delete($id)

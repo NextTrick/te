@@ -7,7 +7,9 @@ abstract class Request
     
     public $params;
     
-    public function __construct($params) 
+    public $method;
+    
+    public function __construct($params, $method) 
     {
         $this->params = $params;
     }
@@ -29,5 +31,9 @@ abstract class Request
     
     abstract public function checkRequiredParams();
     
-    abstract public function getSkeleton();
+    abstract public function getCreateSkeleton();
+    
+    abstract public function getUpdateSkeleton();
+    
+    abstract public function getDeleteSkeleton();
 }

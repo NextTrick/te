@@ -15,7 +15,10 @@ class BaseResponse extends Response
     const ERROR_MESSAGE_901 = 'Param required';
     
     const ERROR_CODE_902 = 902;
-    const ERROR_MESSAGE_902 = 'Unknown Param';
+    const ERROR_MESSAGE_902 = 'Unknown param';
+    
+    const ERROR_CODE_903 = 903;
+    const ERROR_MESSAGE_903 = 'Invalid value';
     
     const RESPONSE_STATUS_SUCCESS_CODE = 'SUCCESS';    
     const RESPONSE_STATUS_ERROR_CODE = 'ERROR';
@@ -24,7 +27,7 @@ class BaseResponse extends Response
     {
         return  array(
             'status' => array(
-                'code' => self::RESPONSE_STATUS_ERROR_CODE,
+                'code' => self::RESPONSE_STATUS_SUCCESS_CODE,
                 'dateTime' => date('Y-m-d H:i:s'),
             )            
         );        
