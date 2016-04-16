@@ -75,7 +75,7 @@ class TrackRequest extends Request
                     if ($tempSkeleton[$key]['required'] == true) {                        
                         if (empty($tempParams[$key])) {                            
                             $return = 'FAIL REQUIRED';
-                        }
+                        }                                                
                     } else {                        
                         $return = 'OK REQUIRED';                        
                     }

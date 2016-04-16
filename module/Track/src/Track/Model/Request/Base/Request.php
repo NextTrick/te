@@ -1,5 +1,6 @@
 <?php
 namespace Track\Model\Request\Base;
+use Service\Model\Service\RequestService;
 
 abstract class Request
 {
@@ -9,9 +10,13 @@ abstract class Request
     
     public $method;
     
-    public function __construct($params, $method) 
+    public function __construct($params, $method, $serviceLocator) 
     {
-        $this->params = $params;
+        $this->params = $params;        
+        $this->method = $method;        
+        $this->_sl = $serviceLocator;
+        
+        $this->saveRequest();
     }
         
     public function hasErrors()
@@ -27,6 +32,25 @@ abstract class Request
     public function getErrors()
     {
         return $this->errors;
+    }
+    
+    public function serviceLocator()
+    {
+        return $this->_sl;
+    }
+    
+    public function saveRequest()
+    {
+        return $this->getRequestService()
+                ->save($this->params, $this->method);
+    }
+    
+    /**
+     * @return RequestService
+     */
+    protected function getRequestService()
+    {
+        return $this->getServiceLocator()->get('Model\ServiceRequestService');
     }
     
     abstract public function checkRequiredParams();

@@ -72,7 +72,7 @@ class BaseRestfulController extends AbstractRestfulController
     protected function saveServiceApikeyData($key, $profileId)
     {
         $apikeyId = $this->getApikeyService()
-                ->getApikeyIdByKeyProfileId($params['key'], $apikeyData['profileId']);
+                ->getApikeyIdByKeyProfileId($key, $profileId);
 
         $serviceApikeyData = array(
             'serviceId' => $this::ENDPOINT_TRACKING_ID,

@@ -5,15 +5,14 @@ use Util\Model\Service\Base\AbstractService;
 
 class RequestService extends AbstractService
 {
-    protected function saveRequest($params, $trackId, $method)
+    protected function save($params, $method)
     {
-        $requestData = array(
-            'serviceApikeyId' => $params['serviceApikeyId'],
-            'trackId' => $trackId,
+        $data = array(
+            'serviceApikeyId' => $params['serviceApikeyId'],        
             'request' => json_encode($params),
             'method' => $method,
         );
 
-        $this->getRequestService()->getRepository()->save($requestData);
+        return $this->getRequestService()->getRepository()->save($data);
     }
 }

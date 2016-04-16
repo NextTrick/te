@@ -10,12 +10,16 @@ class UbigeoRepository extends AbstractRepository
     protected $_id = 'ubigeoId';
     
     public function getByStateOrProvinceCodeCountryCode($stateOrProvinceCode, $countryCode)
-    {
-        $where = array(
-            'stateOrProvinceCode' => $stateOrProvinceCode,
-            'countryCode' => $countryCode,
-        );
+    {      
+        $select = $this->sql->select($this->_table);
+        $select->where
+                ->nest()
+                ->equalTo('stateOrProvinceCode', $stateOrProvinceCode)
+                ->or
+                ->equalTo('areaCode', $stateOrProvinceCode)
+                ->unnest()
+                ->equalTo('countryCode', $countryCode);
         
-        return $this->getBy($where, true);
+        return $this->fetchRow($select);
     }
 }

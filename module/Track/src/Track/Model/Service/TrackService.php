@@ -12,13 +12,15 @@ use Api\Controller\Base\BaseResponse;
 use Track\Model\Request\TrackRequest;
 use Service\Model\Service\RequestService;
 use Api\Controller\Base\BaseRestfulController;
+use Track\Model\Repository\TrackRepository;
 
 class TrackService extends AbstractService
 {        
     public function create($params)
     {
         $params = $this->getParams();        
-        $trackRequest = new TrackRequest($params, BaseRestfulController::METHOD_CREATE);
+        $trackRequest = new TrackRequest($params, BaseRestfulController::METHOD_CREATE,
+                $this->getServiceLocator());
         $trackRequest->checkRequiredParams();
         $response = new Response();
         
@@ -38,8 +40,8 @@ class TrackService extends AbstractService
             $shipmentData = $this->getShipmentData($params);
             $shipmentData['trackId'] = $trackId;
             $this->getShipmentService()->getRepository()->save($eventData);
-                      
-            $this->getRequestService()->saveRequest($params, $trackId, BaseRestfulController::METHOD_CREATE);
+                     
+            $this->updateRequest($trackRequest->getRequestId(), $trackId);
                        
             $response->setResponseStatusSuccess();
             $response->setResponseData($trackcingKey);
@@ -57,7 +59,8 @@ class TrackService extends AbstractService
     public function update($params)
     {
         $params = $this->getParams();        
-        $trackRequest = new TrackRequest($params, BaseRestfulController::METHOD_UPDATE);
+        $trackRequest = new TrackRequest($params, BaseRestfulController::METHOD_UPDATE, 
+                $this->getServiceLocator());
         $trackRequest->checkRequiredParams();
         $response = new Response();
         
@@ -69,11 +72,12 @@ class TrackService extends AbstractService
                 $this->getRepository()->save($trackData);
 
                 $shipmentData = $this->getShipmentData($params);               
-                $shipmentDbData = $this->getShipmentService()->getRepository()->getByTrackId($trackId);
+                $shipmentDbData = $this->getShipmentService()->getRepository()->getByTrackId($trackData['trackId']);
                 $shipmentData['shipmentId'] = $shipmentDbData['shipmentId'];
 
                 $this->getShipmentService()->getRepository()->save($shipmentDbData);
 
+                $this->updateRequest($trackRequest->getRequestId(), $trackData['trackId']);
                 $response->setResponseStatusSuccess();
                 $response->setResponseData($params['trackingKey']);
             } else {
@@ -101,29 +105,33 @@ class TrackService extends AbstractService
     public function delete($params)
     {
         $params = $this->getParams();        
-        $trackRequest = new TrackRequest($params, 'delete');
+        $trackRequest = new TrackRequest($params, BaseRestfulController::METHOD_DELETE,
+                $this->getServiceLocator());
         $trackRequest->checkRequiredParams();
         $response = new Response();
         
         if (!$trackRequest->hasErrors()) {
             $trackData = $this->getTrackData($params);            
-            $trackId = $this->getRepository()->save($trackData);            
-            $trackcingKey = $this->generateTrackingKey($trackId);
-            
-            $this->getRepository()->save(
-                    array('trackingKey' => $trackcingKey,
-                          'trackId' => $trackId));
-            
-            $eventData = $this->getEventData($params);
-            $eventData['trackId'] = $trackId;            
-            $this->getEventService()->getRepository()->save($eventData);
-            
-            $shipmentData = $this->getShipmentData($params);
-            $shipmentData['trackId'] = $trackId;
-            $this->getShipmentService()->getRepository()->save($eventData);
-            
-            $response->setResponseStatusSuccess();
-            $response->setResponseData($trackcingKey);
+            $trackDbData = $this->getRepository()->getByTrackingKey($params['trackingKey']);    
+            if (!empty($trackDbData)) {
+                $trackData['trackId'] = $trackDbData['trackId'];
+                $trackData['status'] = TrackRepository::STATUS_INACTIVE;
+                $this->getRepository()->save($trackData);
+              
+                $this->updateRequest($trackRequest->getRequestId(), $trackData['trackId']);
+                $response->setResponseStatusSuccess();
+                $response->setResponseData($params['trackingKey']);
+            } else {
+                $response->setResponseStatusError();
+                $response->setErrorCode(BaseResponse::ERROR_CODE_900);
+                $response->setErrorMessage(BaseResponse::ERROR_MESSAGE_900);
+                $errors = array(
+                    'code' => BaseResponse::ERROR_CODE_903,
+                    'message' => BaseResponse::ERROR_MESSAGE_903,
+                    'field' => 'trackingKey',
+                );
+                $response->setErrorErrors($errors);
+            }
         } else {
             $errors = $trackRequest->getErrors();
             $response->setResponseStatusError();
@@ -135,20 +143,44 @@ class TrackService extends AbstractService
         return $response->getArray();
     }
     
+    protected function updateRequest($requestId, $trackId)
+    {
+        $data = array(
+            'trackId' => $trackId,
+            'requestId' => $requestId,
+        );
+        
+        $this->getRequestService()->getRepository()->save($data);
+    }
+    
     protected function getTrackData($params)
     {
         $trackData = array();
-        $trackData['operatingCompanyOrCarrierDescription'] = $params['operatingCompanyOrCarrierDescription'];
-        $originUbigeo = $this->getUbigeoService()->getRepository()
+        
+        if (!empty($params['trackingKey'])) {
+            $trackData['trackingKey'] = $params['trackingKey'];
+        }
+        
+        if (!empty($params['operatingCompanyOrCarrierDescription'])) {
+            $trackData['operatingCompanyOrCarrierDescription'] = $params['operatingCompanyOrCarrierDescription'];
+        }
+        
+        if (!empty($params['originAddress']['stateOrProvinceCode']) && !empty($params['originAddress']['countryCode'])) {
+            $originUbigeo = $this->getUbigeoService()->getRepository()
                 ->getByStateOrProvinceCodeCountryCode($params['originAddress']['stateOrProvinceCode'],
                         $params['originAddress']['countryCode']);
-        $trackData['originUbigeoId'] = $originUbigeo['ubigeoId'];
+            
+            $trackData['originUbigeoId'] = $originUbigeo['ubigeoId'];
+        }
         
-        $detinationUbigeo = $this->getUbigeoService()->getRepository()
+        if (!empty($params['destionationAddress']['stateOrProvinceCode']) && !empty($params['destionationAddress']['countryCode'])) {
+            $detinationUbigeo = $this->getUbigeoService()->getRepository()
                 ->getByStateOrProvinceCodeCountryCode($params['destionationAddress']['stateOrProvinceCode'],
-                        $params['originAddress']['countryCode']);
-        $trackData['detinationUbigeoId'] = $detinationUbigeo['ubigeoId'];
-        
+                        $params['destionationAddress']['countryCode']);
+            
+            $trackData['detinationUbigeoId'] = $detinationUbigeo['ubigeoId'];
+        }
+                                
         return $trackData;        
     }  
     
@@ -173,19 +205,46 @@ class TrackService extends AbstractService
         return $eventData;
     }
     
-    protected function getShiptmentData($params)
+    protected function getShipmentData($params)
     {      
-        $shipment = $params['shipmentInfo'];
-        
+        $shipment = array();
         $shipmentData = array();
-        $shipmentData['weightValue'] = $shipment['weight']['value'];
-        $shipmentData['weightUnits'] = $shipment['weight']['units'];
-        $shipmentData['dimensionLength'] = $shipment['dimensions']['length'];
-        $shipmentData['dimensionWidth'] = $shipment['dimensions']['width'];
-        $shipmentData['dimensionHeight'] = $shipment['dimensions']['height'];
-        $shipmentData['dimensionUnits'] = $shipment['dimensions']['units'];
-        $shipmentData['pickupDateTime'] = $shipment['pickupDateTime'];
-        $shipmentData['lastUpdated'] = $shipment['lastUpdated'];
+        
+        if (!empty($params['shipmentInfo'])) {
+            $shipment = $params['shipmentInfo'];
+        }                        
+
+        if (!empty($shipment['weight']['value'])) {
+            $shipmentData['weightValue'] = $shipment['weight']['value'];
+        }
+        
+        if (!empty($shipment['weight']['units'])) {
+            $shipmentData['weightUnits'] = $shipment['weight']['units'];
+        }
+        
+        if (!empty($shipment['dimensions']['length'])) {
+            $shipmentData['dimensionLength'] = $shipment['dimensions']['length'];
+        }
+        
+        if (!empty($shipment['dimensions']['width'])) {
+            $shipmentData['dimensionWidth'] = $shipment['dimensions']['width'];
+        }
+        
+        if (!empty($shipment['dimensions']['height'])) {
+            $shipmentData['dimensionHeight'] = $shipment['dimensions']['height'];
+        }
+        
+        if (!empty($shipment['dimensions']['units'])) {
+            $shipmentData['dimensionUnits'] = $shipment['dimensions']['units'];
+        }
+        
+        if (!empty($shipment['pickupDateTime'])) {
+            $shipmentData['pickupDateTime'] = $shipment['pickupDateTime'];
+        }
+        
+        if (!empty($shipment['lastUpdated'])) {
+            $shipmentData['lastUpdated'] = $shipment['lastUpdated'];
+        }
         
         if (!empty($shipment['numberOfPieces'])) {
             $shipmentData['numberOfPieces'] = $shipment['numberOfPieces'];
@@ -300,5 +359,49 @@ class TrackService extends AbstractService
                 'lastUpdated' => '2016-16-29 12:09:09', //ActualDeliveryTimestamp on fedex
             )
         );      
-    }    
+    }  
+    
+    public function getUpdateParams()
+    {        
+        return array (
+            'trackingKey' => '32421231f',
+            'carrierCode' => 'FCB',
+            'operatingCompanyOrCarrierDescription' => 'Fedex',            
+            'originAddress' => array(
+                'stateOrProvinceCode' => 'EA',
+                'countryCode' => 'EU',                
+            ),            
+            'destinationAddress' => array(
+                'stateOrProvinceCode' => 'AE',
+                'countryCode' => 'EU',                                
+            ),            
+            'shipmentInfo' => array(
+                'weight' => array(
+                    'value' => '21',
+                    'units' => 'kg',
+                ),
+                'dimensions' => array(
+                    'length' => '40',
+                    'width' => '23',
+                    'height' => '15',
+                    'units' => 'mt',
+                ),                                             
+                'numberOfPieces' => '5',
+                'packageSequenceNumber' => '123131',                
+                'packaging' => '3234',
+                'service' =>  array(                    
+                    'description' => 'Fedex Premiun'                    
+                ),                
+                'pickupDateTime' => '2016-11-29 12:09:09', //shipTimestamp on fedex                                
+                'lastUpdated' => '2016-16-29 12:09:09', //ActualDeliveryTimestamp on fedex
+            )
+        );      
+    }
+    
+    public function getDeleteParams()
+    {        
+        return array (
+            'trackingKey' => '32421231f',                        
+        );      
+    }
 }

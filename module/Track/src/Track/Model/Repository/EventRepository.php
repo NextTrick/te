@@ -11,4 +11,13 @@ class EventRepository extends AbstractRepository
     
     const STATUS_ENABLED = 1;
     const STATUS_DISABLED = 0;
+    
+    public function getByTrackId($trackId)
+    {
+        $where = array(
+            'trackId' => $trackId
+        );
+        
+        return $this->getBy($where, true);
+    }
 }
